@@ -239,7 +239,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 - [x] M0 skeleton, test harness, quality gates
 - [x] M1 push-to-talk and recording
-- [x] M2 speech recognition (ru / en / ko): text lands in the clipboard until M3
+- [x] M2 speech recognition (ru / en / ko)
 - [x] M3 text insertion, Raw mode (MVP)
 - [ ] M4 Light / Clean / Formal / Translate modes
 - [ ] M5 personal dictionary, snippets, history, per-app mode
