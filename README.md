@@ -50,8 +50,11 @@ model, and the language choice.
    before the cursor is not a space, a bracket or a quote; there is never a trailing space.
 
 How it types: Dictate puts the text on the clipboard and presses ⌘V for you, then puts your previous
-clipboard back (only if nothing else has been copied in the meantime, and it leaves alone a clipboard that
-holds a password-manager item or more than 5 MB). Nothing is typed key by key.
+clipboard back. The restore is skipped (and the event log says why) if something else was copied in the
+meantime, if the clipboard holds a password-manager item (those are cleared by watching the clipboard's
+change counter, so Dictate does not touch them, and the pasted text replaces them until they clear), or if it
+holds more than 5 MB. Only text, rich text, HTML, images, PDFs and file/URL items are saved and restored;
+other private clipboard formats do not survive a paste. Nothing is typed key by key.
 
 - **Password fields:** if the focused element is a secure text field, nothing is typed and the text is not
   put on the clipboard either; the pill says so. Menu → **Copy last transcript** gets it back (it is kept in
@@ -59,16 +62,17 @@ holds a password-manager item or more than 5 MB). Nothing is typed key by key.
 - **Focus moved:** if you switched apps or fields while the text was being recognised, it is not pasted into
   the wrong place; it is copied instead and the pill says "Copied — ⌘V to paste".
 - **Menu:** *Insert into the focused field* (on by default). Off = the text only goes to the clipboard.
-  *Copy last transcript* copies the last text again.
+  *Copy last transcript* copies the latest of the last five texts (kept in memory for 10 minutes, never on disk).
 - **Several dictations in a row:** they are pasted in the order you spoke them, one at a time. If you are
   holding the hotkey for the next one when a text is ready, the paste waits for you to let go (a ⌘V with
-  Option held would be a different shortcut).
+  Option held would be a different shortcut). If you hold it for more than 10 s, the text is copied instead
+  ("Copied — ⌘V to paste").
 
 Known limits:
 
 - Needs the Accessibility permission (to press ⌘V and to look at the focused field). Without it the text is
   copied instead.
-- The shortcut is pressed on the key that types "v" in your Latin layout, so Dvorak and Colemak work; with
+- The shortcut is pressed on the key that types "v" in your Latin layout, so Dvorak, Colemak and "Dvorak - QWERTY ⌘" work; with
   only a non-Latin layout active it follows the Latin one, as macOS does for shortcuts.
 - Apps that expose little to Accessibility (some Electron apps, games, remote desktops) still get the paste,
   but the spacing decision cannot see the text before the cursor, so no leading space is added there.
@@ -88,7 +92,7 @@ Known limits:
   `secureInputActive: true`).
 - **Telegram / Slack:** dictate into the message box; the text appears without sending it.
 - **Clipboard:** copy something, dictate, and paste again: your text is back. Copy from a password manager,
-  dictate: its clear-after-timeout still fires.
+  dictate: its clear-after-timeout still fires (the dictated text is on the clipboard until then).
 
 ## Speech recognition
 
@@ -116,8 +120,9 @@ Ukrainian or Japanese.
   36 MB idle; the `Bench` process reported 130 MB after 30 transcriptions. Core ML keeps the model weights
   in memory it manages itself (memory-mapped, partly on the Neural Engine), so the system's total use for
   the model is larger than these per-process figures; that total was not measured.
-- **Result:** the text is pasted into the focused field (see Using Dictate), and its first 60 characters show
-  on a small pill for 1.5 s. With "Insert into the focused field" off it goes to the clipboard instead; paste
+- **Result:** the text is pasted into the focused field (see Using Dictate), and the whole text shows on
+  the same small pill at the bottom of the screen (wrapped, up to 60 % of the screen wide) for 2 s plus 1 s
+  per 15 characters, at most 10 s. With "Insert into the focused field" off it goes to the clipboard instead; paste
   with ⌘V. A recording without speech (silence, key clicks, steady noise: judged on how long the audio
   is louder than its own noise floor) is not sent to the model, and a result that looks made up (low
   confidence, repeated text, stock phrases such as "Thanks for watching" or "Продолжение следует" when they
