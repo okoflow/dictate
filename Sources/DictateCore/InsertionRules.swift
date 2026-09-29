@@ -32,6 +32,8 @@ public enum InsertionRules {
         case noAccessibility
         /// The user is holding the hotkey again, so a ⌘V would arrive as ⌥⌘V.
         case hotkeyHeld
+        /// Test-only guard (`--insert-only-into`): the E2E suite must not paste into the user's own apps.
+        case notAllowed
     }
 
     public enum Decision: Equatable, Sendable {

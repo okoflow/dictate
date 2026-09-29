@@ -81,6 +81,7 @@ struct AppEventTests {
             .inserted(characters: 12, app: "com.apple.TextEdit", secureInputActive: false),
             .insertionSkipped(.secureField),
             .insertionSkipped(.focusChanged),
+            .insertionSkipped(.notAllowed),
             .restoreSkipped("the clipboard holds more than 5 MB"),
         ]
         let log = try events.map { try $0.jsonLine() }.joined()
@@ -118,6 +119,12 @@ struct LaunchOptionsTests {
         #expect(options.clipboardOnly)
         #expect(options.model == "openai_whisper-large-v3-v20240930")
         #expect(options.transcriptDirectory == "/tmp/tr")
+    }
+
+    @Test func insertOnlyIntoNeedsTheE2EEnvironment() {
+        let arguments = ["Dictate", "--insert-only-into", "dev.dictate.testpad"]
+        #expect(LaunchOptions(arguments: arguments, environment: [:]).insertOnlyInto == nil)
+        #expect(LaunchOptions(arguments: arguments, environment: ["DICTATE_E2E": "1"]).insertOnlyInto == "dev.dictate.testpad")
     }
 
     @Test func transcriptDirectoryNeedsTheE2EEnvironment() {

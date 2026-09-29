@@ -15,6 +15,9 @@ public struct LaunchOptions: Equatable, Sendable {
     /// Only copy dictated text to the clipboard, never paste it (the "Insert into the focused field" setting
     /// forced off; the E2E suite uses it to check the clipboard path).
     public var clipboardOnly: Bool
+    /// Test-only, honoured only with `DICTATE_E2E=1`: paste only into the app with this bundle identifier and
+    /// do nothing (not even touch the clipboard) elsewhere, so the E2E suite cannot type into the user's apps.
+    public var insertOnlyInto: String?
     /// Speech model to use instead of `ModelStore.defaultModel` (a WhisperKit variant name).
     public var model: String?
     /// Save each transcript as `<n>.txt` here. Test-only: honoured only when the environment has
@@ -29,6 +32,7 @@ public struct LaunchOptions: Equatable, Sendable {
         inputDevice = argumentValue(after: "--input-device", in: arguments)
         clipboardOnly = arguments.contains("--clipboard-only")
         model = argumentValue(after: "--model", in: arguments)
+        insertOnlyInto = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--insert-only-into", in: arguments) : nil
         transcriptDirectory = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--transcript-dir", in: arguments) : nil
     }
 }

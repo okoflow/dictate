@@ -115,6 +115,10 @@ final class TranscriptionPipeline {
         eventLog.log(.transcribed(language: transcript.language, characters: transcript.text.count, seconds: transcript.seconds))
         guard inserting else { return transcript.text }
 
+        if let only = options.insertOnlyInto, target.bundleIdentifier != only {
+            eventLog.log(.insertionSkipped(.notAllowed))
+            return transcript.text
+        }
         switch await inserter.insert(transcript.text, target: target) {
         case .inserted:
             return transcript.text

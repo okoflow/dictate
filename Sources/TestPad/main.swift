@@ -22,6 +22,7 @@ final class TestPadDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
+        NSApp.mainMenu = makeMainMenu()
         window.title = "TestPad"
         window.center()
         window.contentView = makeContent()
@@ -40,6 +41,21 @@ final class TestPadDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
         true
+    }
+
+    /// ⌘V reaches a text view only through a menu item's key equivalent, and an app without a menu has none;
+    /// Dictate's paste (and every real app) relies on it.
+    private func makeMainMenu() -> NSMenu {
+        let main = NSMenu()
+        let editItem = NSMenuItem()
+        main.addItem(editItem)
+        let edit = NSMenu(title: "Edit")
+        edit.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editItem.submenu = edit
+        return main
     }
 
     private func makeContent() -> NSView {

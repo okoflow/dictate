@@ -44,7 +44,7 @@ extension PushToTalkChecks {
 
     // MARK: Helpers
 
-    private func fixtureText(id: String) throws -> Fixture {
+    func fixtureText(id: String) throws -> Fixture {
         let manifest = try Fixture.load(from: fixturesDirectory.appendingPathComponent("manifest.json"))
         guard let fixture = manifest.first(where: { $0.id == id }) else { throw Verdict.fail("\(id) is not in the manifest") }
         return fixture
@@ -75,14 +75,14 @@ extension PushToTalkChecks {
         return text
     }
 
-    private struct Transcribed {
+    struct Transcribed {
         let language: Language
         let characters: Int
         let seconds: Double
     }
 
     /// `transcribed` is success; anything else that ends a recording's recognition is a failure to report.
-    private static func transcriptionOutcome(_ event: AppEvent) -> Result<Transcribed, EventFailure>? {
+    static func transcriptionOutcome(_ event: AppEvent) -> Result<Transcribed, EventFailure>? {
         switch event {
         case let .transcribed(language, characters, seconds):
             .success(Transcribed(language: language, characters: characters, seconds: seconds))
@@ -95,12 +95,12 @@ extension PushToTalkChecks {
         }
     }
 
-    private struct EventFailure: Error, CustomStringConvertible {
+    struct EventFailure: Error, CustomStringConvertible {
         let description: String
     }
 
     /// Every finished recording has produced exactly one result event.
-    private func waitForTranscriptionsToFinish(timeout: TimeInterval = 60) throws {
+    func waitForTranscriptionsToFinish(timeout: TimeInterval = 60) throws {
         let settled = waitUntil(timeout: timeout, interval: 0.25) {
             let events = log.events
             let recorded = events.filter {
@@ -117,7 +117,7 @@ extension PushToTalkChecks {
     }
 
     /// The text of the highest-numbered `<n>.txt` in the transcript directory.
-    private func latestTranscript() -> String? {
+    func latestTranscript() -> String? {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: transcriptDirectory.path)) ?? []
         let newest = names.compactMap { name in name.hasSuffix(".txt") ? Int(name.dropLast(4)) : nil }.max()
         return newest.flatMap {
@@ -127,7 +127,7 @@ extension PushToTalkChecks {
 }
 
 /// The general pasteboard's items, so a check can leave the user's clipboard as it found it.
-private struct ClipboardSnapshot {
+struct ClipboardSnapshot {
     let items: [[NSPasteboard.PasteboardType: Data]]
 
     static func take() -> ClipboardSnapshot {

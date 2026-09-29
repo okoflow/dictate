@@ -57,6 +57,14 @@ enum Accessibility {
         AXUIElementSetAttributeValue(application, "AXFrontmost" as CFString, kCFBooleanTrue)
     }
 
+    /// Puts the caret at `location` (UTF-16 offset) with nothing selected.
+    @discardableResult
+    static func setCaret(at location: Int, of element: AXUIElement) -> Bool {
+        var range = CFRange(location: location, length: 0)
+        guard let value = AXValueCreate(.cfRange, &range) else { return false }
+        return AXUIElementSetAttributeValue(element, "AXSelectedTextRange" as CFString, value) == .success
+    }
+
     @discardableResult
     static func setValue(_ text: String, of element: AXUIElement) -> Bool {
         AXUIElementSetAttributeValue(element, "AXValue" as CFString, text as CFString) == .success

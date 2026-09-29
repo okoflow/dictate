@@ -79,13 +79,22 @@ let optionLetter = { () -> Outcome in
     ])
 }
 
+let clipboardOnly = { () -> Outcome in
+    firstProblem([
+        { checks.dictateLaunchesAsMenuBarApp(extraArguments: ["--clipboard-only"]) },
+        { pushToTalk.hotkeyReady() },
+        { checks.modelIsReady(log: pushToTalk.log) },
+        { pushToTalk.dictateFixtureToClipboard() },
+    ])
+}
+
 let plan: [(name: String, run: () -> Outcome)] = switch suite {
 case .smoke:
     [
         ("app-ready", appReady),
         ("record-fixture-through-blackhole", { pushToTalk.recordFixtureThroughBlackHole() }),
         ("option-letter-passes-through", optionLetter),
-        ("dictate-fixture-to-clipboard", { pushToTalk.dictateFixtureToClipboard() }),
+        ("dictate-into-testpad", { pushToTalk.dictateIntoTestPad() }),
     ]
 case .full:
     [
@@ -106,7 +115,9 @@ case .full:
         ("short-press-discarded", { pushToTalk.shortPressDiscarded() }),
         ("overlay-shown-and-hidden", { pushToTalk.overlayShownAndHidden() }),
         ("option-letter-passes-through", optionLetter),
-        ("dictate-fixture-to-clipboard", { pushToTalk.dictateFixtureToClipboard() }),
+        ("dictate-into-testpad", { pushToTalk.dictateIntoTestPad() }),
+        // The clipboard path (insertion off) needs its own launch of the app.
+        ("dictate-fixture-to-clipboard", clipboardOnly),
     ]
 }
 print("E2E suite: \(suite.rawValue)")

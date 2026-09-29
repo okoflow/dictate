@@ -47,7 +47,7 @@ struct AppChecks {
     // MARK: Dictate
 
     /// Launches Dictate and asserts it is a menu bar app (no Dock icon).
-    func dictateLaunchesAsMenuBarApp() -> Outcome {
+    func dictateLaunchesAsMenuBarApp(extraArguments: [String] = []) -> Outcome {
         try? FileManager.default.removeItem(at: reportURL)
         try? FileManager.default.removeItem(at: recordingDirectory)
         try? FileManager.default.removeItem(at: transcriptDirectory)
@@ -57,7 +57,9 @@ struct AppChecks {
             "--recording-dir", recordingDirectory.path,
             "--input-device", "BlackHole 2ch",
             "--transcript-dir", transcriptDirectory.path,
-        ]
+            // Dictated text is pasted only into TestPad: never into the app the suite is run from.
+            "--insert-only-into", TestPadState.bundleIdentifier,
+        ] + extraArguments
         // `--transcript-dir` is honoured only with this variable: dictated text stays off disk otherwise.
         guard let app = dictate.launch(arguments: arguments, environment: ["DICTATE_E2E": "1"]) else {
             return .fail("Dictate.app did not start within 10 s (is it built? run `make bundle`)")

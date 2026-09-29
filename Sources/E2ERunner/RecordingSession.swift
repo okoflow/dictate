@@ -93,7 +93,14 @@ struct RecordingSession {
 
     /// Holds right Option, waits for the microphone to go live, then either plays `fixture` into
     /// BlackHole or stays silent for `silence` seconds, and releases.
-    func capture(playing playback: PreparedPlayback?, silence: TimeInterval) throws -> Capture {
+    ///
+    /// `beforeRelease` runs after the audio, with the key still down: a check that needs a condition to
+    /// hold at the moment of release (the right app in front) asserts it there.
+    func capture(
+        playing playback: PreparedPlayback?,
+        silence: TimeInterval,
+        beforeRelease: () throws -> Void = {}
+    ) throws -> Capture {
         let baseline = log.baseline()
         let pressed = ProcessInfo.processInfo.systemUptime
         var latency = 0.0
@@ -120,6 +127,7 @@ struct RecordingSession {
             } else {
                 Thread.sleep(forTimeInterval: silence)
             }
+            try beforeRelease()
         }
         return try finishedCapture(since: baseline, latency: latency, device: device)
     }
