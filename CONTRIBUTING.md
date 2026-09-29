@@ -34,7 +34,10 @@ Grant Accessibility to your terminal app and to `Dictate.app` (menu bar icon →
 Every stage adds its own e2e checks **and** must keep all earlier ones green.
 
 Speech fixtures are generated with `say` (`make fixtures`) from `fixtures/manifest.json`.
-If you record your own voice for extra tests, put the files in `fixtures/private/` — never commit them.
+Real human speech for accuracy tests comes from [Google FLEURS](https://huggingface.co/datasets/google/fleurs)
+(CC-BY 4.0): `make fixtures-real` downloads 5 clips per language with exact transcripts into
+`fixtures/private/` (git-ignored, attribution in `fixtures/private/SOURCES.md`). If you record your own
+voice, put it there too (`<lang>-<n>.wav` + `<lang>-<n>.txt`) — never commit it.
 
 ## Architecture in one paragraph
 

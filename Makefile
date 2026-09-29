@@ -11,7 +11,7 @@ TEST_FLAGS := -Xswiftc -F$(CLT)/Frameworks -Xlinker -F$(CLT)/Frameworks \
               -Xlinker -rpath -Xlinker $(CLT)/Frameworks -Xlinker -rpath -Xlinker $(CLT)/usr/lib
 endif
 
-.PHONY: help build bundle fixtures format format-check lint test coverage periphery secrets shellcheck check e2e hooks signing clean
+.PHONY: help build bundle fixtures fixtures-real format format-check lint test coverage periphery secrets shellcheck check e2e hooks signing clean
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -25,6 +25,9 @@ bundle: ## Build and sign build/Dictate.app and build/TestPad.app
 
 fixtures: ## Generate speech fixtures with `say` (fixtures/generated)
 	scripts/gen-fixtures.sh
+
+fixtures-real: ## Download real human speech (FLEURS, CC-BY 4.0) into fixtures/private
+	scripts/fetch-fleurs.sh
 
 format: ## Auto-format Swift sources
 	swiftformat Sources Tests Package.swift
