@@ -13,6 +13,8 @@ final class AudioSink: @unchecked Sendable {
     private struct Kept {
         var samples: [Float] = []
         var sawFirstBuffer = false
+        /// Uptime (seconds) at the end of the last buffer kept: how far the recording reaches in time.
+        var coveredUntil = 0.0
     }
 
     private let converter: AVAudioConverter
@@ -38,8 +40,10 @@ final class AudioSink: @unchecked Sendable {
         self.onFirstBuffer = onFirstBuffer
     }
 
-    /// Called on the audio thread for every tap buffer.
-    func consume(_ input: AVAudioPCMBuffer) {
+    /// Called on the audio thread for every tap buffer; `time` says when its first sample was captured.
+    func consume(_ input: AVAudioPCMBuffer, at time: AVAudioTime) {
+        let start = time.isHostTimeValid ? AVAudioTime.seconds(forHostTime: time.hostTime) : uptimeSeconds()
+        let end = start + Double(input.frameLength) / inputRate
         let capacity = AVAudioFrameCount((Double(input.frameLength) * Self.sampleRate / inputRate).rounded(.up)) + 32
         guard let output = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: capacity) else { return }
 
@@ -64,12 +68,23 @@ final class AudioSink: @unchecked Sendable {
         // Unchecked: `converted` points into `output`, which outlives this synchronous call.
         let isFirst = kept.withLockUnchecked { kept in
             kept.samples.append(contentsOf: converted)
+            kept.coveredUntil = end
             defer { kept.sawFirstBuffer = true }
             return !kept.sawFirstBuffer
         }
         if isFirst {
             onFirstBuffer()
         }
+    }
+
+    /// Whether any audio has arrived yet.
+    var hasAudio: Bool {
+        kept.withLock { $0.sawFirstBuffer }
+    }
+
+    /// Uptime (seconds) up to which audio has been captured.
+    var coveredUntil: Double {
+        kept.withLock { $0.coveredUntil }
     }
 
     /// Everything captured so far.
