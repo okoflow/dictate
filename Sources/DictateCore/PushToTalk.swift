@@ -9,6 +9,8 @@ public enum KeyboardSignal: Equatable, Sendable {
     case otherKeyDown
     /// macOS switched the event tap off (it was too slow, or secure input kicked in).
     case tapDisabled
+    /// Time passed with nothing else happening; lets the state machine end a forgotten hold.
+    case tick
     case ignored
 }
 
@@ -76,6 +78,8 @@ public struct PushToTalk: Sendable {
     }
 
     public static let minimumPress: Double = 0.3
+    /// A hold longer than this is ended as if the key had been released (a forgotten hold, a stuck key).
+    public static let maximumRecording: Double = 300
 
     private enum State: Equatable {
         case idle
@@ -107,6 +111,10 @@ public struct PushToTalk: Sendable {
             state = .idle
             let seconds = now - since
             return seconds >= Self.minimumPress ? .finishRecording(seconds: seconds) : .discardRecording(.tooShort)
+        case let (.holding(since), .tick) where now - since >= Self.maximumRecording:
+            // The real release is still to come; wait for it so it is not taken for a new press.
+            state = .cancelled
+            return .finishRecording(seconds: now - since)
         case (.holding, .otherKeyDown):
             state = .cancelled
             return .discardRecording(.otherKeyPressed)

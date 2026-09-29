@@ -120,6 +120,24 @@ struct PushToTalkTests {
         #expect(!ptt.isHolding)
     }
 
+    @Test func forgottenHoldEndsAtMaximumLength() {
+        var ptt = PushToTalk()
+        _ = ptt.handle(.hotkeyDown, at: 100)
+        #expect(ptt.handle(.tick, at: 100 + PushToTalk.maximumRecording - 1) == nil)
+        #expect(ptt.isHolding)
+        let limit = 100 + PushToTalk.maximumRecording
+        #expect(ptt.handle(.tick, at: limit) == .finishRecording(seconds: PushToTalk.maximumRecording))
+        #expect(!ptt.isHolding)
+        // The eventual release ends the cancelled press without recording again.
+        #expect(ptt.handle(.hotkeyUp, at: limit + 5) == nil)
+        #expect(ptt.handle(.hotkeyDown, at: limit + 6) == .startRecording)
+    }
+
+    @Test func tickWhileIdleDoesNothing() {
+        var ptt = PushToTalk()
+        #expect(ptt.handle(.tick, at: 1000) == nil)
+    }
+
     @Test func ignoredSignalChangesNothing() {
         var ptt = PushToTalk()
         _ = ptt.handle(.hotkeyDown, at: 0)
