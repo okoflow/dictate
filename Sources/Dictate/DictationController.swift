@@ -140,7 +140,9 @@ final class DictationController {
             return
         }
         guard !samples.isEmpty else {
-            eventLog.log(.recordingFailed("no audio was captured"))
+            // A release can overtake the recorder's own failure report; keep the real reason.
+            let reason = await recorder.failureMessage(generation: generation)
+            eventLog.log(.recordingFailed(reason ?? "no audio was captured"))
             eventLog.log(.recordingDiscarded(.interrupted))
             return
         }
@@ -166,9 +168,10 @@ final class DictationController {
     private func checkHotkeyStillHeld() {
         guard recording != nil else { return }
         let now = uptimeSeconds()
-        let held = [CGEventSourceStateID.hidSystemState, .combinedSessionState].contains {
-            CGEventSource.flagsState($0).rawValue & Hotkey.rightOptionDeviceFlag != 0
-        }
+        let held = Hotkey.isStillHeld(
+            hidFlags: CGEventSource.flagsState(.hidSystemState).rawValue,
+            sessionFlags: CGEventSource.flagsState(.combinedSessionState).rawValue
+        )
         handle(held ? .tick : .hotkeyUp, at: now)
     }
 

@@ -34,6 +34,8 @@ actor AudioRecorder {
     private var session: Session?
     /// Highest generation that was stopped; any `start` at or below it is stale.
     private var stoppedThrough = 0
+    /// The most recent failure, kept because the caller may stop the recording before it hears of it.
+    private var lastFailure: (generation: Int, message: String)?
     private let onEvent: @Sendable (Int, RecorderEvent) -> Void
 
     /// Input level for the overlay; safe to read from any thread.
@@ -55,8 +57,18 @@ actor AudioRecorder {
         do {
             session = try makeSession(generation: generation, deviceName: deviceName)
         } catch {
-            onEvent(generation, .failed(String(describing: error)))
+            report(generation, String(describing: error))
         }
+    }
+
+    /// Why the recording with `generation` failed, if it did.
+    func failureMessage(generation: Int) -> String? {
+        lastFailure?.generation == generation ? lastFailure?.message : nil
+    }
+
+    private func report(_ generation: Int, _ message: String) {
+        lastFailure = (generation, message)
+        onEvent(generation, .failed(message))
     }
 
     /// Ends the recording and returns what was captured (empty if it never started).
@@ -117,16 +129,24 @@ actor AudioRecorder {
 
     /// A device change (unplugged, sample rate switched) stops the engine or changes the format the
     /// converter was built for. The engine also posts this once while starting up with nothing
-    /// changed, so nothing counts before the first buffer has arrived.
-    private func configurationChanged(generation: Int) {
-        guard let current = session, current.generation == generation, current.sink.hasAudio else { return }
+    /// changed, so before the first buffer only an engine that is *still* stopped after a short
+    /// wait counts as a failure; afterwards any stop or format change does.
+    private func configurationChanged(generation: Int) async {
+        guard let current = session, current.generation == generation else { return }
+        if !current.sink.hasAudio {
+            guard !current.engine.isRunning else { return }
+            try? await Task.sleep(for: .milliseconds(200))
+            guard session?.generation == generation, !current.sink.hasAudio, !current.engine.isRunning else { return }
+            report(generation, "audio engine stopped while starting")
+            return
+        }
         let now = current.engine.inputNode.inputFormat(forBus: 0)
         if !current.engine.isRunning {
-            onEvent(generation, .failed("audio engine stopped after a configuration change"))
+            report(generation, "audio engine stopped after a configuration change")
         } else if now.sampleRate != current.sampleRate || now.channelCount != current.channelCount {
             let was = "\(Int(current.sampleRate)) Hz x\(current.channelCount)"
             let change = "\(was) to \(Int(now.sampleRate)) Hz x\(now.channelCount)"
-            onEvent(generation, .failed("input format changed during recording: \(change)"))
+            report(generation, "input format changed during recording: \(change)")
         }
     }
 
