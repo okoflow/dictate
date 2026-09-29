@@ -29,21 +29,6 @@ struct EventLog {
         recordingFiles().subtracting(baseline.files)
     }
 
-    /// Waits for a new event for which `match` returns a value.
-    func waitForNew<T>(since baseline: Baseline, timeout: TimeInterval, _ match: (AppEvent) -> T?) -> T? {
-        var found: T?
-        _ = waitUntil(timeout: timeout, interval: 0.01) {
-            found = newEvents(since: baseline).lazy.compactMap(match).first
-            return found != nil
-        }
-        return found
-    }
-
-    /// Waits for a new event satisfying `predicate`.
-    func waitFor(since baseline: Baseline, timeout: TimeInterval, where predicate: (AppEvent) -> Bool) -> Bool {
-        waitForNew(since: baseline, timeout: timeout) { predicate($0) ? $0 : nil } != nil
-    }
-
     private func recordingFiles() -> Set<String> {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: recordingDirectory.path)) ?? []
         return Set(names.filter { $0.hasSuffix(".wav") })

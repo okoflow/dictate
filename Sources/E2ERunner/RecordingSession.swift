@@ -99,7 +99,7 @@ struct RecordingSession {
         var latency = 0.0
         var device = ""
         try keyboard.holding(.rightOption) {
-            guard let started = log.waitForNew(since: baseline, timeout: 3, { event -> String? in
+            guard let started = try wait(since: baseline, timeout: 3, { event -> String? in
                 if case let .recordingStarted(device) = event {
                     device
                 } else {
@@ -111,8 +111,8 @@ struct RecordingSession {
             latency = ProcessInfo.processInfo.systemUptime - pressed
             device = started
             if let fixture {
+                // Released the moment playback ends, so a cut-off tail shows up in the measurements.
                 try AudioPlayback.play(wavAt: fixture, on: environment.blackHole)
-                Thread.sleep(forTimeInterval: 0.2)
             } else {
                 Thread.sleep(forTimeInterval: silence)
             }
@@ -121,7 +121,7 @@ struct RecordingSession {
     }
 
     private func finishedCapture(since baseline: EventLog.Baseline, latency: Double, device: String) throws -> Capture {
-        guard let finished = log.waitForNew(since: baseline, timeout: 5, { event -> FinishedEvent? in
+        guard let finished = try wait(since: baseline, timeout: 5, { event -> FinishedEvent? in
             if case let .recordingFinished(seconds, samples, file) = event {
                 FinishedEvent(seconds: seconds, samples: samples, file: file)
             } else {
@@ -138,6 +138,33 @@ struct RecordingSession {
             throw Verdict.fail("file holds \(samples.count) samples, the log says \(finished.samples)")
         }
         return Capture(latency: latency, device: device, seconds: finished.seconds, samples: samples)
+    }
+
+    /// Like `EventLog.waitForNew`, but a `recordingFailed` from the app is an immediate FAIL with its message.
+    func wait<T>(since baseline: EventLog.Baseline, timeout: TimeInterval, _ match: (AppEvent) -> T?) throws -> T? {
+        var found: T?
+        var failure: String?
+        _ = waitUntil(timeout: timeout, interval: 0.01) {
+            let events = log.newEvents(since: baseline)
+            failure = events.lazy.compactMap { event -> String? in
+                if case let .recordingFailed(message) = event {
+                    message
+                } else {
+                    nil
+                }
+            }.first
+            found = events.lazy.compactMap(match).first
+            return found != nil || failure != nil
+        }
+        if let failure {
+            throw Verdict.fail("the app reported recordingFailed: \(failure)")
+        }
+        return found
+    }
+
+    /// Waits for a new event satisfying `predicate`; see `wait(since:timeout:_:)`.
+    func waitFor(since baseline: EventLog.Baseline, timeout: TimeInterval, where predicate: (AppEvent) -> Bool) throws -> Bool {
+        try wait(since: baseline, timeout: timeout) { predicate($0) ? $0 : nil } != nil
     }
 
     /// What the app logged since `baseline`, for the failure message: without it a timeout says nothing.

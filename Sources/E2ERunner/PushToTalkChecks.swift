@@ -68,7 +68,8 @@ struct PushToTalkChecks {
             try verify(capture, device: environment.blackHole)
             let heard = AudioLevel.speechSpan(of: capture.samples, sampleRate: 16000) ?? 0
             let expected = try AudioLevel.speechSpan(of: WAVReader.samples(at: fixture), sampleRate: 16000) ?? 0
-            guard abs(heard - expected) <= 0.25 else {
+            // Released right at the end of playback: a missing tail would show as speech that is too short.
+            guard abs(heard - expected) <= 0.25, expected - heard <= 0.1 else {
                 throw Verdict.fail(String(format: "speech lasts %.2f s in the recording, %.2f s in the fixture", heard, expected))
             }
             return .measured(String(
@@ -83,6 +84,10 @@ struct PushToTalkChecks {
         run {
             let environment = try session.environment()
             let capture = try session.capture(playing: nil, silence: 1.5, in: environment)
+            // Non-finite or full-scale samples are not "someone else's audio": the app produced garbage.
+            guard capture.samples.allSatisfy({ $0.isFinite && abs($0) < 0.99 }) else {
+                throw Verdict.fail("the silent recording contains non-finite or full-scale samples")
+            }
             let level = AudioLevel.rms(capture.samples)
             guard level < 0.001 else {
                 throw Verdict.blocked(String(format: "something else routes audio into BlackHole (rms %.4f)", level))
@@ -110,7 +115,7 @@ struct PushToTalkChecks {
             let environment = try session.environment()
             let baseline = log.baseline()
             keyboard.holding(.rightOption) { Thread.sleep(forTimeInterval: 0.1) }
-            let discarded = log.waitFor(since: baseline, timeout: 2) { $0 == .recordingDiscarded(.tooShort) }
+            let discarded = try session.waitFor(since: baseline, timeout: 2) { $0 == .recordingDiscarded(.tooShort) }
             guard discarded else { throw Verdict.fail("no recordingDiscarded(tooShort): \(log.newEvents(since: baseline))") }
             Thread.sleep(forTimeInterval: 0.5)
             guard log.newFiles(since: baseline).isEmpty else { throw Verdict.fail("a 0.1 s press left a recording behind") }
@@ -126,7 +131,8 @@ struct PushToTalkChecks {
         run {
             let environment = try session.environment()
             let pid = environment.dictatePID
-            let padWasFrontmost = testPadIsFrontmost()
+            // The overlay must not take focus, which only means something with TestPad in front.
+            _ = try prepareTestPad()
             let baseline = log.baseline()
             try keyboard.holding(.rightOption) {
                 Thread.sleep(forTimeInterval: 0.8)
@@ -139,11 +145,11 @@ struct PushToTalkChecks {
                             + "on screen \(OverlayProbe.onScreen(pid: pid))"
                     )
                 }
-                guard !padWasFrontmost || testPadIsFrontmost() else { throw Verdict.fail("the overlay took focus from TestPad") }
+                guard testPadIsFrontmost() else { throw Verdict.fail("the overlay took focus from TestPad") }
             }
             let gone = waitUntil(timeout: 1) { !OverlayProbe.inAccessibilityTree(pid: pid) && !OverlayProbe.onScreen(pid: pid) }
             guard gone else { throw Verdict.fail("overlay still there 1 s after the release") }
-            let finished = log.waitFor(since: baseline, timeout: 5) { event in
+            let finished = try session.waitFor(since: baseline, timeout: 5) { event in
                 if case .recordingFinished = event {
                     true
                 } else {
@@ -179,7 +185,7 @@ struct PushToTalkChecks {
             } catch let failure as InputSource.Failure {
                 throw Verdict.blocked(failure.description)
             }
-            let discarded = log.waitFor(since: baseline, timeout: 2) { $0 == .recordingDiscarded(.otherKeyPressed) }
+            let discarded = try session.waitFor(since: baseline, timeout: 2) { $0 == .recordingDiscarded(.otherKeyPressed) }
             guard discarded else {
                 throw Verdict.fail("no recordingDiscarded(otherKeyPressed): \(log.newEvents(since: baseline))")
             }
@@ -206,7 +212,8 @@ struct PushToTalkChecks {
         // Audio starts with the first buffer, so the part of the hold before it cannot be in the file.
         let kept = Double(capture.samples.count) / 16000
         let expected = capture.seconds - capture.latency
-        guard abs(kept - expected) <= 0.3 else {
+        // The upper bound catches a recording that runs on past the release; the tail wait is 150 ms at most.
+        guard abs(kept - expected) <= 0.3, kept <= capture.seconds + 0.15 else {
             throw Verdict.fail(String(format: "kept %.2f s of audio, expected %.2f s (%.2f s hold, %.2f s start-up)",
                                       kept, expected, capture.seconds, capture.latency))
         }

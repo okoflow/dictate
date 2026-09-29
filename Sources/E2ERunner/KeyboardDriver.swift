@@ -4,10 +4,14 @@ import Foundation
 
 /// Posts synthetic keyboard events for the push-to-talk checks.
 ///
-/// Events come from a private-state `CGEventSource`, so whatever keys you happen to hold on the real
-/// keyboard neither leak into them nor are disturbed by them. Modifier events are built the way the
-/// hardware sends them: an explicit `flagsChanged` type, the key code, and the generic Option flag
-/// plus the left/right device bit while the key is down.
+/// Modifier events are built the way the hardware sends them: an explicit `flagsChanged` type, the key
+/// code, and the generic Option flag plus the left/right device bit while the key is down; every event
+/// carries its flags explicitly, so keys held on the real keyboard do not leak into it.
+///
+/// The source is the HID system state, not a private one. Private-state events reach event taps
+/// just the same, but the system only intermittently reflects them in `CGEventSource.flagsState`,
+/// which the app's watchdog reads to notice a lost key-up; it then ended holds a few hundred
+/// milliseconds in, at random. HID-state events are tracked like real key presses.
 struct KeyboardDriver {
     enum Modifier {
         case rightOption
@@ -36,7 +40,7 @@ struct KeyboardDriver {
     /// `kVK_ANSI_A`.
     static let letterA: CGKeyCode = 0
 
-    private let source = CGEventSource(stateID: .privateState)
+    private let source = CGEventSource(stateID: .hidSystemState)
 
     /// Holds `modifier` while `body` runs. The release is posted in a `defer`, so a check that
     /// fails or throws half way never leaves Option stuck down for the rest of the suite.
