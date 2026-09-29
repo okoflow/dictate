@@ -8,9 +8,9 @@ import Foundation
 /// terms but never louder than itself, and a keyboard click is loud but far too short.
 public enum SpeechGate {
     /// The least total time of loud audio that counts as speech.
-    public static let minimumSpeechSeconds = 0.3
+    public static let minimumSpeechSeconds = 0.15
     /// A window must beat the noise floor by this much.
-    public static let marginDecibels: Float = 12
+    public static let marginDecibels: Float = 8
     /// Nothing quieter than this is ever loud, however silent the rest of the recording is.
     public static let absoluteFloorDecibels: Float = -60
     /// Speech is made of syllables at least this long; clicks and pops are shorter.

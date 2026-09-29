@@ -2,26 +2,21 @@
 import Testing
 
 struct TranscriptFilterTests {
-    private func verdict(_ text: String, _ language: Language, logProbability: Double? = -0.3, ratio: Double? = 1.2)
-        -> TranscriptFilter.Verdict {
-        TranscriptFilter.verdict(text: text, language: language, averageLogProbability: logProbability, compressionRatio: ratio)
+    private func isHallucination(_ text: String, _ language: Language) -> Bool {
+        TranscriptFilter.isKnownHallucination(text, language: language)
     }
 
-    @Test func ordinaryTextIsKept() {
-        #expect(verdict("Please send me the report.", .en) == .keep)
-        #expect(verdict("Добрый день!", .ru) == .keep)
+    @Test func aConfidentPlainSegmentIsKept() {
+        #expect(TranscriptFilter.keepsSegment(averageLogProbability: -0.3, compressionRatio: 1.2))
+        #expect(TranscriptFilter.keepsSegment(averageLogProbability: -1.5, compressionRatio: 2.4))
     }
 
-    @Test func lowConfidenceIsDropped() {
-        #expect(verdict("Something", .en, logProbability: -1.4) == .drop("low confidence"))
+    @Test func aLowConfidenceSegmentIsDropped() {
+        #expect(!TranscriptFilter.keepsSegment(averageLogProbability: -1.6, compressionRatio: 1.2))
     }
 
-    @Test func repetitiveTextIsDropped() {
-        #expect(verdict("la la la la la", .en, ratio: 3.1) == .drop("repetitive text"))
-    }
-
-    @Test func unknownStatisticsDoNotDropText() {
-        #expect(verdict("Hello", .en, logProbability: nil, ratio: nil) == .keep)
+    @Test func aRepetitiveSegmentIsDropped() {
+        #expect(!TranscriptFilter.keepsSegment(averageLogProbability: -0.3, compressionRatio: 3.1))
     }
 
     @Test(arguments: [
@@ -34,19 +29,80 @@ struct TranscriptFilterTests {
         ("시청해주셔서 감사합니다", .ko),
     ])
     func stockPhrasesAreDropped(text: String, language: Language) {
-        #expect(verdict(text, language) == .drop("known hallucination"))
+        #expect(isHallucination(text, language))
     }
 
     @Test func aStockPhraseInsideARealSentenceIsKept() {
-        #expect(verdict("Thanks for watching my daughter while I was out.", .en) == .keep)
-        #expect(verdict("Продолжение следует в следующем письме, жду ответа.", .ru) == .keep)
+        #expect(!isHallucination("Thanks for watching my daughter while I was out.", .en))
+        #expect(!isHallucination("Продолжение следует в следующем письме, жду ответа.", .ru))
     }
 
     @Test func aCreditWithTooManyWordsIsKept() {
-        #expect(verdict("Субтитры сделал он сам вчера вечером дома", .ru) == .keep)
+        #expect(!isHallucination("Субтитры сделал он сам вчера вечером дома", .ru))
     }
 
     @Test func aPlainThankYouIsKept() {
-        #expect(verdict("Thank you.", .en) == .keep)
+        #expect(!isHallucination("Thank you.", .en))
+    }
+}
+
+struct CapitalisationTests {
+    @Test func aBareLowercaseTextGetsACapital() {
+        #expect(TranscriptFilter.capitalisedIfUnstyled("привет как дела", language: .ru) == "Привет как дела")
+        #expect(TranscriptFilter.capitalisedIfUnstyled("hello there", language: .en) == "Hello there")
+    }
+
+    @Test func aLeadingDigitOrQuoteIsSkippedToTheFirstLetter() {
+        #expect(TranscriptFilter.capitalisedIfUnstyled("3 apples", language: .en) == "3 Apples")
+    }
+
+    @Test func anyPunctuationMeansTheTextIsLeftAlone() {
+        #expect(TranscriptFilter.capitalisedIfUnstyled("hello, there", language: .en) == "hello, there")
+        #expect(TranscriptFilter.capitalisedIfUnstyled("да.", language: .ru) == "да.")
+    }
+
+    @Test func anyCapitalMeansTheTextIsLeftAlone() {
+        #expect(TranscriptFilter.capitalisedIfUnstyled("i met John", language: .en) == "i met John")
+    }
+
+    @Test func koreanIsNeverTouched() {
+        #expect(TranscriptFilter.capitalisedIfUnstyled("안녕하세요 반갑습니다", language: .ko) == "안녕하세요 반갑습니다")
+    }
+
+    @Test func textWithoutLettersStaysAsItIs() {
+        #expect(TranscriptFilter.capitalisedIfUnstyled("123", language: .en) == "123")
+    }
+}
+
+struct PunctuationMetricsTests {
+    @Test func countsSentenceEndsAndCommas() {
+        let counts = PunctuationMetrics.counts(in: "Hi, all. How are you? Fine! Well… ok, 안녕。")
+        #expect(counts == PunctuationMetrics.Counts(sentenceEnds: 5, commas: 2))
+    }
+
+    @Test func matchedCannotExceedTheReference() {
+        let reference = PunctuationMetrics.Counts(sentenceEnds: 2, commas: 1)
+        let hypothesis = PunctuationMetrics.Counts(sentenceEnds: 5, commas: 0)
+        #expect(PunctuationMetrics.matched(reference: reference, hypothesis: hypothesis) == .init(sentenceEnds: 2, commas: 0))
+    }
+
+    @Test func startingCaseLooksAtTheFirstLetter() {
+        #expect(PunctuationMetrics.startingCase(of: "Привет") == .upper)
+        #expect(PunctuationMetrics.startingCase(of: "привет") == .lower)
+        #expect(PunctuationMetrics.startingCase(of: "«Да") == .upper)
+        #expect(PunctuationMetrics.startingCase(of: "안녕") == .uncased)
+        #expect(PunctuationMetrics.startingCase(of: "42") == .uncased)
+    }
+}
+
+struct StylePromptTests {
+    @Test func everyLanguageHasACapitalisedPunctuatedPrompt() {
+        for language in Language.allCases {
+            let prompt = StylePrompt.text(for: language)
+            #expect(PunctuationMetrics.counts(in: prompt).sentenceEnds >= 1)
+            #expect(PunctuationMetrics.counts(in: prompt).commas >= 1 || language == .ru)
+        }
+        #expect(PunctuationMetrics.startingCase(of: StylePrompt.text(for: .ru)) == .upper)
+        #expect(PunctuationMetrics.startingCase(of: StylePrompt.text(for: .en)) == .upper)
     }
 }

@@ -28,9 +28,9 @@ model: ## Download and warm up the speech model (MODEL=<variant> for another one
 	swift build -c release --product FetchModel
 	"$$(swift build -c release --show-bin-path)/FetchModel" $(MODEL_FLAG)
 
-bench: fixtures ## Accuracy and speed of the recogniser; exit 1 = a gate missed, 2 = model missing (MODEL=<variant>)
+bench: fixtures ## Accuracy and speed of the recogniser; exit 1 = a gate missed, 2 = model missing (MODEL=<variant>, BENCH_ARGS=--no-prompt)
 	swift build -c release --product Bench
-	@"$$(swift build -c release --show-bin-path)/Bench" $(MODEL_FLAG); code=$$?; \
+	@"$$(swift build -c release --show-bin-path)/Bench" $(MODEL_FLAG) $(BENCH_ARGS); code=$$?; \
 	 if [ $$code -eq 2 ]; then echo "make bench: BLOCKED (see above)"; fi; \
 	 exit $$code
 

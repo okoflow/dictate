@@ -65,6 +65,29 @@ struct SpeechGateTests {
         #expect(SpeechGate.decide(samples: samples, sampleRate: rate) == .transcribe)
     }
 
+    @Test func aSingleShortWordIsTranscribed() {
+        // "да", "yes", "네": about 0.2 s of speech in a second of silence.
+        let samples = silence(seconds: 0.4) + tone(seconds: 0.2) + silence(seconds: 0.4)
+        #expect(SpeechGate.decide(samples: samples, sampleRate: rate) == .transcribe)
+    }
+
+    @Test func speechEightDecibelsOverCafeNoiseIsTranscribed() {
+        // Speech at 8 dB over the noise adds up (as power) to about 8.7 dB over the floor.
+        var samples = fan(seconds: 3)
+        for index in Int(1.0 * rate) ..< Int(1.5 * rate) {
+            samples[index] += index.isMultiple(of: 2) ? 0.126 : -0.126
+        }
+        #expect(SpeechGate.loudSeconds(of: samples, sampleRate: rate) >= 0.4)
+        #expect(SpeechGate.decide(samples: samples, sampleRate: rate) == .transcribe)
+    }
+
+    @Test func aHoldFilledWithSpeechAndShortPausesIsTranscribed() {
+        let word = tone(seconds: 0.25)
+        let pause = tone(seconds: 0.1, level: 0.002)
+        let samples = Array([[Float]](repeating: word + pause, count: 8).joined())
+        #expect(SpeechGate.decide(samples: samples, sampleRate: rate) == .transcribe)
+    }
+
     @Test func aLongEnoughStretchIsTranscribed() {
         let samples = silence(seconds: 0.5) + tone(seconds: 0.5) + silence(seconds: 0.5)
         #expect(SpeechGate.decide(samples: samples, sampleRate: rate) == .transcribe)

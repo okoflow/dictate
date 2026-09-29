@@ -5,9 +5,10 @@ import Transcription
 // `make bench`: runs every fixture through the recogniser with automatic language detection and
 // checks the accuracy and speed gates. Exit code: 0 passed, 1 a gate missed, 2 the model or the
 // fixtures are not there (nothing is downloaded here). Run from the repository root.
-// Usage: Bench [--model <variant>] [--report-dir <dir>]
+// Usage: Bench [--model <variant>] [--no-prompt] [--report-dir <dir>]
 
 let model = argumentValue(after: "--model") ?? ModelStore.defaultModel
+let usesStylePrompt = !CommandLine.arguments.contains("--no-prompt")
 let reportDirectory = URL(fileURLWithPath: argumentValue(after: "--report-dir") ?? "bench/reports")
 let base = ModelStore.defaultBaseDirectory
 
@@ -25,7 +26,7 @@ do {
 }
 
 do {
-    let transcriber = Transcriber(model: model, baseDirectory: base)
+    let transcriber = Transcriber(model: model, baseDirectory: base, usesStylePrompt: usesStylePrompt)
     print("loading \(model)…")
     let loadSeconds = try await transcriber.load()
     let all = clips.say + clips.fleurs
@@ -43,7 +44,10 @@ do {
         results.append(result)
     }
 
-    let summary = BenchSummary(model: model, loadSeconds: loadSeconds, residentMegabytes: residentMegabytes(), results: results)
+    let summary = BenchSummary(
+        model: model, usesStylePrompt: usesStylePrompt, loadSeconds: loadSeconds,
+        residentMegabytes: residentMegabytes(), results: results
+    )
     let report = try save(summary.markdown, in: reportDirectory)
     print("\n" + summary.markdown + "\nReport: \(report.path)")
     exit(summary.failures.isEmpty ? 0 : 1)
@@ -68,11 +72,21 @@ func measure(_ clip: Clip, with transcriber: Transcriber) async throws -> ClipRe
     let rate = TextMetrics.cer(
         reference: clip.reference, alternatives: clip.alternatives, hypothesis: last.text, language: clip.language
     )
-    return ClipResult(
+    var result = ClipResult(
         clip: clip, detected: last.language, probability: last.languageProbability, characterErrorRate: rate,
         detectSeconds: median(transcripts.map(\.detectSeconds)),
         transcribeSeconds: median(transcripts.map(\.transcribeSeconds))
     )
+    if clip.source != .say {
+        let expected = PunctuationMetrics.counts(in: clip.reference)
+        result.style = ClipResult.Style(
+            reference: expected,
+            matched: PunctuationMetrics.matched(reference: expected, hypothesis: PunctuationMetrics.counts(in: last.text)),
+            referenceCase: PunctuationMetrics.startingCase(of: clip.reference),
+            hypothesisCase: PunctuationMetrics.startingCase(of: last.text)
+        )
+    }
+    return result
 }
 
 func median(_ values: [Double]) -> Double {
@@ -84,7 +98,8 @@ func save(_ report: String, in directory: URL) throws -> URL {
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyyMMdd-HHmm"
-    let url = directory.appendingPathComponent("\(formatter.string(from: Date()))-\(model).md")
+    let variant = usesStylePrompt ? "" : "-noprompt"
+    let url = directory.appendingPathComponent("\(formatter.string(from: Date()))-\(model)\(variant).md")
     try report.write(to: url, atomically: true, encoding: .utf8)
     return url
 }

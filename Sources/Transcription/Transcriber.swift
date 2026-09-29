@@ -29,12 +29,21 @@ public actor Transcriber {
     private let model: String
     private let baseDirectory: URL
     private var kit: WhisperKit?
+    private let usesStylePrompt: Bool
+    /// `StylePrompt` as tokens, per language; empty when the prompt is off.
+    private var promptTokens: [Language: [Int]] = [:]
     private var busy = false
     private var waiters: [CheckedContinuation<Void, Never>] = []
 
-    public init(model: String = ModelStore.defaultModel, baseDirectory: URL = ModelStore.defaultBaseDirectory) {
+    /// `usesStylePrompt: false` exists for the bench, which compares output with and without it.
+    public init(
+        model: String = ModelStore.defaultModel,
+        baseDirectory: URL = ModelStore.defaultBaseDirectory,
+        usesStylePrompt: Bool = true
+    ) {
         self.model = model
         self.baseDirectory = baseDirectory
+        self.usesStylePrompt = usesStylePrompt
     }
 
     /// Downloads `model` and its tokenizer into `baseDirectory` (skipping what is already there; an
@@ -77,6 +86,12 @@ public actor Transcriber {
         let tokens = Set(Language.allCases.compactMap { tokenizer.convertTokenToId("<|\($0.rawValue)|>") })
         guard tokens.count == Language.allCases.count else { throw TranscriberError.languageTokensMissing }
         loaded.tokenizer = RestrictedTokenizer(base: tokenizer, allLanguageTokens: tokens)
+        if usesStylePrompt {
+            let firstSpecial = tokenizer.specialTokens.specialTokenBegin
+            promptTokens = Dictionary(uniqueKeysWithValues: Language.allCases.map { language in
+                (language, tokenizer.encode(text: " " + StylePrompt.text(for: language)).filter { $0 < firstSpecial })
+            })
+        }
         kit = loaded
         return (ContinuousClock.now - start).seconds
     }
@@ -111,6 +126,7 @@ public actor Transcriber {
             usePrefillPrompt: true,
             detectLanguage: false,
             skipSpecialTokens: true,
+            promptTokens: promptTokens[chosen],
             chunkingStrategy: samples.count > Self.windowSamples ? .vad : nil
         )
         let results = try await kit.transcribe(audioArray: samples, decodeOptions: options)
@@ -124,20 +140,24 @@ public actor Transcriber {
         )
     }
 
-    /// The joined text, unless it is empty or `TranscriptFilter` finds it made up.
-    private static func acceptedText(of results: [TranscriptionResult], language: Language) -> String? {
-        let text = results.map(\.text).joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return nil }
-        let segments = results.flatMap(\.segments)
-        let logProbabilities = segments.map { Double($0.avgLogprob) }
-        let average = logProbabilities.isEmpty ? nil : logProbabilities.reduce(0, +) / Double(logProbabilities.count)
-        let verdict = TranscriptFilter.verdict(
-            text: text,
-            language: language,
-            averageLogProbability: average,
-            compressionRatio: segments.map { Double($0.compressionRatio) }.max()
+    private static func keeps(_ segment: TranscriptionSegment) -> Bool {
+        TranscriptFilter.keepsSegment(
+            averageLogProbability: Double(segment.avgLogprob), compressionRatio: Double(segment.compressionRatio)
         )
-        return verdict == .keep ? text : nil
+    }
+
+    /// The text of the segments worth keeping (each judged on its own), unless nothing is left or what is
+    /// left is a known stock phrase. A text with no capitals and no punctuation gets its first letter capitalised.
+    private static func acceptedText(of results: [TranscriptionResult], language: Language) -> String? {
+        let segments = results.flatMap(\.segments)
+        let joined = segments.isEmpty
+            ? results.map(\.text).joined(separator: " ")
+            : segments
+            .filter { keeps($0) }
+            .map(\.text).joined()
+        let text = joined.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, !TranscriptFilter.isKnownHallucination(text, language: language) else { return nil }
+        return TranscriptFilter.capitalisedIfUnstyled(text, language: language)
     }
 
     // MARK: One at a time

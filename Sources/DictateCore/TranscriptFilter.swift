@@ -3,13 +3,8 @@ import Foundation
 /// Drops what Whisper makes up when it is given noise: low-confidence output and the stock phrases it
 /// learned from subtitles ("Thanks for watching"). Applied to the finished text, after the audio gate.
 public enum TranscriptFilter {
-    public enum Verdict: Equatable, Sendable {
-        case keep
-        case drop(String)
-    }
-
-    /// Whisper's own thresholds: below this the decoder was guessing.
-    public static let minimumAverageLogProbability = -1.0
+    /// Whisper's thresholds, loosened for the log-probability: below this the decoder was guessing.
+    public static let minimumAverageLogProbability = -1.5
     /// Above this the text is repetitive nonsense.
     public static let maximumCompressionRatio = 2.4
 
@@ -39,24 +34,14 @@ public enum TranscriptFilter {
         ],
     ]
 
-    /// `averageLogProbability` and `compressionRatio` come from the decoder's segments (`nil` when unknown).
-    public static func verdict(
-        text: String,
-        language: Language,
-        averageLogProbability: Double?,
-        compressionRatio: Double?
-    ) -> Verdict {
-        if let averageLogProbability, averageLogProbability < minimumAverageLogProbability {
-            return .drop("low confidence")
-        }
-        if let compressionRatio, compressionRatio > maximumCompressionRatio {
-            return .drop("repetitive text")
-        }
-        return isKnownHallucination(text, language: language) ? .drop("known hallucination") : .keep
+    /// Whether one decoded segment is worth keeping. Judged per segment, so one bad stretch of a long
+    /// dictation does not take the good ones with it.
+    public static func keepsSegment(averageLogProbability: Double, compressionRatio: Double) -> Bool {
+        averageLogProbability >= minimumAverageLogProbability && compressionRatio <= maximumCompressionRatio
     }
 
     /// Only when the *whole* result is the phrase: the same words inside a real sentence are kept.
-    static func isKnownHallucination(_ text: String, language: Language) -> Bool {
+    public static func isKnownHallucination(_ text: String, language: Language) -> Bool {
         let normalised = TextMetrics.normalise(text, language: language)
         return (phrases[language] ?? []).contains { phrase in
             let known = TextMetrics.normalise(phrase.text, language: language)
@@ -67,5 +52,17 @@ public enum TranscriptFilter {
             let rest = normalised.dropFirst(known.count).split(separator: " ")
             return rest.count <= phrase.extraWords
         }
+    }
+}
+
+public extension TranscriptFilter {
+    /// Safety net for Whisper's style drift: a Russian or English text with no capital letter and no
+    /// punctuation at all gets its first letter capitalised. Nothing else is invented; Korean is untouched.
+    static func capitalisedIfUnstyled(_ text: String, language: Language) -> String {
+        guard language != .ko else { return text }
+        let hasCapital = text.contains { $0.isUppercase }
+        let hasPunctuation = text.contains { $0.isPunctuation }
+        guard !hasCapital, !hasPunctuation, let index = text.firstIndex(where: \.isLetter) else { return text }
+        return text.replacingCharacters(in: index ... index, with: text[index].uppercased())
     }
 }

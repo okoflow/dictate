@@ -7,6 +7,8 @@ struct Clip {
     enum Source: String {
         case say
         case fleurs
+        /// Four FLEURS clips joined into one recording of 30 s or more, to exercise the long-audio path.
+        case concat
     }
 
     let id: String
@@ -49,7 +51,22 @@ enum ClipLoader {
                 alternatives: fixture.alternatives, tags: fixture.tags, source: .say
             )
         }
-        return try (say, fleursClips(in: fixtures.appendingPathComponent("private")))
+        let fleurs = try fleursClips(in: fixtures.appendingPathComponent("private"))
+        return (say, fleurs + concatenations(of: fleurs))
+    }
+
+    /// One long recording per language from its first four FLEURS clips, half a second apart.
+    private static func concatenations(of clips: [Clip]) -> [Clip] {
+        Language.allCases.compactMap { language in
+            let parts = clips.filter { $0.language == language && $0.source == .fleurs }.prefix(4)
+            guard parts.count == 4 else { return nil }
+            let gap = [Float](repeating: 0, count: 8000)
+            return Clip(
+                id: "fleurs-concat-\(language.rawValue)", language: language,
+                samples: Array(parts.map { $0.samples + gap }.joined()),
+                reference: parts.map(\.reference).joined(separator: " "), alternatives: [], tags: ["concat"], source: .concat
+            )
+        }
     }
 
     private static func fleursClips(in directory: URL) throws -> [Clip] {

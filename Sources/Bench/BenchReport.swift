@@ -11,6 +11,15 @@ struct ClipResult {
     /// Median over the runs (three for the long clips, one for the others).
     let detectSeconds: Double
     let transcribeSeconds: Double
+    /// Casing and punctuation against the reference's own; only for the real-speech clips, whose transcripts have them.
+    var style: Style?
+
+    struct Style {
+        let reference: PunctuationMetrics.Counts
+        let matched: PunctuationMetrics.Counts
+        let referenceCase: PunctuationMetrics.Casing
+        let hypothesisCase: PunctuationMetrics.Casing
+    }
 
     var languageCorrect: Bool {
         detected == clip.language
@@ -26,6 +35,8 @@ struct BenchSummary {
     static let gateSeconds = 3.0
 
     let model: String
+    /// Whether the style prompt was on for this run.
+    let usesStylePrompt: Bool
     let loadSeconds: Double
     let residentMegabytes: Double
     let results: [ClipResult]
@@ -85,11 +96,12 @@ struct BenchSummary {
     var markdown: String {
         let header = [
             "# Bench report", "",
-            "Model `\(model)`, run \(Date().formatted(.iso8601)), \(Self.machine)", "",
+            "Model `\(model)`, style prompt \(usesStylePrompt ? "on" : "off"), run \(Date().formatted(.iso8601)), "
+                + Self.machine, "",
             "Model load: \(seconds(loadSeconds)). Memory after the run: \(Int(residentMegabytes)) MB.", "",
         ]
         let verdict = failures.isEmpty ? "**PASS**" : "**FAIL**: " + failures.joined(separator: "; ")
-        let sections = errorRateSection + languageSection + latencySection + clipSection
+        let sections = errorRateSection + styleSection + languageSection + latencySection + clipSection
         return (header + sections + [verdict, ""]).joined(separator: "\n")
     }
 
@@ -109,6 +121,37 @@ struct BenchSummary {
             lines.append("| \(language.rawValue) | \(cells[0])\(limit) | \(cells[1]) | \(cells[2]) | \(cells[3]) |")
         }
         return lines + [""]
+    }
+
+    /// Share of the reference's sentence ends and commas that the hypothesis has (by count), and how often a
+    /// text that should start with a capital does. Real speech only: the `say` fixtures have no punctuation
+    /// worth comparing.
+    private var styleSection: [String] {
+        var lines = [
+            "## Casing and punctuation (real speech)", "",
+            "| Language | Set | Sentence ends | Commas | Starts with a capital |", "|---|---|---|---|---|",
+        ]
+        for language in Language.allCases {
+            for (name, source) in [("FLEURS clips", Clip.Source.fleurs), ("~35 s joined", .concat)] {
+                let styles = results.filter { $0.clip.language == language && $0.clip.source == source }.compactMap(\.style)
+                guard !styles.isEmpty else { continue }
+                let cells = [language.rawValue, name, share(styles, \.sentenceEnds), share(styles, \.commas), capitals(styles)]
+                lines.append("| " + cells.joined(separator: " | ") + " |")
+            }
+        }
+        return lines + [""]
+    }
+
+    private func share(_ styles: [ClipResult.Style], _ mark: KeyPath<PunctuationMetrics.Counts, Int>) -> String {
+        let expected = styles.map { $0.reference[keyPath: mark] }.reduce(0, +)
+        guard expected > 0 else { return "-" }
+        return percent(Double(styles.map { $0.matched[keyPath: mark] }.reduce(0, +)) / Double(expected))
+    }
+
+    private func capitals(_ styles: [ClipResult.Style]) -> String {
+        let cased = styles.filter { $0.referenceCase == .upper }
+        guard !cased.isEmpty else { return "n/a" }
+        return percent(Double(cased.count { $0.hypothesisCase == .upper }) / Double(cased.count))
     }
 
     private var languageSection: [String] {
