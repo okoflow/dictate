@@ -58,6 +58,16 @@ public struct ModelState: Equatable, Sendable {
         }
     }
 
+    /// What the pill says when the hotkey is pressed before the model is ready.
+    public var notReadyMessage: String {
+        switch phase {
+        case .notDownloaded, .ready: "Model not ready"
+        case let .downloading(progress): "Downloading model… \(Int((progress * 100).rounded()))%"
+        case .loading: "Loading model (first launch ≈1 min)…"
+        case .failed: "Model failed: see the menu"
+        }
+    }
+
     public var canRetry: Bool {
         if case .failed = phase {
             true

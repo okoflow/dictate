@@ -75,6 +75,7 @@ final class DictationController {
             onTapReenabled: { [weak self] in self?.eventLog.log(.tapReenabled) }
         )
         installHotkey()
+        models.onReady = { [status] in status.show(message: "Ready") }
         models.start()
     }
 
@@ -121,7 +122,7 @@ final class DictationController {
             active.rejected = true
             recording = active
             eventLog.log(.recordingDiscarded(.modelNotReady))
-            status.show(message: "Model not ready")
+            status.show(message: models.state.notReadyMessage)
             return
         }
         active.overlayTask = Task { [weak self] in

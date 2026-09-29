@@ -64,6 +64,13 @@ struct BenchSummary {
                 failures.append("\(language.rawValue) clean CER \(percent(rate)) > \(percent(limit))")
             }
         }
+        if fleursIsComplete {
+            for language in Language.allCases {
+                guard let rate = meanCER(of: language, where: { $0.source == .fleurs }),
+                      let limit = Self.maximumCleanCER[language], rate > limit else { continue }
+                failures.append("\(language.rawValue) FLEURS CER \(percent(rate)) > \(percent(limit))")
+            }
+        }
         if languageMisses > Self.allowedLanguageMisses {
             let allowed = Self.allowedLanguageMisses
             failures.append("language id missed \(languageMisses) of \(languageSet.count) (allowed \(allowed))")
@@ -89,7 +96,7 @@ struct BenchSummary {
     private var errorRateSection: [String] {
         var lines = [
             "## Character error rate", "",
-            "| Language | Clean plain (gated) | Noisy | Long | Real speech (FLEURS) |", "|---|---|---|---|---|",
+            "| Language | Clean plain (gated) | Noisy | Long | FLEURS (gated when all 15 are present) |", "|---|---|---|---|---|",
         ]
         for language in Language.allCases {
             let cells = [
@@ -128,7 +135,10 @@ struct BenchSummary {
     }
 
     private var clipSection: [String] {
-        var lines = ["## Clips", "", "| Clip | Source | Language | Detected | Probability | CER |", "|---|---|---|---|---|---|"]
+        var lines = [
+            "## Clips", "",
+            "| Clip | Source | Language | Detected | Share of ru/en/ko | CER |", "|---|---|---|---|---|---|",
+        ]
         for result in results {
             let probability = result.probability.map { String(format: "%.2f", $0) } ?? "-"
             let cells = [

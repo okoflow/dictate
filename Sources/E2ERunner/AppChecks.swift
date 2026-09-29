@@ -58,7 +58,8 @@ struct AppChecks {
             "--input-device", "BlackHole 2ch",
             "--transcript-dir", transcriptDirectory.path,
         ]
-        guard let app = dictate.launch(arguments: arguments) else {
+        // `--transcript-dir` is honoured only with this variable: dictated text stays off disk otherwise.
+        guard let app = dictate.launch(arguments: arguments, environment: ["DICTATE_E2E": "1"]) else {
             return .fail("Dictate.app did not start within 10 s (is it built? run `make bundle`)")
         }
         guard app.activationPolicy == .accessory else {

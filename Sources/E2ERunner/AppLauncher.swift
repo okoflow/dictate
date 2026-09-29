@@ -15,11 +15,16 @@ struct AppLauncher {
     }
 
     /// Starts a fresh instance and returns once it is running, or `nil` on timeout.
-    func launch(arguments: [String] = [], timeout: TimeInterval = 10) -> NSRunningApplication? {
+    func launch(
+        arguments: [String] = [],
+        environment: [String: String] = [:],
+        timeout: TimeInterval = 10
+    ) -> NSRunningApplication? {
         terminate()
         let open = Process()
         open.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        open.arguments = ["-n", bundleURL.path, "--args"] + arguments
+        let variables = environment.sorted { $0.key < $1.key }.flatMap { ["--env", "\($0.key)=\($0.value)"] }
+        open.arguments = ["-n"] + variables + [bundleURL.path, "--args"] + arguments
         do {
             try open.run()
             open.waitUntilExit()

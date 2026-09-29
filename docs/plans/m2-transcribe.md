@@ -188,3 +188,20 @@ pays the first-load cost once.
 
 **Decision.** Default model: the 626 MB variant (see `make bench` results in the final report): it passes every gate
 and matches the full model within noise on the fixtures.
+
+
+---
+
+## Corrections after review
+
+- **No-speech protection (replaces revision 9's `noSpeechThreshold`).** WhisperKit sets its no-speech probability
+  to a constant 0, so `noSpeechThreshold` does nothing. `SpeechGate` now measures the *total time* the audio is
+  louder than its own noise floor (10th-percentile window level + 12 dB, never below -60 dBFS), counting only runs of
+  at least 60 ms, and needs 0.3 s. Clicks and steady noise no longer pass just by being spread over the clip. After
+  decoding, `TranscriptFilter` drops results with an average log-probability below -1.0, a compression ratio above
+  2.4, or that are entirely a known stock phrase.
+- **Model completeness (revision 10).** A download is trusted only with a `.dictate-complete` marker (written after
+  the model and the tokenizer are on disk) and no `.incomplete` file in that variant's Hugging Face cache folder.
+  Retry after a failed download resumes; retry after a failed load deletes the model and downloads it again.
+- **Universal Clipboard.** The clipboard item is written with `currentHostOnly`.
+- **`--transcript-dir`** needs `DICTATE_E2E=1` in the environment (revision 12 said `--event-log`).

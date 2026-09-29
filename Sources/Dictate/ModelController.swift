@@ -10,6 +10,8 @@ import Transcription
 @Observable
 final class ModelController {
     private(set) var state = ModelState()
+    /// Called each time the model finishes loading.
+    @ObservationIgnored var onReady: (() -> Void)?
 
     @ObservationIgnored let transcriber: Transcriber
     @ObservationIgnored private let model: String
@@ -62,6 +64,7 @@ final class ModelController {
         do {
             let seconds = try await transcriber.load()
             apply(.loaded)
+            onReady?()
             eventLog.log(.modelReady(name: model, loadSeconds: seconds))
         } catch {
             apply(.failed(error.localizedDescription))

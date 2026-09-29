@@ -16,8 +16,14 @@ final class StatusOverlay {
     private let model = StatusModel()
     private var panel: OverlayPanel?
     private var hideTask: Task<Void, Never>?
+    /// True from `show(message:)` until the message has had its time (or `hide()` cut it short).
+    private(set) var isShowingMessage = false
+    /// Called when a message has run its course, so the owner can show what waited behind it.
+    var onMessageFinished: (() -> Void)?
 
+    /// The spinner never replaces a message that is still being read.
     func showTranscribing() {
+        guard !isShowingMessage else { return }
         present(.transcribing)
     }
 
@@ -25,16 +31,19 @@ final class StatusOverlay {
     func show(message text: String, for duration: Duration = .milliseconds(1500)) {
         let shown = text.count > Self.previewLength ? String(text.prefix(Self.previewLength)) + "…" : text
         present(.message(shown))
+        isShowingMessage = true
         hideTask = Task { [weak self] in
             try? await Task.sleep(for: duration)
             guard !Task.isCancelled else { return }
             self?.hide()
+            self?.onMessageFinished?()
         }
     }
 
     func hide() {
         hideTask?.cancel()
         hideTask = nil
+        isShowingMessage = false
         panel?.orderOut(nil)
     }
 

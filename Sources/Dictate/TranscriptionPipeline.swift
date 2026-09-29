@@ -18,6 +18,9 @@ final class TranscriptionPipeline {
     private let recordingPillIsVisible: @MainActor () -> Bool
     private let jobs: AsyncStream<Job>.Continuation
     private var pending = 0
+    /// What to tell the user, oldest first. Each entry gets its full time on the pill; entries wait while
+    /// the recording pill is up or another message is still being read.
+    private var messages: [String] = []
     private var savedTranscripts = 0
 
     init(
@@ -34,6 +37,7 @@ final class TranscriptionPipeline {
         self.recordingPillIsVisible = recordingPillIsVisible
         let (stream, continuation) = AsyncStream.makeStream(of: Job.self)
         jobs = continuation
+        status.onMessageFinished = { [weak self] in self?.presentNext() }
         Task { [weak self] in
             for await job in stream {
                 await self?.process(job)
@@ -45,22 +49,28 @@ final class TranscriptionPipeline {
     func submit(samples: [Float], language: Language?) {
         pending += 1
         jobs.yield(Job(samples: samples, language: language))
-        showSpinnerIfFree()
+        presentNext()
     }
 
-    /// Called when the recording pill goes away: the spinner comes back if work is still queued.
+    /// Called when the recording pill goes away: whatever waited behind it can be shown now.
     func recordingPillHidden() {
-        showSpinnerIfFree()
+        presentNext()
     }
 
-    private func showSpinnerIfFree() {
-        if pending > 0, !recordingPillIsVisible() {
-            status.showTranscribing()
+    /// The next message if there is one, else the spinner while work is queued. Never over the recording
+    /// pill, and never over a message that is still being read.
+    private func presentNext() {
+        guard !recordingPillIsVisible(), !status.isShowingMessage else { return }
+        if messages.isEmpty {
+            if pending > 0 {
+                status.showTranscribing()
+            }
+        } else {
+            status.show(message: messages.removeFirst())
         }
     }
 
     private func process(_ job: Job) async {
-        showSpinnerIfFree()
         let message: String
         do {
             if let transcript = try await transcriber.transcribe(samples: job.samples, language: job.language) {
@@ -71,15 +81,12 @@ final class TranscriptionPipeline {
                 message = "Didn't catch that"
             }
         } catch {
-            eventLog.log(.transcriptionFailed(String(describing: error)))
+            eventLog.log(.transcriptionFailed(error.localizedDescription))
             message = "Transcription failed"
         }
         pending -= 1
-        if recordingPillIsVisible() {
-            status.hide()
-        } else {
-            status.show(message: message)
-        }
+        messages.append(message)
+        presentNext()
     }
 
     /// The clipboard and the transcript file are written before the event, so whoever waits for the

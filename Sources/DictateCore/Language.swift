@@ -17,9 +17,9 @@ public enum Language: String, CaseIterable, Codable, Sendable {
         }
     }
 
-    /// The most probable of the three languages, ignoring every other one Whisper knows: a
-    /// Ukrainian or Japanese guess for a Russian or Korean clip must not win. `nil` when
-    /// `probabilities` has none of ours.
+    /// The most probable of our three languages in `probabilities`, ignoring any other. The detector is
+    /// already narrowed to the three (`RestrictedTokenizer`) and returns one entry, so this mostly reads
+    /// that entry; the filter keeps it correct for a full table too. `nil` when none of ours is present.
     public static func pick(from probabilities: [String: Float]) -> (language: Language, probability: Float)? {
         allCases
             .compactMap { language in probabilities[language.rawValue].map { (language, $0) } }

@@ -58,19 +58,27 @@ Ukrainian or Japanese.
 - **First launch:** the app downloads the model (the menu shows "Downloading model… 42%"), then loads it. The
   first load makes Core ML compile the model for your chip and takes about a minute ("Loading model…");
   later launches take a few seconds. Push-to-talk works once the menu says "Ready"; a press before that
-  shows "Model not ready" and records nothing. If the download or load fails the menu says why and offers
-  "Retry". `make model` does the download and the first load from the terminal.
+  shows what the model is doing ("Loading model (first launch ≈1 min)…", "Downloading model… 42%") and
+  records nothing; a "Ready" pill appears when it is done. If the download fails the menu says why and "Retry" resumes it; if
+  the load fails, "Retry" deletes the model and downloads it again. `make model` does the download and the first load from the terminal.
 - **Language:** menu → Language: *Auto (ru / en / ko)*, Russian, English or Korean. The choice is remembered.
   Auto adds a short language-detection pass (about 0.6 s); pinning a language skips it.
 - **Speed** (Apple M5): about 1 s to transcribe 10 s of speech, plus the 0.6 s detection in Auto mode.
   Recordings over 30 s are split at pauses.
-- **Memory:** about 130 MB resident after loading (the weights are memory-mapped and run on the Neural Engine).
+- **Memory:** after loading, Activity Monitor shows about 130 MB resident (`ps` RSS) and `footprint` about
+  36 MB idle; the `Bench` process reported 130 MB after 30 transcriptions. Core ML keeps the model weights
+  in memory it manages itself (memory-mapped, partly on the Neural Engine), so the system's total use for
+  the model is larger than these per-process figures; that total was not measured.
 - **Result:** the text goes to the clipboard and its first 60 characters show on a small pill for 1.5 s.
-  Paste with ⌘V. If there was no speech (silence, a cough) or the model heard none, nothing is copied and
-  the pill says "Didn't catch that". You can keep dictating while a previous recording is still being
+  Paste with ⌘V. A recording without speech (silence, key clicks, steady noise: judged on how long the audio
+  is louder than its own noise floor) is not sent to the model, and a result that looks made up (low
+  confidence, repeated text, stock phrases such as "Thanks for watching" or "Продолжение следует" when they
+  are the whole result) is dropped. In both cases nothing is copied and the pill says "Didn't catch that". You can keep dictating while a previous recording is still being
   recognised; the texts arrive in order, and the recording pill takes priority over the result pill.
-- **Clipboard managers:** the item is marked with the `org.nspasteboard.TransientType` and `ConcealedType`
-  flags, which well-behaved managers (Maccy, Alfred, Raycast, ...) honour by not storing it. ⌘V works as usual.
+- **Clipboard managers and other devices:** the item is marked with the `org.nspasteboard.TransientType` and
+  `ConcealedType` flags, which well-behaved managers (Maccy, Alfred, Raycast, ...) honour by not storing it,
+  and it is kept off Universal Clipboard (`currentHostOnly`), so it does not sync to your iPhone, iPad or
+  other Macs. ⌘V works as usual.
 
 ## Push-to-talk
 
@@ -102,7 +110,7 @@ Meant for diagnostics and the E2E suite; a normal launch passes none.
 | `--recording-dir <dir>` | keep every finished recording there as a 16 kHz mono WAV |
 | `--input-device <name>` | record from the input device with this name (or CoreAudio UID) instead of the system default |
 | `--model <variant>` | use this WhisperKit model variant instead of the default |
-| `--transcript-dir <dir>` | **test-only**: save each transcript as `<n>.txt` there. Written only together with `--event-log`; it puts dictated text on disk, so do not use it otherwise |
+| `--transcript-dir <dir>` | **test-only**: save each transcript as `<n>.txt` there. Honoured only when the environment has `DICTATE_E2E=1` (`open -n --env DICTATE_E2E=1 ...`); it puts dictated text on disk, so do not use it otherwise |
 
 For example: `open -n build/Dictate.app --args --recording-dir ~/dictate-recordings`.
 
@@ -145,7 +153,7 @@ LaunchServices-launched app instead).
   being recognised); nothing is written to disk unless you start Dictate with `--recording-dir`.
 - Recognition is fully local. The only network use is the one-time download of the model and its tokenizer
   from Hugging Face; no audio or text is sent anywhere.
-- Dictated text goes to the clipboard only, marked so clipboard managers skip it.
+- Dictated text goes to the clipboard only, marked so clipboard managers skip it and not synced to other devices.
 - Text goes to a cloud LLM only in Clean / Formal / Translate, and the menu shows a cloud icon then.
 - Text you dictate is never written to logs (only lengths, languages and timings). WhisperKit's own
   logging is off.

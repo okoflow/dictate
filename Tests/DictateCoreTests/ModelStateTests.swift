@@ -72,6 +72,18 @@ struct ModelStateTests {
         #expect(state.isReady)
     }
 
+    @Test func notReadyMessageFollowsThePhase() {
+        var state = ModelState()
+        #expect(state.notReadyMessage == "Model not ready")
+        _ = state.handle(.start(installed: false))
+        _ = state.handle(.downloadProgress(0.25))
+        #expect(state.notReadyMessage == "Downloading model… 25%")
+        _ = state.handle(.downloaded)
+        #expect(state.notReadyMessage == "Loading model (first launch ≈1 min)…")
+        _ = state.handle(.failed("x"))
+        #expect(state.notReadyMessage == "Model failed: see the menu")
+    }
+
     @Test func statusTextForAModelThatIsNotThereYet() {
         #expect(ModelState().statusText == "Model not downloaded")
     }

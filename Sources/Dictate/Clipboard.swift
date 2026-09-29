@@ -9,8 +9,9 @@ enum Clipboard {
 
     static func copy(_ text: String) {
         let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.declareTypes([.string, transient, concealed], owner: nil)
+        // `currentHostOnly` keeps the item off Universal Clipboard, so a transcript never reaches a phone
+        // or another Mac. (It replaces `clearContents()`, and `declareTypes` would drop the option again.)
+        pasteboard.prepareForNewContents(with: .currentHostOnly)
         pasteboard.setString(text, forType: .string)
         pasteboard.setData(Data(), forType: transient)
         pasteboard.setData(Data(), forType: concealed)

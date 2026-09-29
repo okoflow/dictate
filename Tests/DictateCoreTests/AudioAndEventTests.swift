@@ -105,7 +105,7 @@ struct LaunchOptionsTests {
             "--input-device", "BlackHole 2ch",
             "--model", "openai_whisper-large-v3-v20240930",
             "--transcript-dir", "/tmp/tr",
-        ])
+        ], environment: ["DICTATE_E2E": "1"])
         #expect(options.reportFile == "/tmp/r.json")
         #expect(options.eventLog == "/tmp/e.jsonl")
         #expect(options.recordingDirectory == "/tmp/rec")
@@ -114,9 +114,11 @@ struct LaunchOptionsTests {
         #expect(options.transcriptDirectory == "/tmp/tr")
     }
 
-    @Test func transcriptDirectoryNeedsTheEventLog() {
-        let options = LaunchOptions(arguments: ["Dictate", "--transcript-dir", "/tmp/tr"])
-        #expect(options.transcriptDirectory == nil)
+    @Test func transcriptDirectoryNeedsTheE2EEnvironment() {
+        let arguments = ["Dictate", "--event-log", "/tmp/e.jsonl", "--transcript-dir", "/tmp/tr"]
+        #expect(LaunchOptions(arguments: arguments, environment: [:]).transcriptDirectory == nil)
+        #expect(LaunchOptions(arguments: arguments, environment: ["DICTATE_E2E": "0"]).transcriptDirectory == nil)
+        #expect(LaunchOptions(arguments: arguments, environment: ["DICTATE_E2E": "1"]).transcriptDirectory == "/tmp/tr")
     }
 
     @Test func defaultsToNothing() {

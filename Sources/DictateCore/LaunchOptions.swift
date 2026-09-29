@@ -14,16 +14,17 @@ public struct LaunchOptions: Equatable, Sendable {
 
     /// Speech model to use instead of `ModelStore.defaultModel` (a WhisperKit variant name).
     public var model: String?
-    /// Save each transcript as `<n>.txt` here. Test-only, and honoured only together with `--event-log`,
-    /// so a normal launch, even with this flag typed by mistake, never writes dictated text to disk.
+    /// Save each transcript as `<n>.txt` here. Test-only: honoured only when the environment has
+    /// `DICTATE_E2E=1` (the E2E runner sets it), so a normal launch, even with this flag typed by
+    /// mistake, never writes dictated text to disk.
     public var transcriptDirectory: String?
 
-    public init(arguments: [String]) {
+    public init(arguments: [String], environment: [String: String] = ProcessInfo.processInfo.environment) {
         reportFile = argumentValue(after: "--report-file", in: arguments)
         eventLog = argumentValue(after: "--event-log", in: arguments)
         recordingDirectory = argumentValue(after: "--recording-dir", in: arguments)
         inputDevice = argumentValue(after: "--input-device", in: arguments)
         model = argumentValue(after: "--model", in: arguments)
-        transcriptDirectory = eventLog == nil ? nil : argumentValue(after: "--transcript-dir", in: arguments)
+        transcriptDirectory = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--transcript-dir", in: arguments) : nil
     }
 }
