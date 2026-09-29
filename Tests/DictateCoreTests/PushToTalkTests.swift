@@ -26,6 +26,20 @@ struct HotkeyClassifyTests {
         #expect(Hotkey.classify(event) == .hotkeyDown)
     }
 
+    @Test func stillHeldWhenEitherStateShowsTheKey() {
+        let down = Hotkey.rightOptionDeviceFlag | Hotkey.optionFlag
+        #expect(Hotkey.isStillHeld(hidFlags: down, sessionFlags: down))
+        #expect(Hotkey.isStillHeld(hidFlags: down, sessionFlags: 0))
+        #expect(Hotkey.isStillHeld(hidFlags: 0, sessionFlags: down))
+    }
+
+    @Test func lostKeyUpIsNoticedWhenBothStatesLackTheKey() {
+        // The left Option key and other modifiers do not keep the hotkey "held".
+        let leftOnly: UInt64 = Hotkey.optionFlag | 0x20
+        #expect(!Hotkey.isStillHeld(hidFlags: 0, sessionFlags: 0))
+        #expect(!Hotkey.isStillHeld(hidFlags: leftOnly, sessionFlags: 0x100))
+    }
+
     @Test func leftOptionIsIgnored() {
         let event = RawKeyEvent(kind: .flagsChanged, keyCode: 58, flags: Hotkey.optionFlag)
         #expect(Hotkey.classify(event) == .ignored)

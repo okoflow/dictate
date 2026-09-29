@@ -44,6 +44,15 @@ public enum Hotkey {
     /// `kCGEventFlagMaskAlternate`: set while either Option key is down.
     public static let optionFlag: UInt64 = 0x0008_0000
 
+    /// Whether the right Option key is still physically down, judged from the keyboard state words
+    /// (`CGEventSource.flagsState`) of both the HID system and the login session. It counts as
+    /// released only when *both* lack the right-Option bit: the HID word sees hardware and locally
+    /// posted keys, the session word also sees keys injected by remote-control tools, and either
+    /// alone can miss a key that the other shows. Used to notice a key-up that never arrived.
+    public static func isStillHeld(hidFlags: UInt64, sessionFlags: UInt64) -> Bool {
+        (hidFlags | sessionFlags) & rightOptionDeviceFlag != 0
+    }
+
     public static func classify(_ event: RawKeyEvent) -> KeyboardSignal {
         switch event.kind {
         case .tapDisabledByTimeout, .tapDisabledByUserInput:
