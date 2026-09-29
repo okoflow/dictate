@@ -96,13 +96,16 @@ struct PunctuationMetricsTests {
 }
 
 struct StylePromptTests {
-    @Test func everyLanguageHasACapitalisedPunctuatedPrompt() {
-        for language in Language.allCases {
-            let prompt = StylePrompt.text(for: language)
+    @Test func russianAndEnglishHaveACapitalisedPunctuatedPrompt() throws {
+        for language in [Language.ru, .en] {
+            let prompt = try #require(StylePrompt.text(for: language))
             #expect(PunctuationMetrics.counts(in: prompt).sentenceEnds >= 1)
-            #expect(PunctuationMetrics.counts(in: prompt).commas >= 1 || language == .ru)
+            #expect(PunctuationMetrics.counts(in: prompt).commas >= 1)
+            #expect(PunctuationMetrics.startingCase(of: prompt) == .upper)
         }
-        #expect(PunctuationMetrics.startingCase(of: StylePrompt.text(for: .ru)) == .upper)
-        #expect(PunctuationMetrics.startingCase(of: StylePrompt.text(for: .en)) == .upper)
+    }
+
+    @Test func koreanHasNoPrompt() {
+        #expect(StylePrompt.text(for: .ko) == nil)
     }
 }

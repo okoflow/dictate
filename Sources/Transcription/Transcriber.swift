@@ -88,8 +88,8 @@ public actor Transcriber {
         loaded.tokenizer = RestrictedTokenizer(base: tokenizer, allLanguageTokens: tokens)
         if usesStylePrompt {
             let firstSpecial = tokenizer.specialTokens.specialTokenBegin
-            promptTokens = Dictionary(uniqueKeysWithValues: Language.allCases.map { language in
-                (language, tokenizer.encode(text: " " + StylePrompt.text(for: language)).filter { $0 < firstSpecial })
+            promptTokens = Dictionary(uniqueKeysWithValues: Language.allCases.compactMap { language in
+                StylePrompt.text(for: language).map { (language, tokenizer.encode(text: " " + $0).filter { $0 < firstSpecial }) }
             })
         }
         kit = loaded

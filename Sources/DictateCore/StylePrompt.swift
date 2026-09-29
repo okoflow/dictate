@@ -4,11 +4,13 @@ import Foundation
 /// style of what came before, so a capitalised, punctuated sentence keeps its output the same way; without
 /// it a long or quiet recording often comes back in lowercase with no punctuation.
 public enum StylePrompt {
-    public static func text(for language: Language) -> String {
+    /// `nil` for Korean: it has no capitals to lose, and in the bench the prompt made noisy Korean worse
+    /// (25.9 % to 33.3 % character error rate) without improving its punctuation.
+    public static func text(for language: Language) -> String? {
         switch language {
         case .ru: "Привет! Это пример текста: с заглавными буквами, запятыми и точками."
         case .en: "Hello! This is a sample of text, with capital letters, commas and full stops."
-        case .ko: "안녕하세요! 이것은 문장 부호와 쉼표가 있는, 올바르게 쓴 문장입니다."
+        case .ko: nil
         }
     }
 }
