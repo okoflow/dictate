@@ -1,0 +1,19 @@
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks scans history
+      - name: Install tools
+        run: brew install swiftlint swiftformat gitleaks shellcheck periphery
+      - name: make check
+        run: make check
+      # `make e2e` is not run here: hosted runners have no microphone and no TCC permissions.
