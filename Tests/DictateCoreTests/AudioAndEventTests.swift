@@ -78,6 +78,10 @@ struct AppEventTests {
             .transcribed(language: .ko, characters: 42, seconds: 1.25),
             .noSpeech,
             .transcriptionFailed("the model is not loaded"),
+            .inserted(characters: 12, app: "com.apple.TextEdit", secureInputActive: false),
+            .insertionSkipped(.secureField),
+            .insertionSkipped(.focusChanged),
+            .restoreSkipped("the clipboard holds more than 5 MB"),
         ]
         let log = try events.map { try $0.jsonLine() }.joined()
         #expect(AppEvent.parseLog(log) == events)

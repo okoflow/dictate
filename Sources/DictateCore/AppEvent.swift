@@ -24,6 +24,13 @@ public enum AppEvent: Codable, Equatable, Sendable {
     /// The recording held no speech, or the model heard none; nothing was copied.
     case noSpeech
     case transcriptionFailed(String)
+    /// The text was pasted into `app` (a bundle identifier). `secureInputActive` is macOS's global
+    /// secure-input flag at that moment; it is reported, not used to decide. Never the text itself.
+    case inserted(characters: Int, app: String, secureInputActive: Bool)
+    /// The text was not pasted; it stays recoverable ("Copy last transcript", or the clipboard).
+    case insertionSkipped(InsertionRules.SkipReason)
+    /// The clipboard the user had before the paste was left as it is now, and why.
+    case restoreSkipped(String)
 
     public func jsonLine() throws -> String {
         let data = try JSONEncoder().encode(self)
