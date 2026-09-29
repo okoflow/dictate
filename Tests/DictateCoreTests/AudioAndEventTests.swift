@@ -28,6 +28,36 @@ struct AudioLevelTests {
     }
 }
 
+struct SpeechSpanTests {
+    /// 16 samples per "window" at a sample rate of 800 Hz.
+    private func signal(silence lead: Int, loud: Int, silence tail: Int) -> [Float] {
+        [Float](repeating: 0, count: lead * 16) + [Float](repeating: 0.5, count: loud * 16)
+            + [Float](repeating: 0, count: tail * 16)
+    }
+
+    @Test func spanIgnoresLeadingAndTrailingSilence() throws {
+        let samples = signal(silence: 10, loud: 25, silence: 7)
+        let span = try #require(AudioLevel.speechSpan(of: samples, sampleRate: 800))
+        #expect(abs(span - 0.5) < 0.0001)
+    }
+
+    @Test func gapsInsideSpeechCount() throws {
+        let samples = signal(silence: 0, loud: 5, silence: 10) + signal(silence: 0, loud: 5, silence: 0)
+        let span = try #require(AudioLevel.speechSpan(of: samples, sampleRate: 800))
+        #expect(abs(span - 0.4) < 0.0001)
+    }
+
+    @Test func silenceHasNoSpan() {
+        #expect(AudioLevel.speechSpan(of: signal(silence: 20, loud: 0, silence: 0), sampleRate: 800) == nil)
+        #expect(AudioLevel.speechSpan(of: [], sampleRate: 800) == nil)
+    }
+
+    @Test func quietNoiseBelowThresholdIsNotSpeech() {
+        let hiss = [Float](repeating: 0.001, count: 800) // -60 dBFS
+        #expect(AudioLevel.speechSpan(of: hiss, sampleRate: 800) == nil)
+    }
+}
+
 struct AppEventTests {
     @Test func roundTripThroughLog() throws {
         let events: [AppEvent] = [

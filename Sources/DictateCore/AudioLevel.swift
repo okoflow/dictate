@@ -15,4 +15,22 @@ public enum AudioLevel {
         let decibels = 20 * log10(rms)
         return min(1, max(0, (decibels - floorDecibels) / -floorDecibels))
     }
+
+    /// Seconds between the first and the last loud window: the stretch that contains speech,
+    /// ignoring leading and trailing silence. A window is loud when its RMS exceeds `thresholdDecibels`.
+    /// `nil` when no window is loud.
+    public static func speechSpan(
+        of samples: [Float],
+        sampleRate: Double,
+        window: Double = 0.02,
+        thresholdDecibels: Float = -40
+    ) -> Double? {
+        let size = max(1, Int(sampleRate * window))
+        let loud = stride(from: 0, to: samples.count, by: size).map { start in
+            let level = rms(samples[start ..< min(start + size, samples.count)])
+            return level > 0 && 20 * log10(level) > thresholdDecibels
+        }
+        guard let first = loud.firstIndex(of: true), let last = loud.lastIndex(of: true) else { return nil }
+        return Double(last - first + 1) * window
+    }
 }
