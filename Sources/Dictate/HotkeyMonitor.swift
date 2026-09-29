@@ -10,7 +10,6 @@ import Foundation
 @MainActor
 final class HotkeyMonitor {
     private var tap: CFMachPort?
-    private var source: CFRunLoopSource?
     private let onSignal: (KeyboardSignal, Double) -> Void
     private let onTapReenabled: () -> Void
 
@@ -41,7 +40,6 @@ final class HotkeyMonitor {
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: port, enable: true)
         tap = port
-        source = runLoopSource
         return true
     }
 

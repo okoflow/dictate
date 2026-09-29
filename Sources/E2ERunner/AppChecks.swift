@@ -24,12 +24,20 @@ struct AppChecks {
         )
     }
 
-    private var reportURL: URL {
-        scratchDirectory.appendingPathComponent("dictate-permissions.json")
+    var eventLogURL: URL {
+        scratchDirectory.appendingPathComponent("dictate-events.jsonl")
     }
 
-    private var stateURL: URL {
+    var recordingDirectory: URL {
+        scratchDirectory.appendingPathComponent("dictate-recordings")
+    }
+
+    var stateURL: URL {
         scratchDirectory.appendingPathComponent("testpad-state.json")
+    }
+
+    private var reportURL: URL {
+        scratchDirectory.appendingPathComponent("dictate-permissions.json")
     }
 
     // MARK: Dictate
@@ -37,7 +45,14 @@ struct AppChecks {
     /// Launches Dictate and asserts it is a menu bar app (no Dock icon).
     func dictateLaunchesAsMenuBarApp() -> Outcome {
         try? FileManager.default.removeItem(at: reportURL)
-        guard let app = dictate.launch(arguments: ["--report-file", reportURL.path]) else {
+        try? FileManager.default.removeItem(at: recordingDirectory)
+        let arguments = [
+            "--report-file", reportURL.path,
+            "--event-log", eventLogURL.path,
+            "--recording-dir", recordingDirectory.path,
+            "--input-device", "BlackHole 2ch",
+        ]
+        guard let app = dictate.launch(arguments: arguments) else {
             return .fail("Dictate.app did not start within 10 s (is it built? run `make bundle`)")
         }
         guard app.activationPolicy == .accessory else {

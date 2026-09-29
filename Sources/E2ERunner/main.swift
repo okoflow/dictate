@@ -18,6 +18,14 @@ func timed(_ name: String, _ body: () -> Outcome) -> CheckResult {
     return result
 }
 
+let pushToTalk = PushToTalkChecks(
+    dictate: checks.dictate,
+    testPad: checks.testPad,
+    log: EventLog(url: checks.eventLogURL, recordingDirectory: checks.recordingDirectory),
+    fixture: root.appendingPathComponent("fixtures/generated/en-plain-2.wav"),
+    testPadStateURL: checks.stateURL
+)
+
 let results: [CheckResult] = [
     timed("fixtures-valid") {
         FixtureChecks.run(
@@ -31,6 +39,16 @@ let results: [CheckResult] = [
     timed("dictate-permissions-granted") { checks.dictatePermissionsGranted() },
     timed("testpad-launches") { checks.testPadLaunches() },
     timed("testpad-accessibility-roundtrip") { checks.testPadAccessibilityRoundTrip() },
+    // Push-to-talk (M1). Order matters: the recording checks leave the app idle for the next one,
+    // and the last check needs TestPad frontmost.
+    timed("blackhole-available") { pushToTalk.blackHoleAvailable() },
+    timed("hotkey-ready") { pushToTalk.hotkeyReady() },
+    timed("record-fixture-through-blackhole") { pushToTalk.recordFixtureThroughBlackHole() },
+    timed("silence-control") { pushToTalk.silenceControl() },
+    timed("left-option-ignored") { pushToTalk.leftOptionIgnored() },
+    timed("short-press-discarded") { pushToTalk.shortPressDiscarded() },
+    timed("overlay-shown-and-hidden") { pushToTalk.overlayShownAndHidden() },
+    timed("option-letter-passes-through") { pushToTalk.optionLetterPassesThrough() },
 ]
 checks.cleanUp()
 
