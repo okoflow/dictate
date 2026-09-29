@@ -32,7 +32,8 @@ public struct ModelState: Equatable, Sendable {
     }
 
     public enum Effect: Equatable, Sendable {
-        case removePartialDownload
+        /// A model that will not load is deleted before it is fetched again.
+        case removeModel
         case download
         case load
     }
@@ -105,11 +106,12 @@ public struct ModelState: Equatable, Sendable {
         guard case let .failed(_, step) = phase else { return [] }
         switch step {
         case .download:
+            // The downloader resumes; files that are complete stay.
             phase = .downloading(progress: 0)
-            return [.removePartialDownload, .download]
+            return [.download]
         case .load:
-            phase = .loading
-            return [.load]
+            phase = .downloading(progress: 0)
+            return [.removeModel, .download]
         }
     }
 }

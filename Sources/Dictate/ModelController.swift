@@ -38,8 +38,8 @@ final class ModelController {
 
     private func perform(_ effect: ModelState.Effect) {
         switch effect {
-        case .removePartialDownload:
-            ModelStore.removePartialDownload(of: model, in: baseDirectory)
+        case .removeModel:
+            ModelStore.remove(model, in: baseDirectory)
         case .download:
             Task { await download() }
         case .load:
@@ -64,7 +64,7 @@ final class ModelController {
             apply(.loaded)
             eventLog.log(.modelReady(name: model, loadSeconds: seconds))
         } catch {
-            apply(.failed(String(describing: error)))
+            apply(.failed(error.localizedDescription))
         }
     }
 }

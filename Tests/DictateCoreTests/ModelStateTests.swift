@@ -42,21 +42,21 @@ struct ModelStateTests {
         #expect(state.phase == .downloading(progress: 1))
     }
 
-    @Test func aFailedDownloadRetriesAfterRemovingTheLeftovers() {
+    @Test func aFailedDownloadRetriesAndKeepsTheFinishedFiles() {
         var state = state(after: [.start(installed: false), .downloadProgress(0.5), .failed("offline")])
         #expect(state.phase == .failed(reason: "offline", during: .download))
         #expect(state.canRetry)
         #expect(state.statusText == "Model failed: offline")
-        #expect(state.handle(.retry) == [.removePartialDownload, .download])
+        #expect(state.handle(.retry) == [.download])
         #expect(state.phase == .downloading(progress: 0))
         #expect(!state.canRetry)
     }
 
-    @Test func aFailedLoadRetriesTheLoadOnly() {
+    @Test func aFailedLoadDeletesTheModelAndDownloadsItAgain() {
         var state = state(after: [.start(installed: true), .failed("corrupt")])
         #expect(state.phase == .failed(reason: "corrupt", during: .load))
-        #expect(state.handle(.retry) == [.load])
-        #expect(state.phase == .loading)
+        #expect(state.handle(.retry) == [.removeModel, .download])
+        #expect(state.phase == .downloading(progress: 0))
     }
 
     @Test func unrelatedEventsAreIgnored() {
@@ -98,12 +98,27 @@ struct ModelStoreTests {
         return base
     }
 
-    private func install(_ model: String, in base: URL, missing: String? = nil) throws {
+    /// Lays out a complete copy of `model`; `missing` leaves one part out, `marked: false` skips the marker.
+    private func install(_ model: String, in base: URL, missing: String? = nil, marked: Bool = true) throws {
         let folder = ModelStore.folder(of: model, in: base)
         let parts = ["AudioEncoder.mlmodelc", "MelSpectrogram.mlmodelc", "TextDecoder.mlmodelc", "config.json"]
         for part in parts where part != missing {
             try FileManager.default.createDirectory(at: folder.appending(path: part), withIntermediateDirectories: true)
         }
+        if let tokenizer = ModelStore.tokenizerFile(for: model, in: base) {
+            try FileManager.default.createDirectory(at: tokenizer.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data().write(to: tokenizer)
+        }
+        if marked {
+            try ModelStore.markComplete(model, in: base)
+        }
+    }
+
+    private func addIncompleteFile(for model: String, in base: URL) throws {
+        let repository = ModelStore.folder(of: model, in: base).deletingLastPathComponent()
+        let cache = repository.appending(path: ".cache/huggingface/download/\(model)")
+        try FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
+        try Data().write(to: cache.appending(path: "weights.bin.abc.incomplete"))
     }
 
     @Test func folderFollowsTheHubLayout() {
@@ -132,17 +147,49 @@ struct ModelStoreTests {
         #expect(!ModelStore.isInstalled("m", in: base))
     }
 
-    @Test func anIncompleteDownloadIsNotInstalledAndCanBeRemoved() throws {
+    @Test func aFolderWithoutTheCompletionMarkerIsNotInstalled() throws {
+        let base = try makeBase()
+        defer { try? FileManager.default.removeItem(at: base) }
+        try install("m", in: base, marked: false)
+        #expect(!ModelStore.isInstalled("m", in: base))
+    }
+
+    @Test func largeV3NeedsItsTokenizerOnDisk() throws {
+        let base = try makeBase()
+        defer { try? FileManager.default.removeItem(at: base) }
+        let model = "openai_whisper-large-v3-v20240930_626MB"
+        try install(model, in: base)
+        #expect(ModelStore.isInstalled(model, in: base))
+        try FileManager.default.removeItem(at: #require(ModelStore.tokenizerFile(for: model, in: base)))
+        #expect(!ModelStore.isInstalled(model, in: base))
+    }
+
+    @Test func anUnknownModelHasNoKnownTokenizer() {
+        #expect(ModelStore.tokenizerFile(for: "openai_whisper-small", in: URL(filePath: "/b")) == nil)
+    }
+
+    @Test func anIncompleteFileOfThisVariantMeansNotInstalled() throws {
         let base = try makeBase()
         defer { try? FileManager.default.removeItem(at: base) }
         try install("m", in: base)
-        let repository = ModelStore.folder(of: "m", in: base).deletingLastPathComponent()
-        let cache = repository.appending(path: ".cache/huggingface/download/m")
-        try FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
-        try Data().write(to: cache.appending(path: "weights.bin.abc.incomplete"))
+        try addIncompleteFile(for: "m", in: base)
         #expect(!ModelStore.isInstalled("m", in: base))
+    }
 
-        ModelStore.removePartialDownload(of: "m", in: base)
+    @Test func anIncompleteFileOfAnotherVariantIsIgnored() throws {
+        let base = try makeBase()
+        defer { try? FileManager.default.removeItem(at: base) }
+        try install("m", in: base)
+        try addIncompleteFile(for: "other", in: base)
+        #expect(ModelStore.isInstalled("m", in: base))
+    }
+
+    @Test func removeDeletesTheWholeModel() throws {
+        let base = try makeBase()
+        defer { try? FileManager.default.removeItem(at: base) }
+        try install("m", in: base)
+        ModelStore.remove("m", in: base)
         #expect(!FileManager.default.fileExists(atPath: ModelStore.folder(of: "m", in: base).path))
+        #expect(!ModelStore.isInstalled("m", in: base))
     }
 }

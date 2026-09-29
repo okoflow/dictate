@@ -14,7 +14,6 @@ print("model \(model)\nfolder \(ModelStore.folder(of: model, in: base).path)")
 if ModelStore.isInstalled(model, in: base) {
     print("already downloaded")
 } else {
-    ModelStore.removePartialDownload(of: model, in: base)
     let reporter = ProgressReporter()
     do {
         try await Transcriber.download(model: model, into: base) { reporter.report($0) }

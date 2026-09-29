@@ -2,15 +2,17 @@ import DictateCore
 import Foundation
 @preconcurrency import WhisperKit
 
-enum TranscriberError: Error, CustomStringConvertible {
+enum TranscriberError: LocalizedError {
     case notLoaded
     case modelMissing(String)
+    case tokenizerMissing
     case languageTokensMissing
 
-    var description: String {
+    var errorDescription: String? {
         switch self {
         case .notLoaded: "the model is not loaded"
         case let .modelMissing(name): "the model \(name) is not downloaded"
+        case .tokenizerMissing: "the model has no tokenizer"
         case .languageTokensMissing: "the tokenizer has no tokens for ru / en / ko"
         }
     }
@@ -35,7 +37,8 @@ public actor Transcriber {
         self.baseDirectory = baseDirectory
     }
 
-    /// Downloads `model` into `baseDirectory` (skipping what is already there); `progress` is 0...1.
+    /// Downloads `model` and its tokenizer into `baseDirectory` (skipping what is already there; an
+    /// interrupted download resumes) and then writes the completion marker; `progress` is 0...1.
     public static func download(
         model: String,
         into baseDirectory: URL,
@@ -47,11 +50,15 @@ public actor Transcriber {
             downloadBase: baseDirectory,
             from: ModelStore.repository
         ) { progress($0.fractionCompleted) }
+        if ModelStore.tokenizerFile(for: model, in: baseDirectory) != nil {
+            _ = try await ModelUtilities.loadTokenizer(for: .largev3, tokenizerFolder: baseDirectory)
+        }
+        try ModelStore.markComplete(model, in: baseDirectory)
     }
 
     /// Loads the downloaded model and returns how long that took. The first load on a machine makes
     /// Core ML compile the model for its chip, which takes about a minute; later loads take seconds.
-    /// Never downloads the model (the tokenizer, a few MB, is fetched once if it is missing).
+    /// Never downloads anything: `isInstalled` requires the model and its tokenizer to be on disk.
     public func load() async throws -> Double {
         guard ModelStore.isInstalled(model, in: baseDirectory) else { throw TranscriberError.modelMissing(model) }
         let start = ContinuousClock.now
@@ -66,7 +73,7 @@ public actor Transcriber {
             download: false
         )
         let loaded = try await WhisperKit(config)
-        guard let tokenizer = loaded.tokenizer else { throw TranscriberError.notLoaded }
+        guard let tokenizer = loaded.tokenizer else { throw TranscriberError.tokenizerMissing }
         let tokens = Set(Language.allCases.compactMap { tokenizer.convertTokenToId("<|\($0.rawValue)|>") })
         guard tokens.count == Language.allCases.count else { throw TranscriberError.languageTokensMissing }
         loaded.tokenizer = RestrictedTokenizer(base: tokenizer, allLanguageTokens: tokens)
