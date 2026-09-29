@@ -23,3 +23,6 @@ fixtures/private/*
 # E2E reports (local run output)
 e2e/reports/*
 !e2e/reports/.gitkeep
+
+# Bench reports (metrics only, but local run output)
+bench/reports/

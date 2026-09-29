@@ -1,6 +1,10 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
+# The speech model variant for `make model` and `make bench` (default: the one the app uses).
+MODEL ?=
+MODEL_FLAG := $(if $(MODEL),--model $(MODEL),)
+
 # Command Line Tools ship Testing.framework but SwiftPM does not look there; a full Xcode needs no help.
 CLT := /Library/Developer/CommandLineTools/Library/Developer
 ifneq ($(findstring CommandLineTools,$(shell xcode-select -p 2>/dev/null)),)
@@ -8,10 +12,10 @@ TEST_FLAGS := -Xswiftc -F$(CLT)/Frameworks -Xlinker -F$(CLT)/Frameworks \
               -Xlinker -rpath -Xlinker $(CLT)/Frameworks -Xlinker -rpath -Xlinker $(CLT)/usr/lib
 endif
 
-.PHONY: help build bundle fixtures fixtures-real format format-check lint test coverage periphery secrets shellcheck check e2e e2e-full hooks signing clean
+.PHONY: help build bundle model bench fixtures fixtures-real format format-check lint test coverage periphery secrets shellcheck check no-model-in-tests e2e e2e-full hooks signing clean
 
 help: ## List targets
-	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
 
 build: ## Build everything (warnings are errors in our own targets, see Package.swift)
 	swift build
@@ -19,6 +23,16 @@ build: ## Build everything (warnings are errors in our own targets, see Package.
 bundle: ## Build and sign build/Dictate.app and build/TestPad.app
 	scripts/bundle.sh Dictate
 	scripts/bundle.sh TestPad
+
+model: ## Download and warm up the speech model (MODEL=<variant> for another one)
+	swift build -c release --product FetchModel
+	"$$(swift build -c release --show-bin-path)/FetchModel" $(MODEL_FLAG)
+
+bench: fixtures ## Accuracy and speed of the recogniser; exit 1 = a gate missed, 2 = model missing (MODEL=<variant>)
+	swift build -c release --product Bench
+	@"$$(swift build -c release --show-bin-path)/Bench" $(MODEL_FLAG); code=$$?; \
+	 if [ $$code -eq 2 ]; then echo "make bench: BLOCKED (see above)"; fi; \
+	 exit $$code
 
 fixtures: ## Generate speech fixtures with `say` (fixtures/generated)
 	scripts/gen-fixtures.sh
@@ -51,7 +65,10 @@ secrets: ## Scan history and working tree for secrets
 shellcheck: ## Lint shell scripts
 	shellcheck scripts/*.sh
 
-check: format-check lint build test coverage periphery secrets shellcheck ## Everything that must be green before a stage is done
+no-model-in-tests: ## Fail if a unit test touches WhisperKit or the Transcriber (tests never load a model)
+	@if grep -rnE 'WhisperKit|Transcription|Transcriber' Tests; then echo "unit tests must not load a model"; exit 1; fi
+
+check: format-check lint build test coverage periphery secrets shellcheck no-model-in-tests ## Everything that must be green before a stage is done
 	@echo "make check: OK"
 
 e2e: bundle fixtures ## Smoke end-to-end suite, run once (needs macOS permissions; exit 2 = waiting for you)

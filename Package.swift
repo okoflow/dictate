@@ -12,6 +12,8 @@ let package = Package(
         .executable(name: "Dictate", targets: ["Dictate"]),
         .executable(name: "TestPad", targets: ["TestPad"]),
         .executable(name: "E2ERunner", targets: ["E2ERunner"]),
+        .executable(name: "FetchModel", targets: ["FetchModel"]),
+        .executable(name: "Bench", targets: ["Bench"]),
     ],
     dependencies: [
         // Speech recognition (MIT). Pinned exactly: only the `WhisperKit` product is used.
@@ -38,6 +40,12 @@ let package = Package(
 
         // `make e2e` entry point.
         .executableTarget(name: "E2ERunner", dependencies: ["DictateCore", "E2ESupport", "AudioDevices"], swiftSettings: strict),
+
+        // `make model`: downloads and warms up the speech model.
+        .executableTarget(name: "FetchModel", dependencies: ["DictateCore", "Transcription"], swiftSettings: strict),
+
+        // `make bench`: accuracy and speed of the recogniser on the fixtures.
+        .executableTarget(name: "Bench", dependencies: ["DictateCore", "Transcription"], swiftSettings: strict),
 
         // Unit tests never load a model: they cover DictateCore only.
         .testTarget(name: "DictateCoreTests", dependencies: ["DictateCore"], swiftSettings: strict),
