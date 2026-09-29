@@ -1,9 +1,6 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
-# Strictest compiler settings: Swift 6 language mode is set in Package.swift; warnings are errors.
-STRICT := -Xswiftc -warnings-as-errors
-
 # Command Line Tools ship Testing.framework but SwiftPM does not look there; a full Xcode needs no help.
 CLT := /Library/Developer/CommandLineTools/Library/Developer
 ifneq ($(findstring CommandLineTools,$(shell xcode-select -p 2>/dev/null)),)
@@ -16,8 +13,8 @@ endif
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
 
-build: ## Build everything with warnings as errors
-	swift build $(STRICT)
+build: ## Build everything (warnings are errors in our own targets, see Package.swift)
+	swift build
 
 bundle: ## Build and sign build/Dictate.app and build/TestPad.app
 	scripts/bundle.sh Dictate

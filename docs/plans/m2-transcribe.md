@@ -128,3 +128,63 @@ clipboard behaviour, privacy: audio and text stay on the Mac), small commits, no
     - coverage stays scoped to DictateCore;
     - Periphery must not flag API used only by `Bench` (fine, since Bench is a target).
 15. **README:** model name, size, location, how to delete it, RAM while resident, languages, clipboard behaviour, privacy.
+
+
+---
+
+## Spike findings (measured on this Mac: Apple M5, macOS 26.5, Command Line Tools only, Swift 6.3.2)
+
+**Package.** `argmaxinc/argmax-oss-swift` tags run `v0.14.0 … v1.0.0, v1.1.0`; pinned to exactly `1.1.0`, product
+`WhisperKit` only (its own tools-version is 5.10, macOS 13+). It resolves and builds with Command Line Tools alone
+(about 30 s for a release build of the product); no Xcode needed. Our targets stay in Swift 6 language mode with
+`-warnings-as-errors`; the dependency keeps its own settings. Two Swift 6 frictions: `WhisperKit` and its results
+are not `Sendable` (`@preconcurrency import`, all use confined to `actor Transcriber`), and a top-level `var`
+cannot be mutated from the download progress closure (`@Sendable`).
+
+**API as it really is in 1.1.0.**
+- `WhisperKit.download(variant:downloadBase:useBackgroundSession:from:token:endpoint:progressCallback:) async throws -> URL`
+  (static; `progressCallback: @Sendable (Progress) -> Void`).
+- `WhisperKit(WhisperKitConfig(model:downloadBase:modelFolder:tokenizerFolder:verbose:logLevel:prewarm:load:download:))`.
+  With `modelFolder` set and `download: false` nothing is fetched except the tokenizer.
+- **The language detector is misspelled: `detectLangauge(audioArray:)`** (only the `audioPath:` variant is spelled
+  `detectLanguage`). It returns `(language: String, langProbs: [String: Float])`, but `langProbs` holds **only the
+  winner** with its log-probability (`en = -0.00`), not one entry per language. The plan's "pick the max over
+  {ru, en, ko}" therefore cannot be done on the result; if Whisper ranks Ukrainian above Russian it is lost.
+  The decoder builds its language filter from `tokenizer.allLanguageTokens`, so `Transcriber` wraps the tokenizer
+  (`RestrictedTokenizer`) to expose only `<|ru|>`, `<|en|>`, `<|ko|>`: the detector then answers with the most
+  probable of those three (probability among the three, about 1.00 on every fixture). `Language.pick(from:)`
+  stays as the pure decision over whatever the detector returns.
+- `DecodingOptions(verbose:task:language:usePrefillPrompt:detectLanguage:skipSpecialTokens:noSpeechThreshold:chunkingStrategy:…)`;
+  `noSpeechThreshold` defaults to 0.6, `chunkingStrategy: ChunkingStrategy?` is `.vad` or `.none`.
+- `transcribe(audioArray:decodeOptions:) async throws -> [TranscriptionResult]` (`text`, `segments`, `language`, `timings`).
+- The tokenizer is fetched on first load from `openai/whisper-large-v3` into `tokenizerFolder ?? downloadBase`, and
+  **defaults to `~/Documents/huggingface`** when neither is set (the spike created it there; it was removed).
+  `Transcriber` passes `tokenizerFolder` explicitly, so nothing goes under Documents.
+
+**Models** (`argmaxinc/whisperkit-coreml`): large-v3 variants are `openai_whisper-large-v3`, `…-v20240930`
+(1.5 GB on disk), `…-v20240930_626MB` (606 MB), `…-v20240930_turbo(_632MB)`, `distil-whisper_distil-large-v3(_turbo)(_594MB|_600MB)`.
+Downloaded to `<downloadBase>/models/argmaxinc/whisperkit-coreml/<variant>` (we use
+`~/Library/Application Support/Dictate/Models`); a half-finished download leaves `*.incomplete` files under
+`.cache/huggingface/download`. Download took 78 s for 626 MB and 242 s for 1.5 GB on this connection.
+
+**Timings** (release build, 16 kHz clips; warm = second call):
+
+| | 626 MB | 1.5 GB |
+|---|---|---|
+| first load (Core ML compile) | 51 s | 13.5 s |
+| load with the compile cache warm | 1.3 s (in the app) | seconds |
+| detect pass, any length up to 30 s | 0.59-0.61 s | 0.58-0.60 s |
+| transcribe 3 s / 4.6 s / 7.9 s / 11.8 s audio | 0.76 / 0.82 / 0.82 / 1.05 s | 0.76 / - / - / 1.00 s |
+
+The detect pass costs as much as the whole decode of a short phrase (it pads to the 30 s window and runs the
+encoder, which `transcribe` then runs again; the two cannot share the result through the public API), so auto mode
+takes about 1.4-1.8 s for a 3-10 s phrase and a pinned language about 0.8-1.2 s. Transcribing ~10 s takes 1.0-1.2 s,
+just over the 1 s goal and well inside the 3 s gate: no need for a smaller model. The compile cache is kept per
+executable (`~/Library/Caches/<executable or bundle id>`), so each new binary (the app, `Bench`, `FetchModel`)
+pays the first-load cost once.
+
+**Long audio.** `chunkingStrategy: .vad` on concatenated FLEURS clips of 33-41 s: ru 7.0 % CER in 4.0 s, en 1.1 % in
+2.5 s, ko 4.9 % in 3.1 s (auto language). The custom splitter from the first plan is not needed.
+
+**Decision.** Default model: the 626 MB variant (see `make bench` results in the final report): it passes every gate
+and matches the full model within noise on the fixtures.
