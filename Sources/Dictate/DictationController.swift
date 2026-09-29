@@ -24,6 +24,8 @@ final class DictationController {
     private struct Recording {
         let generation: Int
         var failed = false
+        /// Where the focus was when the key went down: the dictation is for that field.
+        var target: FocusSnapshot?
         /// Pressed before the speech model was ready: nothing is recorded, the press only has to be waited out.
         var rejected = false
         var overlayTask: Task<Void, Never>?
@@ -38,6 +40,8 @@ final class DictationController {
     private(set) var hotkeyStatus = HotkeyStatus.starting
     let models: ModelController
     let language = LanguageSettings()
+    let insertion = InsertionSettings()
+    let lastTranscript = LastTranscript()
 
     private let options: LaunchOptions
     private let eventLog: EventLogWriter
@@ -61,6 +65,9 @@ final class DictationController {
             options: options,
             eventLog: eventLog,
             status: status,
+            inserter: Inserter(eventLog: eventLog),
+            insertion: insertion,
+            lastTranscript: lastTranscript,
             recordingPillIsVisible: { pill.isVisible }
         )
         let (events, continuation) = AsyncStream.makeStream(of: (Int, RecorderEvent).self)
@@ -114,6 +121,7 @@ final class DictationController {
         generation += 1
         let current = generation
         var active = Recording(generation: current)
+        active.target = FocusProbe.current()
         active.watchdog = Timer.commonModeTimer(interval: 0.25, repeats: true) { [weak self] in
             self?.checkHotkeyStillHeld()
         }
@@ -154,13 +162,17 @@ final class DictationController {
             eventLog.log(.recordingDiscarded(reason))
             Task { _ = await recorder.stop(generation: generation) }
         case let .finish(seconds, releasedAt):
-            Task { await finish(generation: generation, seconds: seconds, releasedAt: releasedAt, failed: ended.failed) }
+            Task {
+                await finish(
+                    generation: generation, seconds: seconds, releasedAt: releasedAt, failed: ended.failed, target: ended.target
+                )
+            }
         }
     }
 
     /// Every press ends with exactly one `recordingFinished` or `recordingDiscarded`; a failure is
     /// reported by `recordingFailed` first and then still closes the press as discarded.
-    private func finish(generation: Int, seconds: Double, releasedAt: Double, failed: Bool) async {
+    private func finish(generation: Int, seconds: Double, releasedAt: Double, failed: Bool, target: FocusSnapshot?) async {
         let samples = await recorder.stop(generation: generation, releasedAt: failed ? nil : releasedAt)
         guard !failed else {
             eventLog.log(.recordingDiscarded(.interrupted))
@@ -185,7 +197,7 @@ final class DictationController {
             }
         }
         eventLog.log(.recordingFinished(seconds: seconds, samples: samples.count, file: file))
-        pipeline.submit(samples: samples, language: language.preference.language)
+        pipeline.submit(samples: samples, language: language.preference.language, target: target ?? FocusProbe.current())
     }
 
     /// Runs every 250 ms while holding. If the key-up went missing (the tap was off, or the event was
@@ -229,7 +241,9 @@ final class DictationController {
         let generation = active.generation
         Task { _ = await recorder.stop(generation: generation) }
     }
+}
 
+extension DictationController {
     // MARK: Overlay
 
     private func showOverlay(for generation: Int) {

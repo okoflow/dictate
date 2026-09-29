@@ -12,6 +12,9 @@ public struct LaunchOptions: Equatable, Sendable {
     /// Record from the input device with this name instead of the system default.
     public var inputDevice: String?
 
+    /// Only copy dictated text to the clipboard, never paste it (the "Insert into the focused field" setting
+    /// forced off; the E2E suite uses it to check the clipboard path).
+    public var clipboardOnly: Bool
     /// Speech model to use instead of `ModelStore.defaultModel` (a WhisperKit variant name).
     public var model: String?
     /// Save each transcript as `<n>.txt` here. Test-only: honoured only when the environment has
@@ -24,6 +27,7 @@ public struct LaunchOptions: Equatable, Sendable {
         eventLog = argumentValue(after: "--event-log", in: arguments)
         recordingDirectory = argumentValue(after: "--recording-dir", in: arguments)
         inputDevice = argumentValue(after: "--input-device", in: arguments)
+        clipboardOnly = arguments.contains("--clipboard-only")
         model = argumentValue(after: "--model", in: arguments)
         transcriptDirectory = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--transcript-dir", in: arguments) : nil
     }

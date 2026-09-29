@@ -40,6 +40,13 @@ private struct MenuContent: View {
             .pickerStyle(.inline)
             .labelsHidden()
         }
+        Toggle("Insert into the focused field", isOn: Bindable(dictation.insertion).isEnabled)
+        Button("Copy last transcript") {
+            if let text = dictation.lastTranscript.text {
+                Clipboard.copy(text)
+            }
+        }
+        .disabled(dictation.lastTranscript.text == nil)
         Divider()
         if permissions.report.allGranted {
             Text("All permissions granted")

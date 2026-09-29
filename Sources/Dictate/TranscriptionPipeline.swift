@@ -9,12 +9,16 @@ final class TranscriptionPipeline {
     private struct Job {
         let samples: [Float]
         let language: Language?
+        let target: FocusSnapshot
     }
 
     private let transcriber: Transcriber
     private let options: LaunchOptions
     private let eventLog: EventLogWriter
     private let status: StatusOverlay
+    private let inserter: Inserter
+    private let insertion: InsertionSettings
+    private let lastTranscript: LastTranscript
     private let recordingPillIsVisible: @MainActor () -> Bool
     private let jobs: AsyncStream<Job>.Continuation
     private var pending = 0
@@ -28,12 +32,18 @@ final class TranscriptionPipeline {
         options: LaunchOptions,
         eventLog: EventLogWriter,
         status: StatusOverlay,
+        inserter: Inserter,
+        insertion: InsertionSettings,
+        lastTranscript: LastTranscript,
         recordingPillIsVisible: @escaping @MainActor () -> Bool
     ) {
         self.transcriber = transcriber
         self.options = options
         self.eventLog = eventLog
         self.status = status
+        self.inserter = inserter
+        self.insertion = insertion
+        self.lastTranscript = lastTranscript
         self.recordingPillIsVisible = recordingPillIsVisible
         let (stream, continuation) = AsyncStream.makeStream(of: Job.self)
         jobs = continuation
@@ -45,10 +55,11 @@ final class TranscriptionPipeline {
         }
     }
 
-    /// Queues `samples`; `language` is the menu choice at the moment of the recording.
-    func submit(samples: [Float], language: Language?) {
+    /// Queues `samples`; `language` is the menu choice at the moment of the recording, `target` the focus
+    /// at the moment the key went down.
+    func submit(samples: [Float], language: Language?, target: FocusSnapshot) {
         pending += 1
-        jobs.yield(Job(samples: samples, language: language))
+        jobs.yield(Job(samples: samples, language: language, target: target))
         presentNext()
     }
 
@@ -74,8 +85,7 @@ final class TranscriptionPipeline {
         let message: String
         do {
             if let transcript = try await transcriber.transcribe(samples: job.samples, language: job.language) {
-                deliver(transcript)
-                message = transcript.text
+                message = await deliver(transcript, target: job.target)
             } else {
                 eventLog.log(.noSpeech)
                 message = "Didn't catch that"
@@ -89,14 +99,31 @@ final class TranscriptionPipeline {
         presentNext()
     }
 
-    /// The clipboard and the transcript file are written before the event, so whoever waits for the
-    /// event finds both in place.
-    private func deliver(_ transcript: Transcript) {
-        Clipboard.copy(transcript.text)
+    /// Hands the text on: pasted into the focused field, or (setting off, or the paste was not safe) on the
+    /// clipboard. The transcript file, when asked for, is written before the event, so whoever waits for
+    /// the event finds it in place. Returns what to tell the user.
+    private func deliver(_ transcript: Transcript, target: FocusSnapshot) async -> String {
+        lastTranscript.remember(transcript.text)
+        let inserting = insertion.isEnabled && !options.clipboardOnly
+        if !inserting {
+            Clipboard.copy(transcript.text)
+        }
         if let directory = options.transcriptDirectory {
             savedTranscripts += 1
             try? TranscriptStore.save(transcript.text, number: savedTranscripts, in: URL(fileURLWithPath: directory))
         }
         eventLog.log(.transcribed(language: transcript.language, characters: transcript.text.count, seconds: transcript.seconds))
+        guard inserting else { return transcript.text }
+
+        switch await inserter.insert(transcript.text, target: target) {
+        case .inserted:
+            return transcript.text
+        case .skipped(.secureField):
+            // Not copied either: a password field is where the text must not go, or linger.
+            return "Not typed into a password field (menu: Copy last transcript)"
+        case .skipped:
+            Clipboard.copy(transcript.text)
+            return "Copied — ⌘V to paste"
+        }
     }
 }
