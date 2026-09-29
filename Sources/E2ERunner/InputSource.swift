@@ -1,5 +1,6 @@
 import Carbon.HIToolbox
 import Foundation
+import os
 
 /// Switches the keyboard layout for the duration of a check, because "Option+a types å" is only
 /// true for the US/ABC layout; on Russian or Korean layouts the same keys give something else.
@@ -18,12 +19,26 @@ enum InputSource {
         }
     }
 
+    /// Identifier of the layout to bring back if the run is aborted while another one is selected.
+    private static let pendingRestore = OSAllocatedUnfairLock<String?>(initialState: nil)
+
+    /// Brings back the layout that `using` replaced, if a run was cut short in the middle of it.
+    /// Safe to call from any thread.
+    static func restorePending() {
+        guard let identifier = pendingRestore.withLock({ $0 }), let previous = source(identifier) else { return }
+        TISSelectInputSource(previous)
+    }
+
     /// Runs `body` with `identifier` as the current layout and restores the previous one afterwards.
     @MainActor
     static func using<T>(_ identifier: String, _ body: () throws -> T) throws -> T {
         let previous = TISCopyCurrentKeyboardInputSource().takeRetainedValue()
         guard let target = source(identifier) else { throw Failure.unavailable(identifier) }
-        defer { TISSelectInputSource(previous) }
+        pendingRestore.withLock { $0 = currentIdentifier() }
+        defer {
+            TISSelectInputSource(previous)
+            pendingRestore.withLock { $0 = nil }
+        }
         if currentIdentifier() != identifier {
             TISSelectInputSource(target)
             guard waitUntil(timeout: 3, { currentIdentifier() == identifier }) else {

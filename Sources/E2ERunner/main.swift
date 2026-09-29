@@ -3,6 +3,10 @@ import Foundation
 // `make e2e` entry point. Exit code: 0 green, 1 a check failed, 2 nothing failed but a check
 // is blocked on a user action (permission, missing tool). Run from the repository root.
 
+// Ctrl-C or `kill` must not leave Option held down or Dictate recording; see AbortGuard.
+AbortGuard.healKeyboard()
+let abortSources = AbortGuard.install()
+
 let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 let checks = AppChecks(
     buildDirectory: root.appendingPathComponent("build"),
@@ -57,4 +61,5 @@ if let url = try? report.save(in: root.appendingPathComponent("e2e/reports")) {
     print("Report: \(url.path)")
 }
 
-exit(report.exitCode)
+// The signal sources must live until here.
+withExtendedLifetime(abortSources) { exit(report.exitCode) }

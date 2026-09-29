@@ -59,6 +59,14 @@ struct KeyboardDriver {
         }
     }
 
+    /// Posts a release for every modifier the suite ever presses. Harmless when nothing is held, so it
+    /// also heals a keyboard state left behind by an earlier run that was killed.
+    func releaseAll() {
+        for modifier in [Modifier.rightOption, .leftOption] {
+            postModifier(modifier, down: false)
+        }
+    }
+
     private func postModifier(_ modifier: Modifier, down: Bool) {
         let event = CGEvent(keyboardEventSource: source, virtualKey: modifier.keyCode, keyDown: down)
         event?.type = .flagsChanged

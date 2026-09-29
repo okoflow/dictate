@@ -8,7 +8,10 @@ struct AppLauncher {
     let bundleIdentifier: String
 
     var runningApplication: NSRunningApplication? {
-        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first
+        // A command-line tool never runs its main loop, so the workspace's list of running apps goes
+        // stale (an app that is plainly running stops being found). Let the loop turn once first.
+        RunLoop.current.run(mode: .default, before: Date())
+        return NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first
     }
 
     /// Starts a fresh instance and returns once it is running, or `nil` on timeout.
