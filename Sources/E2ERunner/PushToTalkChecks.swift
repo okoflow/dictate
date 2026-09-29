@@ -19,11 +19,11 @@ struct PushToTalkChecks {
     let fixture: URL
     let testPadStateURL: URL
 
-    private var keyboard: KeyboardDriver {
+    var keyboard: KeyboardDriver {
         KeyboardDriver()
     }
 
-    private var session: RecordingSession {
+    var session: RecordingSession {
         RecordingSession(dictate: dictate, log: log, keyboard: keyboard)
     }
 
@@ -64,7 +64,8 @@ struct PushToTalkChecks {
     func recordFixtureThroughBlackHole() -> Outcome {
         run {
             let environment = try session.environment()
-            let capture = try session.capture(playing: fixture, silence: 0, in: environment)
+            let playback = try prepareFixturePlayback(on: environment.blackHole)
+            let capture = try session.capture(playing: playback, silence: 0)
             try verify(capture, device: environment.blackHole)
             let heard = AudioLevel.speechSpan(of: capture.samples, sampleRate: 16000) ?? 0
             let expected = try AudioLevel.speechSpan(of: WAVReader.samples(at: fixture), sampleRate: 16000) ?? 0
@@ -82,8 +83,8 @@ struct PushToTalkChecks {
     /// Same hold with nothing played: proves the previous check measured the fixture, not noise.
     func silenceControl() -> Outcome {
         run {
-            let environment = try session.environment()
-            let capture = try session.capture(playing: nil, silence: 1.5, in: environment)
+            _ = try session.environment()
+            let capture = try session.capture(playing: nil, silence: 1.5)
             // Non-finite or full-scale samples are not "someone else's audio": the app produced garbage.
             guard capture.samples.allSatisfy({ $0.isFinite && abs($0) < 0.99 }) else {
                 throw Verdict.fail("the silent recording contains non-finite or full-scale samples")
@@ -164,39 +165,15 @@ struct PushToTalkChecks {
         }
     }
 
-    /// Option+letter must still type its character, and must not leave a recording running.
-    func optionLetterPassesThrough() -> Outcome {
-        run {
-            _ = try session.environment()
-            let element = try prepareTestPad()
-            let baseline = log.baseline()
-            do {
-                try InputSource.using(InputSource.abc) {
-                    keyboard.holding(.rightOption) {
-                        Thread.sleep(forTimeInterval: 0.05)
-                        keyboard.type(key: KeyboardDriver.letterA, holding: .rightOption)
-                        Thread.sleep(forTimeInterval: 0.05)
-                    }
-                    let typed = waitUntil(timeout: 3) { testPadState()?.text == "å" }
-                    guard typed else {
-                        throw Verdict.fail("expected TestPad to contain \"å\", it contains \"\(testPadState()?.text ?? "?")\"")
-                    }
-                }
-            } catch let failure as InputSource.Failure {
-                throw Verdict.blocked(failure.description)
-            }
-            let discarded = try session.waitFor(since: baseline, timeout: 2) { $0 == .recordingDiscarded(.otherKeyPressed) }
-            guard discarded else {
-                throw Verdict.fail("no recordingDiscarded(otherKeyPressed): \(log.newEvents(since: baseline))")
-            }
-            guard Accessibility.string("AXValue", of: element) == "å", testPadIsFrontmost() else {
-                throw Verdict.fail("TestPad lost its text or focus")
-            }
-            return .pass
+    // MARK: Helpers
+
+    private func prepareFixturePlayback(on device: AudioDevice) throws -> PreparedPlayback {
+        do {
+            return try PreparedPlayback(wavAt: fixture, on: device)
+        } catch {
+            throw Verdict.fail("cannot prepare playback into \(device.name): \(error)")
         }
     }
-
-    // MARK: Helpers
 
     /// Checks the recording against what the app said and what was played.
     private func verify(_ capture: Capture, device: AudioDevice) throws {
@@ -217,28 +194,5 @@ struct PushToTalkChecks {
             throw Verdict.fail(String(format: "kept %.2f s of audio, expected %.2f s (%.2f s hold, %.2f s start-up)",
                                       kept, expected, capture.seconds, capture.latency))
         }
-    }
-
-    /// Makes TestPad frontmost with an empty text view, so what appears there came from the keys.
-    private func prepareTestPad() throws -> AXUIElement {
-        guard let pid = testPad.runningApplication?.processIdentifier else { throw Verdict.fail("TestPad is not running") }
-        let app = Accessibility.application(pid: pid)
-        Accessibility.bringToFront(app)
-        guard waitUntil(timeout: 3, { testPadIsFrontmost() }) else { throw Verdict.fail("TestPad is not the frontmost app") }
-        guard let element = Accessibility.waitForElement(identifier: TestPadState.textIdentifier, in: app),
-              Accessibility.setValue("", of: element),
-              waitUntil(timeout: 3, { testPadState()?.text == "" })
-        else {
-            throw Verdict.fail("cannot clear the TestPad text view")
-        }
-        return element
-    }
-
-    private func testPadState() -> TestPadState? {
-        try? TestPadState.read(from: testPadStateURL)
-    }
-
-    private func testPadIsFrontmost() -> Bool {
-        testPadState()?.isFrontmost == true
     }
 }

@@ -93,7 +93,7 @@ struct RecordingSession {
 
     /// Holds right Option, waits for the microphone to go live, then either plays `fixture` into
     /// BlackHole or stays silent for `silence` seconds, and releases.
-    func capture(playing fixture: URL?, silence: TimeInterval, in environment: Environment) throws -> Capture {
+    func capture(playing playback: PreparedPlayback?, silence: TimeInterval) throws -> Capture {
         let baseline = log.baseline()
         let pressed = ProcessInfo.processInfo.systemUptime
         var latency = 0.0
@@ -110,9 +110,13 @@ struct RecordingSession {
             }
             latency = ProcessInfo.processInfo.systemUptime - pressed
             device = started
-            if let fixture {
+            if let playback {
                 // Released the moment playback ends, so a cut-off tail shows up in the measurements.
-                try AudioPlayback.play(wavAt: fixture, on: environment.blackHole)
+                do {
+                    try playback.play()
+                } catch {
+                    throw Verdict.fail("\(error)")
+                }
             } else {
                 Thread.sleep(forTimeInterval: silence)
             }
