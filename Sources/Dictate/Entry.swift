@@ -8,7 +8,7 @@ enum Entry {
         if CommandLine.arguments.contains("--print-permissions") {
             printPermissionsAndExit()
         }
-        if let path = argumentValue(after: "--report-file") {
+        if let path = LaunchOptions(arguments: CommandLine.arguments).reportFile {
             writeReport(to: URL(fileURLWithPath: path))
         }
         DictateApp.main()
