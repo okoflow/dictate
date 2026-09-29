@@ -2,13 +2,15 @@ import Foundation
 
 enum Outcome {
     case pass
+    /// Passed, with a measurement worth keeping in the report (a latency, say).
+    case measured(String)
     case fail(String)
     /// Cannot run until the user grants something (a permission, a tool). Not a code defect.
     case blocked(String)
 
     var label: String {
         switch self {
-        case .pass: "PASS"
+        case .pass, .measured: "PASS"
         case .fail: "FAIL"
         case .blocked: "BLOCKED"
         }
@@ -16,6 +18,7 @@ enum Outcome {
 
     var detail: String? {
         switch self {
+        case let .measured(note): note
         case .pass: nil
         case let .fail(message), let .blocked(message): message
         }
