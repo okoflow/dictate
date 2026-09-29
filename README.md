@@ -42,8 +42,11 @@ are granted and a crossed-out one otherwise; the menu lists what is missing and 
 
 ## Push-to-talk
 
-**Hold the right Option key** anywhere, speak, release. Dictate records from the moment the key goes
-down, so the first word is not lost, and converts the audio to 16 kHz mono for recognition (M2).
+**Hold the right Option key** anywhere, speak, release. Dictate starts the microphone when the key goes
+down and converts the audio to 16 kHz mono for recognition (M2). Starting the audio engine takes about
+0.2 s, so the very first syllable can be missed if you speak the instant you press; start speaking a
+beat after the key goes down. (Keeping the engine warm to remove that delay is future work.) The end of
+your last word is kept: recording continues for a moment after release to catch audio still in flight.
 
 - A floating pill with a level meter appears after 0.3 s of holding. It never takes focus, so the
   app you are typing in stays active.
@@ -54,7 +57,7 @@ down, so the first word is not lost, and converts the audio to 16 kHz mono for r
 - The left Option key does nothing.
 - On layouts that use right Option as AltGr the pill does not flash for such combinations, but the
   orange microphone indicator in the menu bar can blink briefly, because recording starts immediately.
-- A recording stops on its own after 5 minutes, or if macOS switches the key listener off.
+- A recording stops on its own after 5 minutes, if macOS switches the key listener off, or if the key-up is lost.
 
 ### Launch options
 
