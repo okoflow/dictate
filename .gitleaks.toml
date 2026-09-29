@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "build output and generated audio"
+paths = [
+  '''^\.build/''',
+  '''^build/''',
+  '''^fixtures/generated/''',
+]

@@ -1,0 +1,14 @@
+# Install with `make hooks`. Fast checks only; `make check` is the full gate.
+pre-commit:
+  commands:
+    format:
+      glob: "*.swift"
+      run: swiftformat --lint {staged_files}
+    lint:
+      glob: "*.swift"
+      run: scripts/swiftlint.sh {staged_files}
+    shellcheck:
+      glob: "*.sh"
+      run: shellcheck {staged_files}
+    secrets:
+      run: gitleaks git --pre-commit --staged --no-banner --redact
