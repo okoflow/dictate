@@ -27,9 +27,7 @@ final class RecordingOverlay {
         // `orderFront` is not enough for an accessory app: it is never active, so the window
         // would stay behind everything.
         panel.orderFrontRegardless()
-        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [model] _ in
-            MainActor.assumeIsolated { model.push(level()) }
-        }
+        levelTimer = Timer.commonModeTimer(interval: 0.05, repeats: true) { [model] in model.push(level()) }
     }
 
     func hide() {

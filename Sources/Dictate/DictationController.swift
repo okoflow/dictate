@@ -17,21 +17,18 @@ final class DictationController {
         case unavailable
     }
 
-    /// Recording longer than this is stopped, as if the key had been released (a forgotten hold).
-    static let maximumRecording: Double = 300
     /// The pill appears only after this long, so a quick Option+letter does not flash it.
     static let overlayDelay: Duration = .milliseconds(300)
 
     private struct Recording {
         let generation: Int
-        let startedAt: Double
         var failed = false
         var overlayTask: Task<Void, Never>?
         var watchdog: Timer?
     }
 
     private enum Ending {
-        case finish(seconds: Double)
+        case finish(seconds: Double, releasedAt: Double)
         case discard(PushToTalk.DiscardReason)
     }
 
@@ -81,15 +78,13 @@ final class DictationController {
             askedForInputMonitoring = true
             _ = CGRequestListenEventAccess()
         }
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { [weak self] _ in
-            MainActor.assumeIsolated { self?.installHotkey() }
-        }
+        _ = Timer.commonModeTimer(interval: 2, repeats: false) { [weak self] in self?.installHotkey() }
     }
 
     private func handle(_ signal: KeyboardSignal, at time: Double) {
         switch pushToTalk.handle(signal, at: time) {
-        case .startRecording: begin(at: time)
-        case let .finishRecording(seconds): end(.finish(seconds: seconds))
+        case .startRecording: begin()
+        case let .finishRecording(seconds): end(.finish(seconds: seconds, releasedAt: time))
         case let .discardRecording(reason): end(.discard(reason))
         case nil: break
         }
@@ -97,17 +92,17 @@ final class DictationController {
 
     // MARK: Recording
 
-    private func begin(at time: Double) {
+    private func begin() {
         generation += 1
         let current = generation
-        var active = Recording(generation: current, startedAt: time)
+        var active = Recording(generation: current)
         active.overlayTask = Task { [weak self] in
             try? await Task.sleep(for: Self.overlayDelay)
             guard !Task.isCancelled else { return }
             self?.showOverlay(for: current)
         }
-        active.watchdog = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.checkHotkeyStillHeld() }
+        active.watchdog = Timer.commonModeTimer(interval: 0.25, repeats: true) { [weak self] in
+            self?.checkHotkeyStillHeld()
         }
         recording = active
 
@@ -131,16 +126,22 @@ final class DictationController {
         case let .discard(reason):
             eventLog.log(.recordingDiscarded(reason))
             Task { _ = await recorder.stop(generation: generation) }
-        case let .finish(seconds):
-            Task { await finish(generation: generation, seconds: seconds, failed: ended.failed) }
+        case let .finish(seconds, releasedAt):
+            Task { await finish(generation: generation, seconds: seconds, releasedAt: releasedAt, failed: ended.failed) }
         }
     }
 
-    private func finish(generation: Int, seconds: Double, failed: Bool) async {
-        let samples = await recorder.stop(generation: generation)
-        guard !failed else { return }
+    /// Every press ends with exactly one `recordingFinished` or `recordingDiscarded`; a failure is
+    /// reported by `recordingFailed` first and then still closes the press as discarded.
+    private func finish(generation: Int, seconds: Double, releasedAt: Double, failed: Bool) async {
+        let samples = await recorder.stop(generation: generation, releasedAt: failed ? nil : releasedAt)
+        guard !failed else {
+            eventLog.log(.recordingDiscarded(.interrupted))
+            return
+        }
         guard !samples.isEmpty else {
             eventLog.log(.recordingFailed("no audio was captured"))
+            eventLog.log(.recordingDiscarded(.interrupted))
             return
         }
         var file: String?
@@ -150,22 +151,25 @@ final class DictationController {
                 file = try await Task.detached { try RecordingStore.save(samples, in: url).path }.value
             } catch {
                 eventLog.log(.recordingFailed("cannot save the recording: \(error.localizedDescription)"))
+                eventLog.log(.recordingDiscarded(.interrupted))
                 return
             }
         }
         eventLog.log(.recordingFinished(seconds: seconds, samples: samples.count, file: file))
     }
 
-    /// If the key-up went missing (the tap was off, or the event was eaten), the hardware state
-    /// still tells the truth. `hidSystemState` rather than the session state: it also reflects
-    /// events posted synthetically, which the E2E suite relies on.
+    /// Runs every 250 ms while holding. If the key-up went missing (the tap was off, or the event was
+    /// eaten) the keyboard state still tells the truth; the key counts as released only when *both*
+    /// the HID state (which sees synthetic events, as in the E2E suite) and the session state (which
+    /// sees keys injected by remote-control tools) have lost the right Option bit. It also lets
+    /// the state machine end a hold that runs past the maximum length.
     private func checkHotkeyStillHeld() {
-        guard let active = recording else { return }
+        guard recording != nil else { return }
         let now = uptimeSeconds()
-        let flags = CGEventSource.flagsState(.hidSystemState).rawValue
-        if flags & Hotkey.rightOptionDeviceFlag == 0 || now - active.startedAt >= Self.maximumRecording {
-            handle(.hotkeyUp, at: now)
+        let held = [CGEventSourceStateID.hidSystemState, .combinedSessionState].contains {
+            CGEventSource.flagsState($0).rawValue & Hotkey.rightOptionDeviceFlag != 0
         }
+        handle(held ? .tick : .hotkeyUp, at: now)
     }
 
     private func microphoneProblem() -> String? {
