@@ -31,7 +31,7 @@ while IFS=$'\t' read -r id voice text tags; do
     if [[ ",$tags," == *",noisy,"* ]]; then
         base="$out/${id%-noisy}.wav"
         [[ -f "$base" ]] || { echo "noisy fixture $id needs $base first" >&2; exit 1; }
-        python3 scripts/add_noise.py "$base" "$target" 15
+        python3 scripts/add-noise.py "$base" "$target" 15
     else
         say -v "$voice" -o "$work/$id.aiff" -- "$text"
         afconvert -f WAVE -d LEI16@16000 -c 1 "$work/$id.aiff" "$target"

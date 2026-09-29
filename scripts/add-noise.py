@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Mix deterministic white noise into a 16-bit mono WAV at a given signal-to-noise ratio.
 
-Usage: add_noise.py <in.wav> <out.wav> [snr_db]
+Usage: add-noise.py <in.wav> <out.wav> [snr_db]
 """
 import math
 import random

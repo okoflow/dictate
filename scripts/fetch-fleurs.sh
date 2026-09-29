@@ -4,7 +4,8 @@
 #
 # Output per clip: <lang>-<n>.wav (16 kHz mono, 16-bit) and <lang>-<n>.txt (exact transcript),
 # plus fixtures/private/SOURCES.md with attribution. The folder is git-ignored.
-# Picks short clips (4–12 s) without Latin letters in ru/ko, alternating speaker gender.
+# Picks short clips (4–12 s) without Latin letters in ru/ko, alternating speaker gender, and
+# skips near-silent recordings (FLEURS has a few with peak level under 10%).
 # Usage: scripts/fetch-fleurs.sh [clips_per_language]
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -31,13 +32,13 @@ select_rows() {
     local lang=$1
     # Short clips; for ru/ko skip transcripts with Latin letters (mixed-script names skew CER).
     # Sort so genders alternate: 0 (male) and 1 (female) interleaved.
-    jq -c --arg lang "$lang" --argjson limit "$per_language" '
+    jq -c --arg lang "$lang" '
         [.rows[].row
          | select(.num_samples >= 64000 and .num_samples <= 192000)
          | select($lang == "en" or (.raw_transcription | test("[A-Za-z]") | not))]
         | group_by(.gender)
         | [range(0; (map(length) | max)) as $i | .[] | .[$i] // empty]
-        | .[:$limit][]
+        | .[]
         | {id, gender, seconds: (.num_samples / 16000 * 10 | round / 10),
            text: .raw_transcription, url: .audio[0].src}'
 }
@@ -45,14 +46,20 @@ select_rows() {
 for pair in ru:ru_ru en:en_us ko:ko_kr; do
     lang=${pair%%:*}
     config=${pair#*:}
-    curl -fsS "$api&config=$config&offset=0&length=100" > "$work/$lang.json"
+    curl -fsS --retry 4 --retry-all-errors --retry-delay 3 "$api&config=$config&offset=0&length=100" > "$work/$lang.json"
 
     n=0
     while IFS= read -r row; do
+        [[ $n -ge $per_language ]] && break
+        name="$lang-$((n + 1))"
+        curl -fsS --retry 4 --retry-all-errors --retry-delay 3 -o "$work/raw.wav" "$(jq -r .url <<< "$row")"
+        afconvert -f WAVE -d LEI16@16000 -c 1 "$work/raw.wav" "$work/clip.wav"
+        if ! python3 scripts/audio-level.py "$work/clip.wav" --min-peak 0.1; then
+            echo "skipped FLEURS $config row $(jq -r .id <<< "$row"): too quiet" >&2
+            continue
+        fi
         n=$((n + 1))
-        name="$lang-$n"
-        curl -fsS -o "$work/$name.wav" "$(jq -r .url <<< "$row")"
-        afconvert -f WAVE -d LEI16@16000 -c 1 "$work/$name.wav" "$out/$name.wav"
+        mv "$work/clip.wav" "$out/$name.wav"
         jq -r .text <<< "$row" > "$out/$name.txt"
         gender=$(jq -r 'if .gender == 0 then "male" elif .gender == 1 then "female" else "other" end' <<< "$row")
         echo "| $name.wav | $config | $(jq -r .id <<< "$row") | $gender | $(jq -r .seconds <<< "$row") |" \
