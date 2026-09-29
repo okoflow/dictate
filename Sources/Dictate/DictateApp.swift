@@ -25,6 +25,22 @@ private struct MenuContent: View {
         case .unavailable: Text("Hotkey unavailable: grant Input Monitoring")
         }
         Divider()
+        Text("Model: \(dictation.models.state.statusText)")
+        if dictation.models.state.canRetry {
+            Button("Retry") {
+                dictation.models.retry()
+            }
+        }
+        Menu("Language: \(dictation.language.preference.menuTitle)") {
+            Picker("Language", selection: Bindable(dictation.language).preference) {
+                ForEach(LanguagePreference.allChoices, id: \.storedValue) { choice in
+                    Text(choice.menuTitle).tag(choice)
+                }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+        }
+        Divider()
         if permissions.report.allGranted {
             Text("All permissions granted")
         } else {

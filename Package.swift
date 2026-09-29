@@ -28,7 +28,7 @@ let package = Package(
         .target(name: "Transcription", dependencies: ["DictateCore", whisperKit], swiftSettings: strict),
 
         // The menu bar app.
-        .executableTarget(name: "Dictate", dependencies: ["DictateCore", "AudioDevices"], swiftSettings: strict),
+        .executableTarget(name: "Dictate", dependencies: ["DictateCore", "AudioDevices", "Transcription"], swiftSettings: strict),
 
         // Test-only app: a text view and a password field the E2E suite drives via Accessibility.
         .executableTarget(name: "TestPad", dependencies: ["DictateCore", "E2ESupport"], swiftSettings: strict),

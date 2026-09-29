@@ -8,6 +8,8 @@ import SwiftUI
 @MainActor
 final class RecordingOverlay {
     static let accessibilityIdentifier = "dictate.overlay"
+    /// The E2E suite tells this window from the others of the app by its size.
+    static let size = CGSize(width: 132, height: 44)
 
     private let model = OverlayModel()
     private var panel: OverlayPanel?
@@ -23,7 +25,7 @@ final class RecordingOverlay {
         let panel = panel ?? makePanel()
         self.panel = panel
         model.reset()
-        position(panel)
+        panel.moveToBottomCentre()
         // `orderFront` is not enough for an accessory app: it is never active, so the window
         // would stay behind everything.
         panel.orderFrontRegardless()
@@ -37,49 +39,15 @@ final class RecordingOverlay {
     }
 
     private func makePanel() -> OverlayPanel {
-        let panel = OverlayPanel(contentRect: NSRect(x: 0, y: 0, width: 132, height: 44))
+        let panel = OverlayPanel(
+            contentRect: NSRect(x: 0, y: 0, width: Self.size.width, height: Self.size.height),
+            identifier: Self.accessibilityIdentifier,
+            label: "Dictate is recording"
+        )
         let host = NSHostingView(rootView: LevelPill(model: model))
         host.frame = NSRect(origin: .zero, size: panel.frame.size)
         panel.contentView = host
         return panel
-    }
-
-    /// Bottom centre of the screen the mouse is on, where the eye usually is while typing.
-    private func position(_ panel: NSPanel) {
-        let mouse = NSEvent.mouseLocation
-        let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
-        guard let area = screen?.visibleFrame else { return }
-        panel.setFrameOrigin(NSPoint(x: area.midX - panel.frame.width / 2, y: area.minY + 48))
-    }
-}
-
-/// A borderless panel that can be shown without activating the app or stealing key status.
-private final class OverlayPanel: NSPanel {
-    override var canBecomeKey: Bool {
-        false
-    }
-
-    override var canBecomeMain: Bool {
-        false
-    }
-
-    init(contentRect: NSRect) {
-        super.init(
-            contentRect: contentRect,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        isOpaque = false
-        backgroundColor = .clear
-        hasShadow = true
-        level = .statusBar
-        ignoresMouseEvents = true
-        hidesOnDeactivate = false
-        isReleasedWhenClosed = false
-        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
-        setAccessibilityIdentifier(RecordingOverlay.accessibilityIdentifier)
-        setAccessibilityLabel("Dictate is recording")
     }
 }
 
