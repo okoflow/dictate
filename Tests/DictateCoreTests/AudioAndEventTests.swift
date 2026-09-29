@@ -82,6 +82,7 @@ struct AppEventTests {
             .insertionSkipped(.secureField),
             .insertionSkipped(.focusChanged),
             .insertionSkipped(.notAllowed),
+            .watchdogReleased,
             .restoreSkipped("the clipboard holds more than 5 MB"),
         ]
         let log = try events.map { try $0.jsonLine() }.joined()

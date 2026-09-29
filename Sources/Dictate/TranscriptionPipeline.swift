@@ -55,6 +55,11 @@ final class TranscriptionPipeline {
         }
     }
 
+    /// Waits for a paste in progress (and its clipboard restore) to finish.
+    func finishPendingInsertions() async {
+        await inserter.waitUntilIdle()
+    }
+
     /// Queues `samples`; `language` is the menu choice at the moment of the recording, `target` the focus
     /// at the moment the key went down.
     func submit(samples: [Float], language: Language?, target: FocusSnapshot) {

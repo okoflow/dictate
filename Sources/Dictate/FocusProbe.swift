@@ -28,9 +28,26 @@ enum FocusProbe {
     }
 
     /// `CFEqual` on two elements: the same accessibility object, not merely the same kind.
+    /// Elements that differ still count as the same target when they have the same role in the same window:
+    /// many apps hand out a fresh accessibility object for the same field each time it is asked for.
     static func compare(_ lhs: AXUIElement?, _ rhs: AXUIElement?) -> InsertionRules.ElementComparison {
         guard let lhs, let rhs else { return .unknown }
-        return CFEqual(lhs, rhs) ? .same : .different
+        if CFEqual(lhs, rhs) {
+            return .same
+        }
+        guard let role = string("AXRole", of: lhs), role == string("AXRole", of: rhs),
+              let lhsWindow = window(of: lhs), let rhsWindow = window(of: rhs), CFEqual(lhsWindow, rhsWindow)
+        else { return .different }
+        return .same
+    }
+
+    private static func window(of element: AXUIElement) -> AXUIElement? {
+        AXUIElementSetMessagingTimeout(element, messagingTimeout)
+        var value: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, "AXWindow" as CFString, &value) == .success,
+              let value, CFGetTypeID(value) == AXUIElementGetTypeID()
+        else { return nil }
+        return unsafeDowncast(value, to: AXUIElement.self)
     }
 
     static func isSecureTextField(_ element: AXUIElement?) -> Bool {

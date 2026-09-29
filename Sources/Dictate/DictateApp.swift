@@ -60,7 +60,11 @@ private struct MenuContent: View {
         }
         Divider()
         Button("Quit Dictate") {
-            NSApplication.shared.terminate(nil)
+            Task {
+                // A paste in progress still has to give the user's clipboard back.
+                await dictation.prepareToQuit()
+                NSApplication.shared.terminate(nil)
+            }
         }
         .keyboardShortcut("q")
     }

@@ -5,13 +5,14 @@ import Foundation
 public enum InsertionRules {
     // MARK: Spacing
 
-    /// After these characters (and after whitespace) no space is added: the text continues a bracket,
-    /// a quotation or a path. The same for Russian, English and Korean.
-    private static let noSpaceAfter: Set<Character> = ["(", "\"", "«", "„", "/", "[", "“"]
+    /// After these characters (and after whitespace) no space is added: the text continues an opening
+    /// bracket, an opening quotation mark or a path. The same for Russian, English and Korean.
+    private static let noSpaceAfter: Set<Character> = ["(", "[", "{", "<", "\"", "'", "‘", "“", "«", "„", "/"]
 
     /// `text` as it should be pasted. Whisper's leading and trailing whitespace is dropped, and one space
     /// is put in front unless the caret is at the start of the field, follows whitespace or one of
-    /// `( " « „ / [`, or `characterBeforeCaret` could not be read (`nil`): then no space rather than a wrong one.
+    /// `( [ { < " ' ‘ “ « „ /`, or `characterBeforeCaret` could not be read (`nil`): then no space rather
+    /// than a wrong one.
     public static func prepared(_ text: String, characterBeforeCaret: Character?) -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, let before = characterBeforeCaret else { return trimmed }
@@ -82,11 +83,23 @@ public enum InsertionRules {
     public static let maximumSnapshotBytes = 5 * 1024 * 1024
     public static let concealedType = "org.nspasteboard.ConcealedType"
     public static let transientType = "org.nspasteboard.TransientType"
+    /// Put on every item Dictate writes itself. Such an item is concealed on purpose, but it is ours, so it
+    /// is safe (and needed) to put back: otherwise a text that was only copied would be lost to the next paste.
+    public static let ownType = "dev.dictate.transcript"
 
-    /// Types that cannot be put back: dynamic UTIs and promised files refer to something that is gone
-    /// once the owner is.
-    public static func isRestorable(type: String) -> Bool {
-        !(type.hasPrefix("dyn.") || type.hasPrefix("com.apple.pasteboard.promised-file") || type.hasPrefix("NSPromised"))
+    /// The kinds of content that are saved and restored; anything else on the clipboard is lost by a paste.
+    /// A bounded list keeps the snapshot cheap and free of promised or dynamic types that cannot be put back.
+    private static let restorableTypes: Set<String> = [
+        "public.utf8-plain-text", "public.utf16-plain-text", "public.utf16-external-plain-text", "NSStringPboardType",
+        "public.rtf", "public.html", "public.png", "public.jpeg", "public.tiff", "com.adobe.pdf",
+        "public.file-url", "public.url", "public.url-name", concealedType, transientType, ownType,
+    ]
+
+    /// Which of an item's `types` to save. TIFF is skipped when a PNG is there: it is the same picture,
+    /// usually many times bigger.
+    public static func typesToSave(from types: [String]) -> [String] {
+        let hasPNG = types.contains("public.png")
+        return types.filter { restorableTypes.contains($0) && !(hasPNG && $0 == "public.tiff") }
     }
 
     public enum RestorePlan: Equatable, Sendable {
@@ -98,7 +111,8 @@ public enum InsertionRules {
     /// marks what it copies as concealed or transient and clears it by watching the change count, so
     /// touching that item would break the clearing; an enormous item is not worth holding on to.
     public static func restorePlan(currentTypes: [String], snapshotBytes: Int) -> RestorePlan {
-        if currentTypes.contains(concealedType) || currentTypes.contains(transientType) {
+        let isOurs = currentTypes.contains(ownType)
+        if !isOurs, currentTypes.contains(concealedType) || currentTypes.contains(transientType) {
             return .skip("the clipboard holds a concealed or transient item")
         }
         if snapshotBytes > maximumSnapshotBytes {

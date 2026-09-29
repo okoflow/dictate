@@ -12,12 +12,21 @@ final class HotkeyMonitor {
     private var tap: CFMachPort?
     private let onSignal: (KeyboardSignal, Double) -> Void
     private let onTapReenabled: () -> Void
+    private let onHotkeyBitSeen: () -> Void
 
     /// `onSignal` receives each relevant keyboard signal with its time in seconds (the event's own
     /// timestamp, not the moment it was handled, so main-thread delays do not skew hold times).
-    init(onSignal: @escaping (KeyboardSignal, Double) -> Void, onTapReenabled: @escaping () -> Void) {
+    ///
+    /// `onHotkeyBitSeen` is called for every event that carries the right-Option bit, whatever it is: proof from
+    /// the tap that the key is down, which the release watchdog trusts over its own polling.
+    init(
+        onSignal: @escaping (KeyboardSignal, Double) -> Void,
+        onTapReenabled: @escaping () -> Void,
+        onHotkeyBitSeen: @escaping () -> Void
+    ) {
         self.onSignal = onSignal
         self.onTapReenabled = onTapReenabled
+        self.onHotkeyBitSeen = onHotkeyBitSeen
     }
 
     /// Installs the tap. Returns `false` when macOS refuses, which means Input Monitoring is missing.
@@ -44,6 +53,9 @@ final class HotkeyMonitor {
     }
 
     fileprivate func receive(_ event: RawKeyEvent, at time: Double) {
+        if event.flags & Hotkey.rightOptionDeviceFlag != 0 {
+            onHotkeyBitSeen()
+        }
         let signal = Hotkey.classify(event)
         guard signal != .ignored else { return }
         onSignal(signal, time)

@@ -1,3 +1,4 @@
+import DictateCore
 import Foundation
 import Observation
 
@@ -20,14 +21,19 @@ final class InsertionSettings {
     }
 }
 
-/// The last dictated text, in memory only, for the "Copy last transcript" menu item: the way back when
-/// the text was not pasted (a password field) or the paste went to the wrong place.
+/// The last few dictated texts, in memory only, for the "Copy last transcript" menu item: the way back
+/// when the text was not pasted (a password field) or a later paste overwrote the clipboard.
 @MainActor
 @Observable
 final class LastTranscript {
-    private(set) var text: String?
+    private var history = TranscriptHistory()
+
+    /// The newest text that is not older than ten minutes.
+    var text: String? {
+        history.latest(at: Date())
+    }
 
     func remember(_ text: String) {
-        self.text = text
+        history.remember(text, at: Date())
     }
 }

@@ -1,4 +1,5 @@
 @testable import DictateCore
+import Foundation
 import Testing
 
 struct SpacingTests {
@@ -13,7 +14,7 @@ struct SpacingTests {
         #expect(InsertionRules.prepared("Next", characterBeforeCaret: ",") == " Next")
     }
 
-    @Test(arguments: [" ", "\n", "\t", "(", "\"", "«", "„", "/", "["] as [Character])
+    @Test(arguments: [" ", "\n", "\t", "(", "[", "{", "<", "\"", "'", "‘", "“", "«", "„", "/"] as [Character])
     func addsNoSpaceAfter(character: Character) {
         #expect(InsertionRules.prepared("word", characterBeforeCaret: character) == "word")
     }
@@ -96,15 +97,102 @@ struct ClipboardRestoreTests {
         #expect(InsertionRules.restorePlan(currentTypes: [], snapshotBytes: InsertionRules.maximumSnapshotBytes + 1) != .restore)
     }
 
-    @Test func dynamicAndPromisedTypesAreNotRestorable() {
-        #expect(InsertionRules.isRestorable(type: "public.utf8-plain-text"))
-        #expect(!InsertionRules.isRestorable(type: "dyn.ah62d4rv4gu8y"))
-        #expect(!InsertionRules.isRestorable(type: "com.apple.pasteboard.promised-file-url"))
-        #expect(!InsertionRules.isRestorable(type: "NSPromisedFilesPboardType"))
+    @Test func onlyTheAllowlistedTypesAreSaved() {
+        let types = [
+            "public.utf8-plain-text", "public.rtf", "dyn.ah62d4rv4gu8y",
+            "com.apple.pasteboard.promised-file-url", "com.foo.private",
+        ]
+        #expect(InsertionRules.typesToSave(from: types) == ["public.utf8-plain-text", "public.rtf"])
+    }
+
+    @Test func tiffIsSkippedOnlyWhenAPngIsThere() {
+        #expect(InsertionRules.typesToSave(from: ["public.tiff", "public.png"]) == ["public.png"])
+        #expect(InsertionRules.typesToSave(from: ["public.tiff"]) == ["public.tiff"])
+    }
+
+    @Test func theMarkerTypesAreSavedSoTheyComeBack() {
+        let types = [InsertionRules.concealedType, InsertionRules.transientType, InsertionRules.ownType]
+        #expect(InsertionRules.typesToSave(from: types) == types)
+    }
+
+    @Test func aTextOnlyCopiedByDictateIsRestoredEvenThoughItIsConcealed() {
+        let types = ["public.utf8-plain-text", InsertionRules.concealedType, InsertionRules.transientType, InsertionRules.ownType]
+        #expect(InsertionRules.restorePlan(currentTypes: types, snapshotBytes: 20) == .restore)
     }
 
     @Test func restoresOnlyWhileTheChangeCountIsOurs() {
         #expect(InsertionRules.shouldRestore(changeCount: 7, expected: 7))
         #expect(!InsertionRules.shouldRestore(changeCount: 8, expected: 7))
+    }
+}
+
+struct ReleaseWatchdogTests {
+    @Test func aSingleMissedPollDoesNotEndTheHold() {
+        var watchdog = ReleaseWatchdog()
+        #expect(watchdog.poll(held: true, at: 0) == .holding)
+        #expect(watchdog.poll(held: false, at: 0.25) == .holding)
+        #expect(watchdog.poll(held: true, at: 0.5) == .holding)
+    }
+
+    @Test func fourPollsInARowDeclareTheReleaseFromTheFirstOne() {
+        var watchdog = ReleaseWatchdog()
+        #expect(watchdog.poll(held: false, at: 10.00) == .holding)
+        #expect(watchdog.poll(held: false, at: 10.25) == .holding)
+        #expect(watchdog.poll(held: false, at: 10.50) == .holding)
+        #expect(watchdog.poll(held: false, at: 10.75) == .released(since: 10.00))
+    }
+
+    @Test func aHeldPollInTheMiddleStartsTheCountAgain() {
+        var watchdog = ReleaseWatchdog()
+        for time in [0.0, 0.25, 0.5] {
+            _ = watchdog.poll(held: false, at: time)
+        }
+        #expect(watchdog.poll(held: true, at: 0.75) == .holding)
+        #expect(watchdog.poll(held: false, at: 1.0) == .holding)
+        #expect(watchdog.poll(held: false, at: 1.25) == .holding)
+        #expect(watchdog.poll(held: false, at: 1.5) == .holding)
+        #expect(watchdog.poll(held: false, at: 1.75) == .released(since: 1.0))
+    }
+
+    @Test func aTapEventWithTheKeyBitStartsTheCountAgain() {
+        var watchdog = ReleaseWatchdog()
+        for time in [0.0, 0.25, 0.5] {
+            _ = watchdog.poll(held: false, at: time)
+        }
+        watchdog.sawHotkeyEvent()
+        #expect(watchdog.poll(held: false, at: 0.75) == .holding)
+    }
+}
+
+struct TranscriptHistoryTests {
+    private let start = Date(timeIntervalSince1970: 1000)
+
+    @Test func nothingAtFirst() {
+        #expect(TranscriptHistory().latest(at: start) == nil)
+    }
+
+    @Test func theLatestTextWins() {
+        var history = TranscriptHistory()
+        history.remember("first", at: start)
+        history.remember("second", at: start.addingTimeInterval(5))
+        #expect(history.latest(at: start.addingTimeInterval(6)) == "second")
+    }
+
+    @Test func keepsOnlyTheLastFive() {
+        var history = TranscriptHistory()
+        for number in 1 ... 8 {
+            history.remember("text \(number)", at: start)
+        }
+        #expect(history.count == 5)
+        #expect(history.latest(at: start) == "text 8")
+    }
+
+    @Test func textsExpireAfterTenMinutes() {
+        var history = TranscriptHistory()
+        history.remember("old", at: start)
+        #expect(history.latest(at: start.addingTimeInterval(600)) == "old")
+        #expect(history.latest(at: start.addingTimeInterval(601)) == nil)
+        history.remember("new", at: start.addingTimeInterval(500))
+        #expect(history.latest(at: start.addingTimeInterval(601)) == "new")
     }
 }

@@ -8,6 +8,9 @@ import Foundation
 /// follows the Latin layout, as macOS does for ⌘V).
 enum PasteKey {
     static let fallback: CGKeyCode = 9
+    /// The modifier state ⌘ as `UCKeyTranslate` wants it. Translating *with* ⌘ matters: layouts such as
+    /// Dvorak-QWERTY ⌘ type one letter and answer to shortcuts with another.
+    private static let commandModifier = UInt32((cmdKey >> 8) & 0xFF)
 
     static func keyCode() -> CGKeyCode {
         guard let source = TISCopyCurrentASCIICapableKeyboardLayoutInputSource()?.takeRetainedValue(),
@@ -27,8 +30,9 @@ enum PasteKey {
         var characters = [UniChar](repeating: 0, count: 4)
         let status = layout.withBytes { bytes in
             UCKeyTranslate(
-                bytes.assumingMemoryBound(to: UCKeyboardLayout.self), keyCode, UInt16(kUCKeyActionDisplay), 0,
-                keyboardType, OptionBits(kUCKeyTranslateNoDeadKeysBit), &deadKeys, characters.count, &length, &characters
+                bytes.assumingMemoryBound(to: UCKeyboardLayout.self), keyCode, UInt16(kUCKeyActionDisplay),
+                commandModifier, keyboardType, OptionBits(kUCKeyTranslateNoDeadKeysBit),
+                &deadKeys, characters.count, &length, &characters
             )
         }
         guard status == noErr, length == 1 else { return nil }

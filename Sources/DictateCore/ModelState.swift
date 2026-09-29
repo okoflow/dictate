@@ -39,6 +39,9 @@ public struct ModelState: Equatable, Sendable {
     }
 
     public private(set) var phase = Phase.notDownloaded
+    /// A failed load is retried once as it is (the first attempt can fail on a busy Mac) before the model
+    /// is deleted and fetched again.
+    private var loadRetried = false
 
     public init() {}
 
@@ -90,6 +93,7 @@ public struct ModelState: Equatable, Sendable {
             return [.load]
         case (.loading, .loaded):
             phase = .ready
+            loadRetried = false
             return []
         case (.downloading, .failed), (.loading, .failed):
             return fail(event)
@@ -119,7 +123,12 @@ public struct ModelState: Equatable, Sendable {
             // The downloader resumes; files that are complete stay.
             phase = .downloading(progress: 0)
             return [.download]
+        case .load where !loadRetried:
+            loadRetried = true
+            phase = .loading
+            return [.load]
         case .load:
+            loadRetried = false
             phase = .downloading(progress: 0)
             return [.removeModel, .download]
         }

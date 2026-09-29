@@ -52,9 +52,12 @@ struct ModelStateTests {
         #expect(!state.canRetry)
     }
 
-    @Test func aFailedLoadDeletesTheModelAndDownloadsItAgain() {
+    @Test func aFailedLoadIsRetriedOnceThenTheModelIsDeletedAndDownloadedAgain() {
         var state = state(after: [.start(installed: true), .failed("corrupt")])
         #expect(state.phase == .failed(reason: "corrupt", during: .load))
+        #expect(state.handle(.retry) == [.load])
+        #expect(state.phase == .loading)
+        _ = state.handle(.failed("corrupt again"))
         #expect(state.handle(.retry) == [.removeModel, .download])
         #expect(state.phase == .downloading(progress: 0))
     }

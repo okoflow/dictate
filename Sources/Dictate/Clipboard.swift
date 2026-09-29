@@ -1,4 +1,5 @@
 import AppKit
+import DictateCore
 
 /// Puts dictated text on the general pasteboard.
 enum Clipboard {
@@ -6,6 +7,9 @@ enum Clipboard {
     /// text (which may be private) does not end up in their history. Pasting is not affected.
     private static let transient = NSPasteboard.PasteboardType("org.nspasteboard.TransientType")
     private static let concealed = NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType")
+
+    /// Tells Dictate's own paste that this item is ours, so it restores it instead of leaving it alone.
+    private static let own = NSPasteboard.PasteboardType(InsertionRules.ownType)
 
     static func copy(_ text: String) {
         let pasteboard = NSPasteboard.general
@@ -15,5 +19,6 @@ enum Clipboard {
         pasteboard.setString(text, forType: .string)
         pasteboard.setData(Data(), forType: transient)
         pasteboard.setData(Data(), forType: concealed)
+        pasteboard.setData(Data(), forType: own)
     }
 }

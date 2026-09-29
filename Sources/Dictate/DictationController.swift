@@ -49,6 +49,7 @@ final class DictationController {
     private let overlay = Overlay()
     private let pipeline: TranscriptionPipeline
     private var pushToTalk = PushToTalk()
+    private var releaseWatchdog = ReleaseWatchdog()
     private var monitor: HotkeyMonitor?
     private var recording: Recording?
     private var generation = 0
@@ -77,7 +78,8 @@ final class DictationController {
         }
         monitor = HotkeyMonitor(
             onSignal: { [weak self] signal, time in self?.handle(signal, at: time) },
-            onTapReenabled: { [weak self] in self?.eventLog.log(.tapReenabled) }
+            onTapReenabled: { [weak self] in self?.eventLog.log(.tapReenabled) },
+            onHotkeyBitSeen: { [weak self] in self?.releaseWatchdog.sawHotkeyEvent() }
         )
         installHotkey()
         models.onReady = { [overlay] in overlay.show(message: "Ready") }
@@ -119,7 +121,7 @@ final class DictationController {
         generation += 1
         let current = generation
         var active = Recording(generation: current)
-        active.target = FocusProbe.current()
+        releaseWatchdog.reset()
         active.watchdog = Timer.commonModeTimer(interval: 0.25, repeats: true) { [weak self] in
             self?.checkHotkeyStillHeld()
         }
@@ -144,6 +146,9 @@ final class DictationController {
         }
         let device = options.inputDevice
         Task { await recorder.start(generation: current, deviceName: device) }
+        // After the recorder is on its way, and not inside the event tap's callback: reading the focus
+        // asks another app over Accessibility and can take a moment.
+        Task { [weak self] in self?.captureTarget(generation: current) }
     }
 
     private func end(_ ending: Ending) {
@@ -198,21 +203,6 @@ final class DictationController {
         pipeline.submit(samples: samples, language: language.preference.language, target: target ?? FocusProbe.current())
     }
 
-    /// Runs every 250 ms while holding. If the key-up went missing (the tap was off, or the event was
-    /// eaten) the keyboard state still tells the truth; the key counts as released only when *both*
-    /// the HID state (which sees synthetic events, as in the E2E suite) and the session state (which
-    /// sees keys injected by remote-control tools) have lost the right Option bit. It also lets
-    /// the state machine end a hold that runs past the maximum length.
-    private func checkHotkeyStillHeld() {
-        guard recording != nil else { return }
-        let now = uptimeSeconds()
-        let held = Hotkey.isStillHeld(
-            hidFlags: CGEventSource.flagsState(.hidSystemState).rawValue,
-            sessionFlags: CGEventSource.flagsState(.combinedSessionState).rawValue
-        )
-        handle(held ? .tick : .hotkeyUp, at: now)
-    }
-
     private func microphoneProblem() -> String? {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .denied, .restricted: "microphone permission is not granted"
@@ -242,6 +232,38 @@ final class DictationController {
 }
 
 extension DictationController {
+    private func captureTarget(generation: Int) {
+        guard var active = recording, active.generation == generation else { return }
+        active.target = FocusProbe.current()
+        recording = active
+    }
+
+    /// Runs every 250 ms while holding, as a safety net for a key-up that never reaches the event tap (the
+    /// tap was off, or the event was eaten). The tap is the authority: the keyboard state words are only
+    /// intermittently in step with the real keyboard, so one poll that finds the key up proves nothing.
+    /// `ReleaseWatchdog` declares the release after four such polls in a row (a second), counted again
+    /// from zero whenever the key shows up; the recording then ends at the time of the first of them.
+    /// A poll that finds the key held also lets the state machine end a hold that runs past the maximum.
+    private func checkHotkeyStillHeld() {
+        guard recording != nil else { return }
+        let now = uptimeSeconds()
+        let held = Hotkey.isStillHeld(
+            hidFlags: CGEventSource.flagsState(.hidSystemState).rawValue,
+            sessionFlags: CGEventSource.flagsState(.combinedSessionState).rawValue
+        )
+        switch releaseWatchdog.poll(held: held, at: now) {
+        case .holding:
+            handle(.tick, at: now)
+        case let .released(since):
+            eventLog.log(.watchdogReleased)
+            handle(.hotkeyUp, at: since)
+        }
+    }
+
+    func prepareToQuit() async {
+        await pipeline.finishPendingInsertions()
+    }
+
     // MARK: Overlay
 
     private func showOverlay(for generation: Int) {

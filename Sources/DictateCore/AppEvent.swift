@@ -24,6 +24,9 @@ public enum AppEvent: Codable, Equatable, Sendable {
     /// The recording held no speech, or the model heard none; nothing was copied.
     case noSpeech
     case transcriptionFailed(String)
+    /// The key-up never reached the event tap and the keyboard state said the key had been up for a second,
+    /// so the recording was ended as if it had been released.
+    case watchdogReleased
     /// The text was pasted into `app` (a bundle identifier). `secureInputActive` is macOS's global
     /// secure-input flag at that moment; it is reported, not used to decide. Never the text itself.
     case inserted(characters: Int, app: String, secureInputActive: Bool)
