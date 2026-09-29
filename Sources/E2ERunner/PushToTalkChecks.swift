@@ -1,7 +1,6 @@
 import ApplicationServices
 import AudioDevices
 import DictateCore
-import E2ESupport
 import Foundation
 
 /// The M1 checks: hold right Option, and Dictate records, shows its overlay, and stays out of the way.
