@@ -1,0 +1,25 @@
+# SwiftPM / build
+.build/
+build/
+*.xcodeproj
+.swiftpm/
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Models and generated audio (reproducible, large)
+Models/
+fixtures/generated/
+
+# PRIVATE: your own voice recordings. Never commit.
+fixtures/private/*
+!fixtures/private/.gitkeep
+
+# Secrets
+.env
+.env.*
+
+# E2E reports (local run output)
+e2e/reports/*
+!e2e/reports/.gitkeep
