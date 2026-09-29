@@ -125,13 +125,20 @@ struct AppChecks {
             return .fail("TestPad did not write its state file")
         }
         // Text is typed into the frontmost app, so TestPad must really be active. macOS may refuse
-        // a background launch the focus while you work in another app, so ask via Accessibility.
+        // a background launch the focus while you work in another app, so keep asking via Accessibility.
         let isFrontmost = { (try? TestPadState.read(from: stateURL))?.isFrontmost == true }
-        if !waitUntil(timeout: 2, isFrontmost), let pid = testPad.runningApplication?.processIdentifier {
-            Accessibility.bringToFront(Accessibility.application(pid: pid))
+        let pid = testPad.runningApplication?.processIdentifier
+        let active = waitUntil(timeout: 5, interval: 0.5) {
+            if isFrontmost() {
+                return true
+            }
+            if let pid {
+                Accessibility.bringToFront(Accessibility.application(pid: pid))
+            }
+            return isFrontmost()
         }
-        guard waitUntil(timeout: 3, isFrontmost) else {
-            return .fail("TestPad did not become the active app")
+        guard active else {
+            return .blocked("macOS did not let TestPad take focus (you may be using another app): click the TestPad window")
         }
         return .pass
     }
@@ -194,5 +201,6 @@ struct AppChecks {
     func cleanUp() {
         dictate.terminate()
         testPad.terminate()
+        AbortGuard.killApps()
     }
 }

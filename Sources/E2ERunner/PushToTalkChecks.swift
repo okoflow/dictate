@@ -82,8 +82,9 @@ struct PushToTalkChecks {
     /// Same hold with nothing played: proves the previous check measured the fixture, not noise.
     func silenceControl() -> Outcome {
         run {
-            _ = try session.environment()
+            let environment = try session.environment()
             let capture = try session.capture(playing: nil, silence: 1.5)
+            try verify(capture, device: environment.blackHole)
             // Non-finite or full-scale samples are not "someone else's audio": the app produced garbage.
             guard capture.samples.allSatisfy({ $0.isFinite && abs($0) < 0.99 }) else {
                 throw Verdict.fail("the silent recording contains non-finite or full-scale samples")
