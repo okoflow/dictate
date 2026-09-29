@@ -32,6 +32,10 @@ struct AppChecks {
         scratchDirectory.appendingPathComponent("dictate-recordings")
     }
 
+    var transcriptDirectory: URL {
+        scratchDirectory.appendingPathComponent("dictate-transcripts")
+    }
+
     var stateURL: URL {
         scratchDirectory.appendingPathComponent("testpad-state.json")
     }
@@ -46,11 +50,13 @@ struct AppChecks {
     func dictateLaunchesAsMenuBarApp() -> Outcome {
         try? FileManager.default.removeItem(at: reportURL)
         try? FileManager.default.removeItem(at: recordingDirectory)
+        try? FileManager.default.removeItem(at: transcriptDirectory)
         let arguments = [
             "--report-file", reportURL.path,
             "--event-log", eventLogURL.path,
             "--recording-dir", recordingDirectory.path,
             "--input-device", "BlackHole 2ch",
+            "--transcript-dir", transcriptDirectory.path,
         ]
         guard let app = dictate.launch(arguments: arguments) else {
             return .fail("Dictate.app did not start within 10 s (is it built? run `make bundle`)")
@@ -112,6 +118,32 @@ struct AppChecks {
             return .pass
         }
         return .blocked("Dictate.app is ad-hoc signed, so permissions reset on every rebuild: run `make signing`")
+    }
+
+    // MARK: Speech model
+
+    /// The suite never downloads the model (about 0.6 GB): that is `make model`.
+    func modelIsInstalled() -> Outcome {
+        ModelStore.isInstalled(ModelStore.defaultModel, in: ModelStore.defaultBaseDirectory)
+            ? .pass
+            : .blocked("the speech model is not downloaded: run `make model`")
+    }
+
+    /// Waits for Dictate to load the model. The first load on a Mac compiles it for the chip, which
+    /// takes about a minute; later loads take seconds.
+    func modelIsReady(log: EventLog, timeout: TimeInterval = 180) -> Outcome {
+        let start = Date()
+        let loaded = waitUntil(timeout: timeout, interval: 0.25) {
+            log.events.contains {
+                if case .modelReady = $0 {
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+        guard loaded else { return .fail("the model was not loaded within \(Int(timeout)) s (app logged: \(log.events))") }
+        return .measured(String(format: "model ready after waiting %.0f s", Date().timeIntervalSince(start)))
     }
 
     // MARK: TestPad

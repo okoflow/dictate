@@ -28,7 +28,9 @@ let pushToTalk = PushToTalkChecks(
     testPad: checks.testPad,
     log: EventLog(url: checks.eventLogURL, recordingDirectory: checks.recordingDirectory),
     fixture: root.appendingPathComponent("fixtures/generated/en-plain-2.wav"),
-    testPadStateURL: checks.stateURL
+    testPadStateURL: checks.stateURL,
+    fixturesDirectory: root.appendingPathComponent("fixtures"),
+    transcriptDirectory: checks.transcriptDirectory
 )
 
 /// Everything `make e2e` (smoke) runs, in order; `make e2e-full` adds the rest around it.
@@ -39,26 +41,33 @@ enum Suite: String {
 
 let suite = argumentValue(after: "--suite").flatMap(Suite.init(rawValue:)) ?? .smoke
 
-/// One check per step, so the first failing reason is what gets reported.
+/// Runs the steps in order and stops at the first that does not pass, so that is the reason reported.
+/// The last measurement made on the way is kept.
 func firstProblem(_ steps: [() -> Outcome]) -> Outcome {
+    var measurement: String?
     for step in steps {
-        let outcome = step()
-        if case .pass = outcome {
+        switch step() {
+        case .pass:
             continue
+        case let .measured(note):
+            measurement = note
+        case let problem:
+            return problem
         }
-        return outcome
     }
-    return .pass
+    return measurement.map(Outcome.measured) ?? .pass
 }
 
 let appReady = { () -> Outcome in
     firstProblem([
+        { checks.modelIsInstalled() },
         { checks.dictateSignatureIsStable() },
         { checks.dictateLaunchesAsMenuBarApp() },
         { checks.dictateReportsPermissions() },
         { checks.dictatePermissionsGranted() },
         { pushToTalk.blackHoleAvailable() },
         { pushToTalk.hotkeyReady() },
+        { checks.modelIsReady(log: pushToTalk.log) },
     ])
 }
 
@@ -76,6 +85,7 @@ case .smoke:
         ("app-ready", appReady),
         ("record-fixture-through-blackhole", { pushToTalk.recordFixtureThroughBlackHole() }),
         ("option-letter-passes-through", optionLetter),
+        ("dictate-fixture-to-clipboard", { pushToTalk.dictateFixtureToClipboard() }),
     ]
 case .full:
     [
@@ -96,6 +106,7 @@ case .full:
         ("short-press-discarded", { pushToTalk.shortPressDiscarded() }),
         ("overlay-shown-and-hidden", { pushToTalk.overlayShownAndHidden() }),
         ("option-letter-passes-through", optionLetter),
+        ("dictate-fixture-to-clipboard", { pushToTalk.dictateFixtureToClipboard() }),
     ]
 }
 print("E2E suite: \(suite.rawValue)")

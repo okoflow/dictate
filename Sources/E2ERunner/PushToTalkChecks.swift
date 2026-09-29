@@ -17,6 +17,9 @@ struct PushToTalkChecks {
     let log: EventLog
     let fixture: URL
     let testPadStateURL: URL
+    /// The repository's `fixtures` folder (manifest and generated clips).
+    let fixturesDirectory: URL
+    let transcriptDirectory: URL
 
     var keyboard: KeyboardDriver {
         KeyboardDriver()
@@ -167,9 +170,9 @@ struct PushToTalkChecks {
 
     // MARK: Helpers
 
-    private func prepareFixturePlayback(on device: AudioDevice) throws -> PreparedPlayback {
+    func prepareFixturePlayback(of wav: URL? = nil, on device: AudioDevice) throws -> PreparedPlayback {
         do {
-            return try PreparedPlayback(wavAt: fixture, on: device)
+            return try PreparedPlayback(wavAt: wav ?? fixture, on: device)
         } catch {
             throw Verdict.fail("cannot prepare playback into \(device.name): \(error)")
         }
