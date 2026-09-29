@@ -16,11 +16,12 @@ make signing    # once, so macOS keeps permissions between rebuilds
 |---|---|---|
 | `format-check` | SwiftFormat `--lint` | any formatting difference (`make format` fixes it) |
 | `lint` | SwiftLint `--strict` | any warning, including force unwraps and over-long functions |
-| `build` | `swift build` | any compiler warning (Swift 6 language mode, `-warnings-as-errors`) |
+| `build` | `swift build` | any compiler warning in our own targets (Swift 6 language mode, `treatAllWarnings(as: .error)` per target in `Package.swift`; dependencies are not affected) |
 | `test` + `coverage` | `swift test`, llvm-cov | a failing test, or `DictateCore` line coverage below 70% |
 | `periphery` | Periphery | unused code |
 | `secrets` | gitleaks | secrets in history or the working tree |
 | `shellcheck` | ShellCheck | problems in `scripts/*.sh` |
+| `no-model-in-tests` | grep | a unit test that mentions WhisperKit or the `Transcriber`: unit tests never load a model |
 
 Do not weaken rules to get a green run. If a rule is wrong for one line, add a targeted
 `// swiftlint:disable:next <rule>` with a comment explaining why.
@@ -31,7 +32,11 @@ Do not weaken rules to get a green run. If a rule is wrong for one line, add a t
 Accessibility API to read and write text. It needs macOS permissions, so it runs locally, not in CI.
 Grant Accessibility to your terminal app and to `Dictate.app` (menu bar icon → Grant…).
 
-Every stage adds its own e2e checks **and** must keep all earlier ones green.
+`make e2e` is the **smoke** suite: it runs once per stage (retry once only if it fails) and covers the main
+path of every stage. `make e2e-full` adds the slower checks and is for hand-offs. Put edge cases in unit
+tests, and measure accuracy with `make bench`, not with the end-to-end suite. Neither `make e2e` nor
+`make bench` downloads the speech model: run `make model` first (they exit with code 2 and say so if it
+is missing). `make check` never needs the model.
 
 Speech fixtures are generated with `say` (`make fixtures`) from `fixtures/manifest.json`.
 Real human speech for accuracy tests comes from [Google FLEURS](https://huggingface.co/datasets/google/fleurs)

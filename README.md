@@ -3,8 +3,9 @@
 Push-to-talk dictation for macOS. Hold a key, speak, release — the text appears wherever your
 cursor is, in any app. Russian, English and Korean.
 
-> **Status: early development.** Push-to-talk recording works (stage M1): hold the hotkey and Dictate
-> records your voice. Recognition and text insertion arrive in the next stages. See [Roadmap](#roadmap).
+> **Status: early development.** Push-to-talk and speech recognition work (stages M1 and M2): hold the
+> hotkey, speak, and the text lands **in the clipboard** (paste it with ⌘V). Inserting it for you arrives
+> in the next stage. See [Roadmap](#roadmap).
 
 ## Planned modes
 
@@ -16,14 +17,14 @@ cursor is, in any app. Russian, English and Korean.
 | **Formal** | Clean, in a business tone | **yes** |
 | **Translate→EN** | Translates to English | **yes** |
 
-Recognition runs locally ([WhisperKit](https://github.com/argmaxinc/WhisperKit), Apple Silicon).
+Recognition runs locally ([WhisperKit](https://github.com/argmaxinc/argmax-oss-swift), Apple Silicon).
 Only Clean, Formal and Translate send text (never audio) to an LLM API, and only if you set a key.
 If the network fails, they fall back to Light.
 
 ## Requirements
 
 - macOS 14+, Apple Silicon
-- Swift 6 toolchain (Xcode or Command Line Tools)
+- Swift 6 toolchain (Xcode or Command Line Tools), and about 0.6 GB of disk for the speech model
 - Dev tools: `brew install swiftlint swiftformat periphery gitleaks shellcheck lefthook`
 - For end-to-end tests: [BlackHole](https://github.com/ExistentialAudio/BlackHole) (2ch) and the
   `say` voices Milena (ru), Samantha (en), Yuna (ko)
@@ -32,18 +33,49 @@ If the network fails, they fall back to Light.
 
 ```sh
 make signing   # once: stable code-signing identity (see Permissions)
+make model     # optional: download the speech model now (the app also does it on first launch)
 make bundle    # builds build/Dictate.app and build/TestPad.app
 open build/Dictate.app
 ```
 
 Dictate lives in the menu bar (no Dock icon). The icon is a filled microphone when all permissions
 are granted and a crossed-out one otherwise; the menu lists what is missing and shows the hotkey status
-("Hold right ⌥ to dictate", or "Hotkey unavailable: grant Input Monitoring").
+("Hold right ⌥ to dictate", or "Hotkey unavailable: grant Input Monitoring"), the state of the speech
+model, and the language choice.
+
+## Speech recognition
+
+Recognition runs on your Mac with [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift) (Whisper
+large-v3, Core ML). Russian, English and Korean; nothing else is ever chosen, even if the audio sounds like
+Ukrainian or Japanese.
+
+- **Model:** `openai_whisper-large-v3-v20240930_626MB` (large-v3 quantised), **606 MB** on disk. Change it
+  with `--model <variant>` (any variant of `argmaxinc/whisperkit-coreml`; `openai_whisper-large-v3-v20240930`
+  is the full 1.5 GB one).
+- **Where it lives:** `~/Library/Application Support/Dictate/Models`. macOS also keeps a compiled copy for
+  your chip in `~/Library/Caches/dev.dictate.app` (about 130 MB). **To delete everything:**
+  `rm -r ~/Library/Application\ Support/Dictate/Models ~/Library/Caches/dev.dictate.app`.
+- **First launch:** the app downloads the model (the menu shows "Downloading model… 42%"), then loads it. The
+  first load makes Core ML compile the model for your chip and takes about a minute ("Loading model…");
+  later launches take a few seconds. Push-to-talk works once the menu says "Ready"; a press before that
+  shows "Model not ready" and records nothing. If the download or load fails the menu says why and offers
+  "Retry". `make model` does the download and the first load from the terminal.
+- **Language:** menu → Language: *Auto (ru / en / ko)*, Russian, English or Korean. The choice is remembered.
+  Auto adds a short language-detection pass (about 0.6 s); pinning a language skips it.
+- **Speed** (Apple M5): about 1 s to transcribe 10 s of speech, plus the 0.6 s detection in Auto mode.
+  Recordings over 30 s are split at pauses.
+- **Memory:** about 130 MB resident after loading (the weights are memory-mapped and run on the Neural Engine).
+- **Result:** the text goes to the clipboard and its first 60 characters show on a small pill for 1.5 s.
+  Paste with ⌘V. If there was no speech (silence, a cough) or the model heard none, nothing is copied and
+  the pill says "Didn't catch that". You can keep dictating while a previous recording is still being
+  recognised; the texts arrive in order, and the recording pill takes priority over the result pill.
+- **Clipboard managers:** the item is marked with the `org.nspasteboard.TransientType` and `ConcealedType`
+  flags, which well-behaved managers (Maccy, Alfred, Raycast, ...) honour by not storing it. ⌘V works as usual.
 
 ## Push-to-talk
 
 **Hold the right Option key** anywhere, speak, release. Dictate starts the microphone when the key goes
-down and converts the audio to 16 kHz mono for recognition (M2). Starting the audio engine takes about
+down and converts the audio to 16 kHz mono for recognition. Starting the audio engine takes about
 0.2 s, so the very first syllable can be missed if you speak the instant you press; start speaking a
 beat after the key goes down. (Keeping the engine warm to remove that delay is future work.) The end of
 your last word is kept: recording continues for a moment after release to catch audio still in flight.
@@ -69,6 +101,8 @@ Meant for diagnostics and the E2E suite; a normal launch passes none.
 | `--event-log <path>` | append what the app does (recording started/finished/discarded, overlay, ...) as JSON lines; never contains audio or text |
 | `--recording-dir <dir>` | keep every finished recording there as a 16 kHz mono WAV |
 | `--input-device <name>` | record from the input device with this name (or CoreAudio UID) instead of the system default |
+| `--model <variant>` | use this WhisperKit model variant instead of the default |
+| `--transcript-dir <dir>` | **test-only**: save each transcript as `<n>.txt` there. Written only together with `--event-log`; it puts dictated text on disk, so do not use it otherwise |
 
 For example: `open -n build/Dictate.app --args --recording-dir ~/dictate-recordings`.
 
@@ -107,28 +141,36 @@ LaunchServices-launched app instead).
 
 ## Privacy
 
-- Audio is processed on your Mac. It is kept in memory only while you hold the hotkey; nothing is
-  written to disk unless you start Dictate with `--recording-dir`.
+- Audio is processed on your Mac. It is kept in memory only while you hold the hotkey (and while it is
+  being recognised); nothing is written to disk unless you start Dictate with `--recording-dir`.
+- Recognition is fully local. The only network use is the one-time download of the model and its tokenizer
+  from Hugging Face; no audio or text is sent anywhere.
+- Dictated text goes to the clipboard only, marked so clipboard managers skip it.
 - Text goes to a cloud LLM only in Clean / Formal / Translate, and the menu shows a cloud icon then.
-- Text you dictate is never written to logs (only lengths and timings).
+- Text you dictate is never written to logs (only lengths, languages and timings). WhisperKit's own
+  logging is off.
 - Your own voice recordings used for testing live in `fixtures/private/`, which is git-ignored.
 
 ## Development
 
 ```sh
 make check   # format, lint, strict build, unit tests + coverage, dead code, secrets, shell scripts
-make e2e     # end-to-end suite (local only: needs permissions and BlackHole)
+make e2e     # smoke end-to-end suite, run once (local only: needs permissions, BlackHole and `make model`)
+make e2e-full # every end-to-end check, for a hand-off or on request
+make bench   # recognition accuracy and speed on the fixtures (needs `make model`)
 make help    # all targets
 ```
 
-A stage is done when `make check` and `make e2e` (including all earlier stages) are green.
+A stage is done when `make check` and a single `make e2e` (smoke) are green. Edge cases belong in unit
+tests; accuracy is measured by `make bench`, not by the end-to-end suite. `make e2e-full` runs the smoke
+checks plus the slower ones (overlay, short press, left Option, TestPad round trip, fixture validity).
 **Do not touch the keyboard while `make e2e` runs**: it presses Option and types letters itself, and
 your own key presses would be mixed into those. The suite also switches the input layout to ABC for
 one check and restores it afterwards.
 If a run was aborted and Option seems stuck, tap right Option. (Ctrl-C and `kill` are handled: the runner
 releases the keys, restores the layout and quits both apps before exiting.)
 
-`make e2e` exits with code 2 when nothing failed but a check waits for something only you can do
+`make e2e` and `make e2e-full` exit with code 2 when nothing failed but a check waits for something only you can do
 (a permission, a signing identity); the BLOCKED lines say what.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -137,7 +179,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 - [x] M0 skeleton, test harness, quality gates
 - [x] M1 push-to-talk and recording
-- [ ] M2 speech recognition (ru / en / ko)
+- [x] M2 speech recognition (ru / en / ko): text lands in the clipboard until M3
 - [ ] M3 text insertion, Raw mode (MVP)
 - [ ] M4 Light / Clean / Formal / Translate modes
 - [ ] M5 personal dictionary, snippets, history, per-app mode
