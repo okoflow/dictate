@@ -204,3 +204,25 @@ Critique by an independent Opus review, all points accepted unless noted.
 ### Periphery / hygiene
 
 27. `Entry` uses `LaunchOptions` (no second `argumentValue` parsing of the same flags). Every new core API is used by the app or removed.
+
+
+---
+
+## Deviations (as built)
+
+- **E2E key events come from `.hidSystemState`, not `.privateState`.** Private-state events reach event taps
+  just the same, but the system only intermittently reflects them in `CGEventSource.flagsState`. The app's
+  watchdog reads that state to notice a lost key-up, so it ended E2E holds a few hundred ms in, at random.
+  HID-state events are tracked like real key presses. Every event still carries explicit flags.
+- **Playback into BlackHole uses `AVAudioEngine`, not `AudioQueue`.** `AudioQueueStart` bound to BlackHole
+  blocks forever for a process without its own microphone access. The engine is started and left to settle
+  before the key is pressed, because its start-up configuration change would otherwise cut playback short.
+- **WAV files are written by `WAVEncoder` (core, unit-tested), not `AVAudioFile`.** Deterministic bytes, no
+  open handle before the tmp to final rename.
+- **Kept-audio tolerance:** `|kept - (hold - latency)| <= 0.3 s` and `kept <= hold + 0.15 s`, not
+  `|kept - hold| <= 0.3 s`. Audio starts with the first buffer, so the start-up delay cannot be in the file.
+- **Watchdog rule:** the key counts as released only when *both* `.hidSystemState` and
+  `.combinedSessionState` lack the right-Option bit (`Hotkey.isStillHeld`), and the recorder keeps the tap
+  up to 150 ms after release so the last word is not cut.
+- **Abort safety:** the runner handles SIGINT/SIGTERM (releases Option, restores the layout, quits both
+  apps) and releases Option once at start to heal a killed earlier run.

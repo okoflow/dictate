@@ -125,6 +125,8 @@ A stage is done when `make check` and `make e2e` (including all earlier stages) 
 **Do not touch the keyboard while `make e2e` runs**: it presses Option and types letters itself, and
 your own key presses would be mixed into those. The suite also switches the input layout to ABC for
 one check and restores it afterwards.
+If a run was aborted and Option seems stuck, tap right Option. (Ctrl-C and `kill` are handled: the runner
+releases the keys, restores the layout and quits both apps before exiting.)
 
 `make e2e` exits with code 2 when nothing failed but a check waits for something only you can do
 (a permission, a signing identity); the BLOCKED lines say what.
