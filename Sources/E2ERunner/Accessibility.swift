@@ -43,6 +43,20 @@ enum Accessibility {
         return nil
     }
 
+    /// Like `find`, but keeps looking while the app is still building its window.
+    static func waitForElement(identifier: String, in root: AXUIElement, timeout: TimeInterval = 5) -> AXUIElement? {
+        var found: AXUIElement?
+        _ = waitUntil(timeout: timeout) {
+            found = find(identifier: identifier, in: root)
+            return found != nil
+        }
+        return found
+    }
+
+    static func bringToFront(_ application: AXUIElement) {
+        AXUIElementSetAttributeValue(application, "AXFrontmost" as CFString, kCFBooleanTrue)
+    }
+
     @discardableResult
     static func setValue(_ text: String, of element: AXUIElement) -> Bool {
         AXUIElementSetAttributeValue(element, "AXValue" as CFString, text as CFString) == .success

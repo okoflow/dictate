@@ -109,8 +109,13 @@ struct AppChecks {
         guard waitUntil(timeout: 5, { (try? TestPadState.read(from: stateURL)) != nil }) else {
             return .fail("TestPad did not write its state file")
         }
-        // Text is typed into the frontmost app, so TestPad must really be active.
-        guard waitUntil(timeout: 5, { (try? TestPadState.read(from: stateURL))?.isFrontmost == true }) else {
+        // Text is typed into the frontmost app, so TestPad must really be active. macOS may refuse
+        // a background launch the focus while you work in another app, so ask via Accessibility.
+        let isFrontmost = { (try? TestPadState.read(from: stateURL))?.isFrontmost == true }
+        if !waitUntil(timeout: 2, isFrontmost), let pid = testPad.runningApplication?.processIdentifier {
+            Accessibility.bringToFront(Accessibility.application(pid: pid))
+        }
+        guard waitUntil(timeout: 3, isFrontmost) else {
             return .fail("TestPad did not become the active app")
         }
         return .pass
@@ -140,7 +145,7 @@ struct AppChecks {
     }
 
     private func textViewRoundTrip(in app: AXUIElement) -> Outcome {
-        guard let element = Accessibility.find(identifier: TestPadState.textIdentifier, in: app) else {
+        guard let element = Accessibility.waitForElement(identifier: TestPadState.textIdentifier, in: app) else {
             return .fail("text view not found in the accessibility tree")
         }
         let phrase = "привет hello 안녕"
@@ -157,7 +162,7 @@ struct AppChecks {
     }
 
     private func passwordFieldChecks(in app: AXUIElement) -> Outcome {
-        guard let element = Accessibility.find(identifier: TestPadState.passwordIdentifier, in: app) else {
+        guard let element = Accessibility.waitForElement(identifier: TestPadState.passwordIdentifier, in: app) else {
             return .fail("password field not found in the accessibility tree")
         }
         guard Accessibility.string("AXSubrole", of: element) == "AXSecureTextField" else {
