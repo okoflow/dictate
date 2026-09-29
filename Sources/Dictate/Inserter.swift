@@ -154,17 +154,28 @@ final class Inserter {
         }
     }
 
-    /// ⌘V from a private event source: its events are not merged into the system's modifier state (they
-    /// reach the app, but `CGEventSource.flagsState` does not show them), so the ⌘ cannot be mistaken by the
-    /// hotkey watchdog for a change of the real keyboard.
+    /// ⌘V as a real key sequence: ⌘ down, v down, v up, ⌘ up, all from the HID system state, with the ⌘
+    /// release in a `defer` so it is posted whatever happens in between. A `v` that merely *carries* the ⌘
+    /// flag (the earlier form, from a private source) was seen to leave ⌘ set in the system's modifier
+    /// state for good; a key-down with its own key-up cannot.
     private func postPasteShortcut() {
-        let source = CGEventSource(stateID: .privateState)
+        let source = CGEventSource(stateID: .hidSystemState)
         let key = PasteKey.keyCode()
-        for down in [true, false] {
-            let event = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: down)
-            event?.flags = .maskCommand
+        let leftCommand = CGKeyCode(kVK_Command)
+        // NX_DEVICELCMDKEYMASK: the left ⌘ is what a keyboard sends.
+        let commandFlags = CGEventFlags(rawValue: CGEventFlags.maskCommand.rawValue | 0x08)
+        func post(_ code: CGKeyCode, down: Bool, flags: CGEventFlags, modifier: Bool = false) {
+            let event = CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: down)
+            if modifier {
+                event?.type = .flagsChanged
+            }
+            event?.flags = flags
             event?.post(tap: .cghidEventTap)
         }
+        post(leftCommand, down: true, flags: commandFlags, modifier: true)
+        defer { post(leftCommand, down: false, flags: [], modifier: true) }
+        post(key, down: true, flags: commandFlags)
+        post(key, down: false, flags: commandFlags)
     }
 
     /// With Option held the shortcut would be ⌥⌘V ("Paste and Match Style" and other things).

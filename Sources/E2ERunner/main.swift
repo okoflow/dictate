@@ -88,6 +88,14 @@ let clipboardOnly = { () -> Outcome in
     ])
 }
 
+/// Runs last: whatever the suite pressed, no modifier may be left down in the system.
+let modifiersReleased = { () -> Outcome in
+    KeyboardDriver().releaseAll()
+    Thread.sleep(forTimeInterval: 0.3)
+    let stuck = KeyboardDriver.stuckModifiers()
+    return stuck == 0 ? .pass : .fail("modifier bits still set after releasing everything: 0x" + String(stuck, radix: 16))
+}
+
 let plan: [(name: String, run: () -> Outcome)] = switch suite {
 case .smoke:
     [
@@ -121,7 +129,7 @@ case .full:
     ]
 }
 print("E2E suite: \(suite.rawValue)")
-let results = plan.map { name, run in timed(name, run) }
+let results = (plan + [("modifiers-released", modifiersReleased)]).map { name, run in timed(name, run) }
 checks.cleanUp()
 
 let report = Report(suite: suite.rawValue, results: results, date: Date())
