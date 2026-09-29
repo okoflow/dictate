@@ -1,0 +1,31 @@
+[
+  { "id": "ru-plain-1", "language": "ru", "voice": "Milena",
+    "text": "Добрый день, встреча начнётся в три часа в переговорной на втором этаже.", "tags": ["plain"] },
+  { "id": "ru-plain-2", "language": "ru", "voice": "Milena",
+    "text": "Пожалуйста, отправь мне отчёт за прошлую неделю до конца дня.", "tags": ["plain"] },
+  { "id": "ru-filler-1", "language": "ru", "voice": "Milena",
+    "text": "Ну, это, значит, нужно, ээ, перенести созвон на четверг, нет, на пятницу.",
+    "clean": "Нужно перенести созвон на пятницу.", "tags": ["filler", "self-correction"] },
+  { "id": "ru-plain-1-noisy", "language": "ru", "voice": "Milena",
+    "text": "Добрый день, встреча начнётся в три часа в переговорной на втором этаже.", "tags": ["plain", "noisy"] },
+
+  { "id": "en-plain-1", "language": "en", "voice": "Samantha",
+    "text": "Good afternoon, the meeting starts at three o'clock in the conference room on the second floor.", "tags": ["plain"] },
+  { "id": "en-plain-2", "language": "en", "voice": "Samantha",
+    "text": "Please send me last week's report before the end of the day.", "tags": ["plain"] },
+  { "id": "en-filler-1", "language": "en", "voice": "Samantha",
+    "text": "So, um, we should, uh, move the call to Thursday, no, wait, to Friday.",
+    "clean": "We should move the call to Friday.", "tags": ["filler", "self-correction"] },
+  { "id": "en-plain-1-noisy", "language": "en", "voice": "Samantha",
+    "text": "Good afternoon, the meeting starts at three o'clock in the conference room on the second floor.", "tags": ["plain", "noisy"] },
+
+  { "id": "ko-plain-1", "language": "ko", "voice": "Yuna",
+    "text": "안녕하세요, 오늘 회의는 오후 세 시에 이 층 회의실에서 시작합니다.", "tags": ["plain"] },
+  { "id": "ko-plain-2", "language": "ko", "voice": "Yuna",
+    "text": "지난주 보고서를 오늘 퇴근 전까지 보내 주세요.", "tags": ["plain"] },
+  { "id": "ko-filler-1", "language": "ko", "voice": "Yuna",
+    "text": "그러니까, 음, 회의를 목요일로, 아니, 금요일로 옮겨야 해요.",
+    "clean": "회의를 금요일로 옮겨야 해요.", "tags": ["filler", "self-correction"] },
+  { "id": "ko-plain-1-noisy", "language": "ko", "voice": "Yuna",
+    "text": "안녕하세요, 오늘 회의는 오후 세 시에 이 층 회의실에서 시작합니다.", "tags": ["plain", "noisy"] }
+]
