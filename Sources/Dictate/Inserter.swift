@@ -50,11 +50,6 @@ final class Inserter {
         self.eventLog = eventLog
     }
 
-    /// Call when the hotkey goes down: where the user is when they start speaking.
-    func captureTarget() -> FocusSnapshot {
-        FocusProbe.current()
-    }
-
     /// Pastes `text` into the field that has focus now, provided that is still `target`. Returns what
     /// happened; the event log gets `inserted` or `insertionSkipped` (and `restoreSkipped` when the
     /// user's clipboard could not be put back).
