@@ -15,7 +15,7 @@ final class TranscriptionPipeline {
     private let transcriber: Transcriber
     private let options: LaunchOptions
     private let eventLog: EventLogWriter
-    private let status: StatusOverlay
+    private let status: Overlay
     private let inserter: Inserter
     private let insertion: InsertionSettings
     private let lastTranscript: LastTranscript
@@ -31,7 +31,7 @@ final class TranscriptionPipeline {
         transcriber: Transcriber,
         options: LaunchOptions,
         eventLog: EventLogWriter,
-        status: StatusOverlay,
+        status: Overlay,
         inserter: Inserter,
         insertion: InsertionSettings,
         lastTranscript: LastTranscript,

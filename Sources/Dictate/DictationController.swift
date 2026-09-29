@@ -46,8 +46,7 @@ final class DictationController {
     private let options: LaunchOptions
     private let eventLog: EventLogWriter
     private let recorder: AudioRecorder
-    private let overlay = RecordingOverlay()
-    private let status = StatusOverlay()
+    private let overlay = Overlay()
     private let pipeline: TranscriptionPipeline
     private var pushToTalk = PushToTalk()
     private var monitor: HotkeyMonitor?
@@ -59,16 +58,15 @@ final class DictationController {
         self.options = options
         eventLog = EventLogWriter(path: options.eventLog)
         models = ModelController(model: options.model ?? ModelStore.defaultModel, eventLog: eventLog)
-        let pill = overlay
         pipeline = TranscriptionPipeline(
             transcriber: models.transcriber,
             options: options,
             eventLog: eventLog,
-            status: status,
+            status: overlay,
             inserter: Inserter(eventLog: eventLog),
             insertion: insertion,
             lastTranscript: lastTranscript,
-            recordingPillIsVisible: { pill.isVisible }
+            recordingPillIsVisible: { [overlay] in overlay.isRecording }
         )
         let (events, continuation) = AsyncStream.makeStream(of: (Int, RecorderEvent).self)
         recorder = AudioRecorder { continuation.yield(($0, $1)) }
@@ -82,7 +80,7 @@ final class DictationController {
             onTapReenabled: { [weak self] in self?.eventLog.log(.tapReenabled) }
         )
         installHotkey()
-        models.onReady = { [status] in status.show(message: "Ready") }
+        models.onReady = { [overlay] in overlay.show(message: "Ready") }
         models.start()
     }
 
@@ -130,7 +128,7 @@ final class DictationController {
             active.rejected = true
             recording = active
             eventLog.log(.recordingDiscarded(.modelNotReady))
-            status.show(message: models.state.notReadyMessage)
+            overlay.show(message: models.state.notReadyMessage)
             return
         }
         active.overlayTask = Task { [weak self] in
@@ -247,16 +245,15 @@ extension DictationController {
     // MARK: Overlay
 
     private func showOverlay(for generation: Int) {
-        guard let active = recording, active.generation == generation, !active.failed, !overlay.isVisible else { return }
+        guard let active = recording, active.generation == generation, !active.failed, !overlay.isRecording else { return }
         let meter = recorder.meter
-        status.hide()
-        overlay.show { meter.value }
+        overlay.showRecording { meter.value }
         eventLog.log(.overlayShown)
     }
 
     private func hideOverlay() {
-        guard overlay.isVisible else { return }
-        overlay.hide()
+        guard overlay.isRecording else { return }
+        overlay.hideRecording()
         eventLog.log(.overlayHidden)
         pipeline.recordingPillHidden()
     }
