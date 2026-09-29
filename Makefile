@@ -11,7 +11,7 @@ TEST_FLAGS := -Xswiftc -F$(CLT)/Frameworks -Xlinker -F$(CLT)/Frameworks \
               -Xlinker -rpath -Xlinker $(CLT)/Frameworks -Xlinker -rpath -Xlinker $(CLT)/usr/lib
 endif
 
-.PHONY: help build bundle fixtures fixtures-real format format-check lint test coverage periphery secrets shellcheck check e2e hooks signing clean
+.PHONY: help build bundle fixtures fixtures-real format format-check lint test coverage periphery secrets shellcheck check e2e e2e-full hooks signing clean
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
@@ -57,10 +57,16 @@ shellcheck: ## Lint shell scripts
 check: format-check lint build test coverage periphery secrets shellcheck ## Everything that must be green before a stage is done
 	@echo "make check: OK"
 
-e2e: bundle fixtures ## End-to-end suite (needs macOS permissions; exit 2 = waiting for you)
+e2e: bundle fixtures ## Smoke end-to-end suite, run once (needs macOS permissions; exit 2 = waiting for you)
 	swift build --product E2ERunner
-	@"$$(swift build --show-bin-path)/E2ERunner"; code=$$?; \
+	@"$$(swift build --show-bin-path)/E2ERunner" --suite smoke; code=$$?; \
 	 if [ $$code -eq 2 ]; then echo "make e2e: BLOCKED, needs your action (see BLOCKED lines above)"; fi; \
+	 exit $$code
+
+e2e-full: bundle fixtures ## Every end-to-end check, for a hand-off or on request (slow)
+	swift build --product E2ERunner
+	@"$$(swift build --show-bin-path)/E2ERunner" --suite full; code=$$?; \
+	 if [ $$code -eq 2 ]; then echo "make e2e-full: BLOCKED, needs your action (see BLOCKED lines above)"; fi; \
 	 exit $$code
 
 hooks: ## Install git pre-commit hooks

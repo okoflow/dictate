@@ -1,3 +1,4 @@
+import DictateCore
 import Foundation
 
 // `make e2e` entry point. Exit code: 0 green, 1 a check failed, 2 nothing failed but a check
@@ -30,33 +31,78 @@ let pushToTalk = PushToTalkChecks(
     testPadStateURL: checks.stateURL
 )
 
-let results: [CheckResult] = [
-    timed("fixtures-valid") {
-        FixtureChecks.run(
-            manifestURL: root.appendingPathComponent("fixtures/manifest.json"),
-            generatedDirectory: root.appendingPathComponent("fixtures/generated")
-        )
-    },
-    timed("dictate-signature-stable") { checks.dictateSignatureIsStable() },
-    timed("dictate-launches-as-menu-bar-app") { checks.dictateLaunchesAsMenuBarApp() },
-    timed("dictate-reports-permissions") { checks.dictateReportsPermissions() },
-    timed("dictate-permissions-granted") { checks.dictatePermissionsGranted() },
-    timed("testpad-launches") { checks.testPadLaunches() },
-    timed("testpad-accessibility-roundtrip") { checks.testPadAccessibilityRoundTrip() },
-    // Push-to-talk (M1). Order matters: the recording checks leave the app idle for the next one,
-    // and the last check needs TestPad frontmost.
-    timed("blackhole-available") { pushToTalk.blackHoleAvailable() },
-    timed("hotkey-ready") { pushToTalk.hotkeyReady() },
-    timed("record-fixture-through-blackhole") { pushToTalk.recordFixtureThroughBlackHole() },
-    timed("silence-control") { pushToTalk.silenceControl() },
-    timed("left-option-ignored") { pushToTalk.leftOptionIgnored() },
-    timed("short-press-discarded") { pushToTalk.shortPressDiscarded() },
-    timed("overlay-shown-and-hidden") { pushToTalk.overlayShownAndHidden() },
-    timed("option-letter-passes-through") { pushToTalk.optionLetterPassesThrough() },
-]
+/// Everything `make e2e` (smoke) runs, in order; `make e2e-full` adds the rest around it.
+enum Suite: String {
+    case smoke
+    case full
+}
+
+let suite = argumentValue(after: "--suite").flatMap(Suite.init(rawValue:)) ?? .smoke
+
+/// One check per step, so the first failing reason is what gets reported.
+func firstProblem(_ steps: [() -> Outcome]) -> Outcome {
+    for step in steps {
+        let outcome = step()
+        if case .pass = outcome {
+            continue
+        }
+        return outcome
+    }
+    return .pass
+}
+
+let appReady = { () -> Outcome in
+    firstProblem([
+        { checks.dictateSignatureIsStable() },
+        { checks.dictateLaunchesAsMenuBarApp() },
+        { checks.dictateReportsPermissions() },
+        { checks.dictatePermissionsGranted() },
+        { pushToTalk.blackHoleAvailable() },
+        { pushToTalk.hotkeyReady() },
+    ])
+}
+
+/// TestPad is only needed for the Option+letter check; the smoke suite starts it here.
+let optionLetter = { () -> Outcome in
+    firstProblem([
+        { checks.testPad.runningApplication == nil ? checks.testPadLaunches() : .pass },
+        { pushToTalk.optionLetterPassesThrough() },
+    ])
+}
+
+let plan: [(name: String, run: () -> Outcome)] = switch suite {
+case .smoke:
+    [
+        ("app-ready", appReady),
+        ("record-fixture-through-blackhole", { pushToTalk.recordFixtureThroughBlackHole() }),
+        ("option-letter-passes-through", optionLetter),
+    ]
+case .full:
+    [
+        ("fixtures-valid", {
+            FixtureChecks.run(
+                manifestURL: root.appendingPathComponent("fixtures/manifest.json"),
+                generatedDirectory: root.appendingPathComponent("fixtures/generated")
+            )
+        }),
+        ("app-ready", appReady),
+        ("testpad-launches", { checks.testPadLaunches() }),
+        ("testpad-accessibility-roundtrip", { checks.testPadAccessibilityRoundTrip() }),
+        // Order matters: the recording checks leave the app idle for the next one, and the Option+letter
+        // check needs TestPad frontmost.
+        ("record-fixture-through-blackhole", { pushToTalk.recordFixtureThroughBlackHole() }),
+        ("silence-control", { pushToTalk.silenceControl() }),
+        ("left-option-ignored", { pushToTalk.leftOptionIgnored() }),
+        ("short-press-discarded", { pushToTalk.shortPressDiscarded() }),
+        ("overlay-shown-and-hidden", { pushToTalk.overlayShownAndHidden() }),
+        ("option-letter-passes-through", optionLetter),
+    ]
+}
+print("E2E suite: \(suite.rawValue)")
+let results = plan.map { name, run in timed(name, run) }
 checks.cleanUp()
 
-let report = Report(results: results, date: Date())
+let report = Report(suite: suite.rawValue, results: results, date: Date())
 if let url = try? report.save(in: root.appendingPathComponent("e2e/reports")) {
     print("Report: \(url.path)")
 }

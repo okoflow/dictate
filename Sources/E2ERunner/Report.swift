@@ -32,6 +32,8 @@ struct CheckResult {
 }
 
 struct Report {
+    /// Which suite ran, `smoke` or `full`.
+    let suite: String
     let results: [CheckResult]
     let date: Date
 
@@ -67,7 +69,7 @@ struct Report {
     }
 
     var markdown: String {
-        var lines = ["# E2E report", "", "Run: \(date.formatted(.iso8601))", ""]
+        var lines = ["# E2E report", "", "Run: \(date.formatted(.iso8601)), suite: \(suite)", ""]
         lines += ["| Check | Result | Time | Detail |", "|---|---|---|---|"]
         for result in results {
             let detail = (result.outcome.detail ?? "").replacingOccurrences(of: "\n", with: " ")
