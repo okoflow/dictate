@@ -78,3 +78,20 @@ in password fields, clipboard behaviour, known limits), commits on `m3-insert`, 
     - password-field, ordering and focus-change behaviour → unit tests on pure decisions;
     - e2e smoke keeps only `dictate-into-testpad`, and the runner asserts TestPad is frontmost right before releasing the key (otherwise it aborts the check);
     - the M2 `dictate-fixture-to-clipboard` smoke check is replaced (or moved to full).
+
+---
+
+## Deviations (as built)
+
+- **Test-only paste guard.** With the default settings the smoke suite's earlier checks would paste English text
+  into the terminal the suite runs from. Under `DICTATE_E2E=1`, `--insert-only-into <bundle id>` makes Dictate
+  paste only into TestPad and do nothing (clipboard untouched) elsewhere (`insertionSkipped(notAllowed)`).
+- **TestPad got an Edit menu:** ⌘V reaches a text view only through a menu key equivalent.
+- **Password field:** the text is neither pasted nor copied (the plan said "overlay shows the text"); the way back
+  is "Copy last transcript" (in memory only).
+- **`--clipboard-only`** flag added so the full suite can still check the M2 clipboard path
+  (`dictate-fixture-to-clipboard`, now full-only, relaunches the app with it).
+- **Queue ordering** is inherited from the M2 pipeline (one `AsyncStream` consumer that awaits each insertion,
+  including the clipboard restore); it has no separate unit test because it is not a pure function.
+- **Not built:** the full-only e2e checks for password field, ordering and focus change (revision 10 moved
+  them to unit tests of the pure decisions in `InsertionRulesTests`).

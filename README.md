@@ -3,9 +3,8 @@
 Push-to-talk dictation for macOS. Hold a key, speak, release — the text appears wherever your
 cursor is, in any app. Russian, English and Korean.
 
-> **Status: early development.** Push-to-talk and speech recognition work (stages M1 and M2): hold the
-> hotkey, speak, and the text lands **in the clipboard** (paste it with ⌘V). Inserting it for you arrives
-> in the next stage. See [Roadmap](#roadmap).
+> **Status: MVP.** Hold the hotkey, speak, release: the text is typed into the field you are in (stages
+> M1 to M3). Text clean-up and the other modes come next. See [Roadmap](#roadmap).
 
 ## Planned modes
 
@@ -43,6 +42,54 @@ are granted and a crossed-out one otherwise; the menu lists what is missing and 
 ("Hold right ⌥ to dictate", or "Hotkey unavailable: grant Input Monitoring"), the state of the speech
 model, and the language choice.
 
+## Using Dictate
+
+1. Click into any text field (a note, a browser form, a chat, a code editor).
+2. **Hold the right Option key**, speak, release.
+3. After about a second or two the text appears at the cursor. A space is added in front if the character
+   before the cursor is not a space, a bracket or a quote; there is never a trailing space.
+
+How it types: Dictate puts the text on the clipboard and presses ⌘V for you, then puts your previous
+clipboard back (only if nothing else has been copied in the meantime, and it leaves alone a clipboard that
+holds a password-manager item or more than 5 MB). Nothing is typed key by key.
+
+- **Password fields:** if the focused element is a secure text field, nothing is typed and the text is not
+  put on the clipboard either; the pill says so. Menu → **Copy last transcript** gets it back (it is kept in
+  memory only).
+- **Focus moved:** if you switched apps or fields while the text was being recognised, it is not pasted into
+  the wrong place; it is copied instead and the pill says "Copied — ⌘V to paste".
+- **Menu:** *Insert into the focused field* (on by default). Off = the text only goes to the clipboard.
+  *Copy last transcript* copies the last text again.
+- **Several dictations in a row:** they are pasted in the order you spoke them, one at a time. If you are
+  holding the hotkey for the next one when a text is ready, the paste waits for you to let go (a ⌘V with
+  Option held would be a different shortcut).
+
+Known limits:
+
+- Needs the Accessibility permission (to press ⌘V and to look at the focused field). Without it the text is
+  copied instead.
+- The shortcut is pressed on the key that types "v" in your Latin layout, so Dvorak and Colemak work; with
+  only a non-Latin layout active it follows the Latin one, as macOS does for shortcuts.
+- Apps that expose little to Accessibility (some Electron apps, games, remote desktops) still get the paste,
+  but the spacing decision cannot see the text before the cursor, so no leading space is added there.
+- Terminal's "Secure Keyboard Entry" and password fields in browsers: see the checklist below. Dictate
+  decides on the *focused element* being a password field, not on the global secure-input flag (it only
+  logs that flag).
+- The first syllable can be lost if you speak the instant you press the key (see Push-to-talk).
+
+### Manual checklist (not automated)
+
+- **TextEdit:** type "Hello", dictate: " ..." is added after "Hello"; at the start of an empty document there
+  is no leading space; after a newline there is none either.
+- **Chrome:** a text field and a textarea (Gmail, a search box); a password field must stay empty and show the
+  "Not typed into a password field" pill; then Copy last transcript works.
+- **Terminal:** dictate at the prompt (the text lands on the command line, not executed); switch on
+  Terminal → Secure Keyboard Entry and dictate again: it should still paste (the event log shows
+  `secureInputActive: true`).
+- **Telegram / Slack:** dictate into the message box; the text appears without sending it.
+- **Clipboard:** copy something, dictate, and paste again: your text is back. Copy from a password manager,
+  dictate: its clear-after-timeout still fires.
+
 ## Speech recognition
 
 Recognition runs on your Mac with [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift) (Whisper
@@ -69,8 +116,9 @@ Ukrainian or Japanese.
   36 MB idle; the `Bench` process reported 130 MB after 30 transcriptions. Core ML keeps the model weights
   in memory it manages itself (memory-mapped, partly on the Neural Engine), so the system's total use for
   the model is larger than these per-process figures; that total was not measured.
-- **Result:** the text goes to the clipboard and its first 60 characters show on a small pill for 1.5 s.
-  Paste with ⌘V. A recording without speech (silence, key clicks, steady noise: judged on how long the audio
+- **Result:** the text is pasted into the focused field (see Using Dictate), and its first 60 characters show
+  on a small pill for 1.5 s. With "Insert into the focused field" off it goes to the clipboard instead; paste
+  with ⌘V. A recording without speech (silence, key clicks, steady noise: judged on how long the audio
   is louder than its own noise floor) is not sent to the model, and a result that looks made up (low
   confidence, repeated text, stock phrases such as "Thanks for watching" or "Продолжение следует" when they
   are the whole result) is dropped. In both cases nothing is copied and the pill says "Didn't catch that". You can keep dictating while a previous recording is still being
@@ -109,6 +157,8 @@ Meant for diagnostics and the E2E suite; a normal launch passes none.
 | `--event-log <path>` | append what the app does (recording started/finished/discarded, overlay, ...) as JSON lines; never contains audio or text |
 | `--recording-dir <dir>` | keep every finished recording there as a 16 kHz mono WAV |
 | `--input-device <name>` | record from the input device with this name (or CoreAudio UID) instead of the system default |
+| `--clipboard-only` | never paste; copy the text to the clipboard (the menu setting forced off) |
+| `--insert-only-into <bundle id>` | **test-only** (needs `DICTATE_E2E=1`): paste only into this app, and do nothing elsewhere |
 | `--model <variant>` | use this WhisperKit model variant instead of the default |
 | `--transcript-dir <dir>` | **test-only**: save each transcript as `<n>.txt` there. Honoured only when the environment has `DICTATE_E2E=1` (`open -n --env DICTATE_E2E=1 ...`); it puts dictated text on disk, so do not use it otherwise |
 
@@ -153,7 +203,9 @@ LaunchServices-launched app instead).
   being recognised); nothing is written to disk unless you start Dictate with `--recording-dir`.
 - Recognition is fully local. The only network use is the one-time download of the model and its tokenizer
   from Hugging Face; no audio or text is sent anywhere.
-- Dictated text goes to the clipboard only, marked so clipboard managers skip it and not synced to other devices.
+- Dictated text touches the clipboard only for the moment of the paste (then your own clipboard is restored),
+  or when it could not be pasted; either way it is marked so clipboard managers skip it and not synced to
+  other devices.
 - Text goes to a cloud LLM only in Clean / Formal / Translate, and the menu shows a cloud icon then.
 - Text you dictate is never written to logs (only lengths, languages and timings). WhisperKit's own
   logging is off.
@@ -188,7 +240,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 - [x] M0 skeleton, test harness, quality gates
 - [x] M1 push-to-talk and recording
 - [x] M2 speech recognition (ru / en / ko): text lands in the clipboard until M3
-- [ ] M3 text insertion, Raw mode (MVP)
+- [x] M3 text insertion, Raw mode (MVP)
 - [ ] M4 Light / Clean / Formal / Translate modes
 - [ ] M5 personal dictionary, snippets, history, per-app mode
 
