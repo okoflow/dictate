@@ -84,6 +84,8 @@ public struct PushToTalk: Sendable {
         /// The key-up can no longer be trusted (macOS disabled the event tap), so the recording
         /// was stopped rather than left running.
         case interrupted
+        /// The key went down while the speech model was still downloading or loading.
+        case modelNotReady
     }
 
     public static let minimumPress: Double = 0.3

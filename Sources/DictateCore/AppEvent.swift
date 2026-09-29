@@ -17,6 +17,13 @@ public enum AppEvent: Codable, Equatable, Sendable {
     case overlayShown
     case overlayHidden
     case tapReenabled
+    /// The speech model is loaded; `loadSeconds` covers the Core ML compile on the first run.
+    case modelReady(name: String, loadSeconds: Double)
+    /// A recording became text. Only the length is logged, never the text itself.
+    case transcribed(language: Language, characters: Int, seconds: Double)
+    /// The recording held no speech, or the model heard none; nothing was copied.
+    case noSpeech
+    case transcriptionFailed(String)
 
     public func jsonLine() throws -> String {
         let data = try JSONEncoder().encode(self)

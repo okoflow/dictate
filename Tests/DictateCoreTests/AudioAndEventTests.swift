@@ -73,6 +73,11 @@ struct AppEventTests {
             .overlayShown,
             .overlayHidden,
             .tapReenabled,
+            .recordingDiscarded(.modelNotReady),
+            .modelReady(name: "openai_whisper-large-v3-v20240930_626MB", loadSeconds: 12.5),
+            .transcribed(language: .ko, characters: 42, seconds: 1.25),
+            .noSpeech,
+            .transcriptionFailed("the model is not loaded"),
         ]
         let log = try events.map { try $0.jsonLine() }.joined()
         #expect(AppEvent.parseLog(log) == events)
@@ -98,11 +103,20 @@ struct LaunchOptionsTests {
             "--event-log", "/tmp/e.jsonl",
             "--recording-dir", "/tmp/rec",
             "--input-device", "BlackHole 2ch",
+            "--model", "openai_whisper-large-v3-v20240930",
+            "--transcript-dir", "/tmp/tr",
         ])
         #expect(options.reportFile == "/tmp/r.json")
         #expect(options.eventLog == "/tmp/e.jsonl")
         #expect(options.recordingDirectory == "/tmp/rec")
         #expect(options.inputDevice == "BlackHole 2ch")
+        #expect(options.model == "openai_whisper-large-v3-v20240930")
+        #expect(options.transcriptDirectory == "/tmp/tr")
+    }
+
+    @Test func transcriptDirectoryNeedsTheEventLog() {
+        let options = LaunchOptions(arguments: ["Dictate", "--transcript-dir", "/tmp/tr"])
+        #expect(options.transcriptDirectory == nil)
     }
 
     @Test func defaultsToNothing() {

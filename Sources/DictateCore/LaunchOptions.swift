@@ -12,10 +12,18 @@ public struct LaunchOptions: Equatable, Sendable {
     /// Record from the input device with this name instead of the system default.
     public var inputDevice: String?
 
+    /// Speech model to use instead of `ModelStore.defaultModel` (a WhisperKit variant name).
+    public var model: String?
+    /// Save each transcript as `<n>.txt` here. Test-only, and honoured only together with `--event-log`,
+    /// so a normal launch, even with this flag typed by mistake, never writes dictated text to disk.
+    public var transcriptDirectory: String?
+
     public init(arguments: [String]) {
         reportFile = argumentValue(after: "--report-file", in: arguments)
         eventLog = argumentValue(after: "--event-log", in: arguments)
         recordingDirectory = argumentValue(after: "--recording-dir", in: arguments)
         inputDevice = argumentValue(after: "--input-device", in: arguments)
+        model = argumentValue(after: "--model", in: arguments)
+        transcriptDirectory = eventLog == nil ? nil : argumentValue(after: "--transcript-dir", in: arguments)
     }
 }
