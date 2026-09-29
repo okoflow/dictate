@@ -3,7 +3,7 @@ import Foundation
 /// Character error rate for the accuracy checks, with the normalisation that makes it fair:
 /// case, punctuation, spacing and (for Korean) word breaks are not recognition errors.
 public enum TextMetrics {
-    /// Lowercases (by the language's rules), maps ё to е, drops punctuation and collapses whitespace.
+    /// Lowercases (by the language's rules), maps ё to е, drops punctuation and symbols and collapses whitespace.
     /// Korean is compared without spaces at all, because its spacing rules are loose and Whisper
     /// and people disagree on them.
     public static func normalise(_ text: String, language: Language) -> String {
@@ -35,6 +35,8 @@ public enum TextMetrics {
     private static let punctuation: Set<Unicode.GeneralCategory> = [
         .connectorPunctuation, .dashPunctuation, .openPunctuation, .closePunctuation,
         .initialPunctuation, .finalPunctuation, .otherPunctuation,
+        // Symbols too ("+", "$", "°", "№"): Whisper and a transcript disagree on them as often as on commas.
+        .mathSymbol, .currencySymbol, .modifierSymbol, .otherSymbol,
     ]
 
     /// Levenshtein distance, two rows at a time.

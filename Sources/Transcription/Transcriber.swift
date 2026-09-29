@@ -82,8 +82,9 @@ public actor Transcriber {
     }
 
     /// Turns 16 kHz mono `samples` into text in `language`, or in the most probable of ru / en / ko
-    /// when `language` is `nil`. Returns `nil` when there is nothing to transcribe: no speech in
-    /// the recording, or the model heard none.
+    /// when `language` is `nil`. Returns `nil` when there is nothing to transcribe: the audio has no
+    /// speech in it (`SpeechGate`), or the result looks made up (`TranscriptFilter`). WhisperKit's own
+    /// `noSpeechThreshold` is not used: its no-speech probability is always 0.
     public func transcribe(samples: [Float], language: Language?) async throws -> Transcript? {
         guard SpeechGate.decide(samples: samples, sampleRate: Self.sampleRate) == .transcribe else { return nil }
         guard let kit else { throw TranscriberError.notLoaded }
@@ -101,20 +102,19 @@ public actor Transcriber {
             chosen = picked?.language ?? .en
             probability = picked.map { exp(Double($0.probability)) }
         }
+        guard let chosen else { return nil }
         let start = ContinuousClock.now
         let options = DecodingOptions(
             verbose: false,
             task: .transcribe,
-            language: chosen?.rawValue,
+            language: chosen.rawValue,
             usePrefillPrompt: true,
             detectLanguage: false,
             skipSpecialTokens: true,
-            noSpeechThreshold: 0.6,
             chunkingStrategy: samples.count > Self.windowSamples ? .vad : nil
         )
         let results = try await kit.transcribe(audioArray: samples, decodeOptions: options)
-        let text = results.map(\.text).joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty, let chosen else { return nil }
+        guard let text = Self.acceptedText(of: results, language: chosen) else { return nil }
         return Transcript(
             text: text,
             language: chosen,
@@ -122,6 +122,22 @@ public actor Transcriber {
             detectSeconds: detectSeconds,
             transcribeSeconds: (ContinuousClock.now - start).seconds
         )
+    }
+
+    /// The joined text, unless it is empty or `TranscriptFilter` finds it made up.
+    private static func acceptedText(of results: [TranscriptionResult], language: Language) -> String? {
+        let text = results.map(\.text).joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return nil }
+        let segments = results.flatMap(\.segments)
+        let logProbabilities = segments.map { Double($0.avgLogprob) }
+        let average = logProbabilities.isEmpty ? nil : logProbabilities.reduce(0, +) / Double(logProbabilities.count)
+        let verdict = TranscriptFilter.verdict(
+            text: text,
+            language: language,
+            averageLogProbability: average,
+            compressionRatio: segments.map { Double($0.compressionRatio) }.max()
+        )
+        return verdict == .keep ? text : nil
     }
 
     // MARK: One at a time

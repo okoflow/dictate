@@ -26,6 +26,10 @@ struct TextNormalisationTests {
         #expect(TextMetrics.normalise("e\u{0301}", language: .en) == "\u{00E9}")
     }
 
+    @Test func dropsSymbolsToo() {
+        #expect(TextMetrics.normalise("2 + 2 = 4, 20° $5 №7", language: .en) == "2 2 4 20 5 7")
+    }
+
     @Test func keepsDigitsAndLetters() {
         #expect(TextMetrics.normalise("3 o'clock", language: .en) == "3 oclock")
     }
