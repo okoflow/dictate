@@ -133,12 +133,31 @@ final class Inserter {
         while !provider.wasRead, ContinuousClock.now < deadline {
             try? await Task.sleep(for: .milliseconds(20))
         }
-        if provider.wasRead {
-            try? await Task.sleep(for: .seconds(Self.settleDelay))
+        defer { withExtendedLifetime(provider) {} }
+        guard provider.wasRead else {
+            // A slow app may still paste after the timeout. Putting the user's clipboard back now would
+            // hand it the old (possibly private) contents instead of the dictation, so leave the text there.
+            keepOnClipboard(text, expecting: ours)
+            eventLog.log(.restoreSkipped("the app did not read the text in time"))
+            return true
         }
+        try? await Task.sleep(for: .seconds(Self.settleDelay))
         restore(snapshot, expecting: ours)
-        withExtendedLifetime(provider) {}
         return true
+    }
+
+    /// Replaces the lazy item with the plain text, so a late paste still gets the dictation after the
+    /// data provider is gone. Skipped when something else has taken the clipboard since.
+    private func keepOnClipboard(_ text: String, expecting changeCount: Int) {
+        let pasteboard = NSPasteboard.general
+        guard pasteboard.changeCount == changeCount else { return }
+        let item = NSPasteboardItem()
+        item.setString(text, forType: .string)
+        item.setData(Data(), forType: NSPasteboard.PasteboardType(InsertionRules.transientType))
+        item.setData(Data(), forType: NSPasteboard.PasteboardType(InsertionRules.concealedType))
+        item.setData(Data(), forType: NSPasteboard.PasteboardType(InsertionRules.ownType))
+        pasteboard.prepareForNewContents(with: .currentHostOnly)
+        pasteboard.writeObjects([item])
     }
 
     private func restore(_ snapshot: PasteboardSnapshot, expecting changeCount: Int) {
