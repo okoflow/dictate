@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Generates speech fixtures from fixtures/manifest.json with macOS `say`.
 # Output: fixtures/generated/<id>.wav (16 kHz mono, 16-bit). Existing files are kept.
+# An optional "say" field is spoken instead of "text" (for `say` commands such as [[slnc 600]], a pause).
 # Voices needed: Milena (ru), Samantha (en), Yuna (ko) — System Settings → Accessibility →
 # Spoken Content → System Voice → Manage Voices.
 set -euo pipefail
@@ -37,4 +38,4 @@ while IFS=$'\t' read -r id voice text tags; do
         afconvert -f WAVE -d LEI16@16000 -c 1 "$work/$id.aiff" "$target"
     fi
     echo "generated $target"
-done < <(jq -r '(map(select((.tags | index("noisy")) | not)) + map(select(.tags | index("noisy")))) | .[] | [.id, .voice, .text, (.tags | join(","))] | @tsv' "$manifest")
+done < <(jq -r '(map(select((.tags | index("noisy")) | not)) + map(select(.tags | index("noisy")))) | .[] | [.id, .voice, (.say // .text), (.tags | join(","))] | @tsv' "$manifest")

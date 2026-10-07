@@ -48,11 +48,13 @@ let modes = ModeChecks(
     proxy: proxy,
     fixturesDirectory: root.appendingPathComponent("fixtures"),
     transcriptDirectory: checks.transcriptDirectory,
+    dictionaryURL: checks.dictionaryURL,
+    historyURL: checks.historyURL,
     live: live,
     liveKey: live ? LiveKey.read() : nil
 )
 
-/// The M4 checks, the same in both suites.
+/// The M4 and M5 checks, the same in both suites.
 let modeChecks: [(name: String, run: () -> Outcome)] = [
     ("mode-cycle-hotkey", { modes.modeCycleHotkey() }),
     ("modes-offline", { modes.offlineModes() }),
@@ -60,6 +62,9 @@ let modeChecks: [(name: String, run: () -> Outcome)] = [
     ("cloud-fallback", { modes.cloudFallback() }),
     ("modes-cloud", { modes.cloudModes() }),
     ("clean-latency", { modes.cleanLatency() }),
+    // M5
+    ("dictionary-and-snippets", { modes.dictionaryAndSnippets() }),
+    ("app-mode-in-chrome", { modes.appModeInChrome() }),
 ]
 
 /// Everything `make e2e` (smoke) runs, in order; `make e2e-full` adds the rest around it.

@@ -19,11 +19,16 @@ struct ModeChecks {
     /// Plan target: from the end of a 10 s phrase to the text, Clean ≤ 2.5 s.
     static let maximumCleanLatency = 2.5
     static let fillerFixtures = ["ru-filler-1", "en-filler-1", "ko-filler-1"]
+    /// The app the per-app mode check uses; the suite launches Dictate with Light for it.
+    static let chrome = "com.google.Chrome"
 
     let log: EventLog
     let proxy: LLMProxy
     let fixturesDirectory: URL
     let transcriptDirectory: URL
+    /// The app's `--dictionary` and `--history-file`.
+    let dictionaryURL: URL
+    let historyURL: URL
     /// `E2E_LLM=live`: the proxy forwards to the real API and records; otherwise it replays.
     let live: Bool
     let liveKey: String?
@@ -133,8 +138,9 @@ struct ModeChecks {
 
     // MARK: Dictating a file
 
-    /// Sets `mode`, dictates the fixture `id` and waits for the result.
-    func dictate(_ id: String, mode: Mode) throws -> Delivery {
+    /// Sets `mode`, dictates the fixture `id` and waits for the result, which must be processed in `expected`
+    /// (by default `mode`; an app with its own mode changes it).
+    func dictate(_ id: String, mode: Mode, processedIn expected: Mode? = nil) throws -> Delivery {
         let fixture = try Self.fixture(id, in: fixturesDirectory)
         guard waitUntil(timeout: 180, { log.events.contains {
             if case .modelReady = $0 {
@@ -161,7 +167,9 @@ struct ModeChecks {
         else {
             throw Verdict.fail("\(id): no delivery within 60 s (app logged: \(log.newEvents(since: baseline)))")
         }
-        guard requested == mode else { throw Verdict.fail("\(id): processed in \(requested), expected \(mode)") }
+        guard requested == expected ?? mode else {
+            throw Verdict.fail("\(id): processed in \(requested), expected \(expected ?? mode)")
+        }
         let (raw, text) = try latestTranscripts()
         return Delivery(
             fixture: fixture, raw: raw, text: text, language: language, mode: requested, applied: applied,

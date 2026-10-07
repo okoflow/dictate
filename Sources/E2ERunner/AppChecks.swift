@@ -26,22 +26,6 @@ struct AppChecks {
         )
     }
 
-    var eventLogURL: URL {
-        scratchDirectory.appendingPathComponent("dictate-events.jsonl")
-    }
-
-    var recordingDirectory: URL {
-        scratchDirectory.appendingPathComponent("dictate-recordings")
-    }
-
-    var transcriptDirectory: URL {
-        scratchDirectory.appendingPathComponent("dictate-transcripts")
-    }
-
-    var stateURL: URL {
-        scratchDirectory.appendingPathComponent("testpad-state.json")
-    }
-
     private var reportURL: URL {
         scratchDirectory.appendingPathComponent("dictate-permissions.json")
     }
@@ -53,6 +37,8 @@ struct AppChecks {
         try? FileManager.default.removeItem(at: reportURL)
         try? FileManager.default.removeItem(at: recordingDirectory)
         try? FileManager.default.removeItem(at: transcriptDirectory)
+        try? FileManager.default.removeItem(at: dictionaryURL)
+        try? FileManager.default.removeItem(at: historyURL)
         let arguments = [
             "--report-file", reportURL.path,
             "--event-log", eventLogURL.path,
@@ -65,6 +51,10 @@ struct AppChecks {
             // The M1–M3 checks expect Whisper's text as it is, in any of the three languages. Neither is saved.
             "--mode", Mode.raw.rawValue,
             "--language", LanguagePreference.auto.storedValue,
+            // Your own dictionary, history and per-app modes stay out of the suite: its own, Chrome in Light.
+            "--dictionary", dictionaryURL.path,
+            "--history-file", historyURL.path,
+            "--app-mode", "\(ModeChecks.chrome)=\(Mode.light.rawValue)",
         ] + extraArguments
         // `--transcript-dir` is honoured only with this variable: dictated text stays off disk otherwise.
         guard let app = dictate.launch(arguments: arguments, environment: ["DICTATE_E2E": "1"]) else {
@@ -243,5 +233,34 @@ struct AppChecks {
         dictate.terminate()
         testPad.terminate()
         AbortGuard.killApps()
+    }
+}
+
+/// Where the launched app writes, all in the scratch directory.
+extension AppChecks {
+    var eventLogURL: URL {
+        scratchDirectory.appendingPathComponent("dictate-events.jsonl")
+    }
+
+    var recordingDirectory: URL {
+        scratchDirectory.appendingPathComponent("dictate-recordings")
+    }
+
+    var transcriptDirectory: URL {
+        scratchDirectory.appendingPathComponent("dictate-transcripts")
+    }
+
+    /// The dictionary the suite writes for the M5 checks; absent (empty dictionary) until then.
+    var dictionaryURL: URL {
+        scratchDirectory.appendingPathComponent("dictate-dictionary.json")
+    }
+
+    /// Keeps the suite's dictations out of your own history.
+    var historyURL: URL {
+        scratchDirectory.appendingPathComponent("dictate-history.json")
+    }
+
+    var stateURL: URL {
+        scratchDirectory.appendingPathComponent("testpad-state.json")
     }
 }

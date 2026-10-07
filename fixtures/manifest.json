@@ -85,5 +85,22 @@
     "voice": "Yuna",
     "text": "안녕하세요, 여러분. 회의는 세 시에 시작하니까 분기 보고서를 미리 준비해서 오늘 퇴근 전까지 팀장님께 보내 주시기 바랍니다.",
     "alternatives": ["안녕하세요, 여러분. 회의는 3시에 시작하니까 분기 보고서를 미리 준비해서 오늘 퇴근 전까지 팀장님께 보내 주시기 바랍니다."],
-    "tags": ["long"] }
+    "tags": ["long"] },
+  { "id": "ru-vocab-1",
+    "language": "ru",
+    "voice": "Milena",
+    "text": "Задеплой сервис в кубернетис до вечера.",
+    "clean": "Задеплой сервис в Kubernetes до вечера.",
+    "tags": ["vocab"] },
+  { "id": "en-vocab-1",
+    "language": "en",
+    "voice": "Samantha",
+    "text": "Please update WhisperKit before the release.",
+    "tags": ["vocab"] },
+  { "id": "ru-snippet-1",
+    "language": "ru",
+    "voice": "Milena",
+    "text": "Моя почта.",
+    "say": "[[slnc 600]] Моя почта. [[slnc 600]]",
+    "tags": ["snippet"] }
 ]
