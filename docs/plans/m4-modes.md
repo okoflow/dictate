@@ -86,3 +86,9 @@ checks stay as they are.
   makes macOS ask; while the dialog waits the audio engine hangs, and the suite with it.
 - **`--only`** for the runner, to work on a few checks.
 - **The menu bar icon is unchanged**; ☁︎ is shown in the menu's first line and the Mode menu.
+- **Replay was checked with a throw-away cassette.** To make sure the replay path works before the first live
+  recording, it was run once with hand-written answers (not from Claude, deleted afterwards): `modes-cloud`
+  passed; `clean-latency` gave **2.91 s** with a 0.84 s LLM share, because recognising 10 s of speech takes about
+  2.1 s in Auto language mode (0.6 s of it is the language detection). With Haiku's real latency the 2.5 s target
+  will probably be missed in Auto; pinning the language, or a faster model, is the lever. The check was left at
+  2.5 s.
