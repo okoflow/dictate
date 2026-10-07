@@ -21,7 +21,7 @@ private struct MenuContent: View {
     var body: some View {
         switch dictation.hotkeyStatus {
         case .starting: Text("Starting…")
-        case .ready: Text("Hold right ⌥ to dictate")
+        case .ready: Text("Hold right ⌥ to dictate · \(dictation.mode.mode.menuTitle)")
         case .unavailable: Text("Hotkey unavailable: grant Input Monitoring")
         }
         Divider()
@@ -40,6 +40,7 @@ private struct MenuContent: View {
             .pickerStyle(.inline)
             .labelsHidden()
         }
+        ModeMenu(dictation: dictation)
         Toggle("Insert into the focused field", isOn: Bindable(dictation.insertion).isEnabled)
         Button("Copy last transcript") {
             if let text = dictation.lastTranscript.text {
@@ -67,5 +68,36 @@ private struct MenuContent: View {
             }
         }
         .keyboardShortcut("q")
+    }
+}
+
+/// The mode picker (cloud modes marked ☁︎), the hotkey that cycles it, and the API key the cloud modes need.
+private struct ModeMenu: View {
+    let dictation: DictationController
+
+    var body: some View {
+        Menu("Mode: \(dictation.mode.mode.menuTitle)") {
+            Picker("Mode", selection: Bindable(dictation.mode).mode) {
+                ForEach(Mode.allCases, id: \.self) { mode in
+                    Text(mode.menuTitle).tag(mode)
+                }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+            Divider()
+            Text(dictation.modeHotkeyAvailable ? "Next mode: \(ModeHotkey.title)" : "\(ModeHotkey.title) is taken by another app")
+            Text("☁︎ sends the text (never audio) to Claude Haiku")
+        }
+        if dictation.mode.mode.isCloud, !dictation.apiKey.isSet {
+            Text("No API key: Light is used instead")
+        }
+        Button(dictation.apiKey.isSet ? "Change Anthropic API key…" : "Set Anthropic API key…") {
+            dictation.apiKey.promptForKey()
+        }
+        if dictation.apiKey.isSet {
+            Button("Remove API key") {
+                dictation.apiKey.remove()
+            }
+        }
     }
 }

@@ -39,24 +39,29 @@ final class DictationController {
 
     private(set) var hotkeyStatus = HotkeyStatus.starting
     let models: ModelController
-    let language = LanguageSettings()
+    let language: LanguageSettings
+    let mode: ModeSettings
+    let apiKey = APIKeySettings()
     let insertion = InsertionSettings()
     let lastTranscript = LastTranscript()
 
-    private let options: LaunchOptions
-    private let eventLog: EventLogWriter
+    let options: LaunchOptions
+    let eventLog: EventLogWriter
     private let recorder: AudioRecorder
-    private let overlay = Overlay()
-    private let pipeline: TranscriptionPipeline
+    let overlay = Overlay()
+    let pipeline: TranscriptionPipeline
     private var pushToTalk = PushToTalk()
     private var releaseWatchdog = ReleaseWatchdog()
     private var monitor: HotkeyMonitor?
+    var modeHotkey: ModeHotkey?
     private var recording: Recording?
     private var generation = 0
     private var askedForInputMonitoring = false
 
     init(options: LaunchOptions) {
         self.options = options
+        language = LanguageSettings(override: options.language)
+        mode = ModeSettings(override: options.mode)
         eventLog = EventLogWriter(path: options.eventLog)
         models = ModelController(model: options.model ?? ModelStore.defaultModel, eventLog: eventLog)
         pipeline = TranscriptionPipeline(
@@ -82,6 +87,7 @@ final class DictationController {
             onHotkeyBitSeen: { [weak self] in self?.releaseWatchdog.sawHotkeyEvent() }
         )
         installHotkey()
+        installModeSwitching()
         models.onReady = { [overlay] in overlay.show(message: "Ready") }
         models.start()
     }
@@ -200,7 +206,9 @@ final class DictationController {
             }
         }
         eventLog.log(.recordingFinished(seconds: seconds, samples: samples.count, file: file))
-        pipeline.submit(samples: samples, language: language.preference.language, target: target ?? FocusProbe.current())
+        pipeline.submit(
+            samples: samples, language: language.preference.language, mode: mode.mode, target: target ?? FocusProbe.current()
+        )
     }
 
     private func microphoneProblem() -> String? {

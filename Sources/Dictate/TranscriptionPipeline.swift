@@ -2,13 +2,14 @@ import DictateCore
 import Foundation
 import Transcription
 
-/// Turns finished recordings into clipboard text, one at a time in the order they were made, so a
-/// second dictation started while the first is still being recognised does not overtake it.
+/// Turns finished recordings into text in the chosen mode and pastes it, one at a time in the order they were
+/// made, so a second dictation started while the first is still being recognised does not overtake it.
 @MainActor
 final class TranscriptionPipeline {
     private struct Job {
         let samples: [Float]
         let language: Language?
+        let mode: Mode
         let target: FocusSnapshot
     }
 
@@ -60,11 +61,11 @@ final class TranscriptionPipeline {
         await inserter.waitUntilIdle()
     }
 
-    /// Queues `samples`; `language` is the menu choice at the moment of the recording, `target` the focus
-    /// at the moment the key went down.
-    func submit(samples: [Float], language: Language?, target: FocusSnapshot) {
+    /// Queues `samples`; `language` and `mode` are the menu choices at the moment of the recording, `target` the
+    /// focus at the moment the key went down.
+    func submit(samples: [Float], language: Language?, mode: Mode, target: FocusSnapshot) {
         pending += 1
-        jobs.yield(Job(samples: samples, language: language, target: target))
+        jobs.yield(Job(samples: samples, language: language, mode: mode, target: target))
         presentNext()
     }
 
@@ -90,7 +91,13 @@ final class TranscriptionPipeline {
         let message: String
         do {
             if let transcript = try await transcriber.transcribe(samples: job.samples, language: job.language) {
-                message = await deliver(transcript, target: job.target)
+                let start = ContinuousClock.now
+                let rewriter = job.mode.isCloud ? AnthropicRewriter.current(options: options) : nil
+                let processed = await ModeProcessor(rewriter: rewriter)
+                    .process(transcript.text, mode: job.mode, language: transcript.language)
+                let seconds = (ContinuousClock.now - start) / .seconds(1)
+                let delivered = await deliver(processed, of: transcript, processingSeconds: seconds, target: job.target)
+                message = processed.fallback.map { "\(delivered)\n\($0.message)" } ?? delivered
             } else {
                 eventLog.log(.noSpeech)
                 message = "Didn't catch that"
@@ -104,34 +111,44 @@ final class TranscriptionPipeline {
         presentNext()
     }
 
-    /// Hands the text on: pasted into the focused field, or (setting off, or the paste was not safe) on the
-    /// clipboard. The transcript file, when asked for, is written before the event, so whoever waits for
-    /// the event finds it in place. Returns what to tell the user.
-    private func deliver(_ transcript: Transcript, target: FocusSnapshot) async -> String {
-        lastTranscript.remember(transcript.text)
+    /// Hands the processed text on: pasted into the focused field, or (setting off, or the paste was not safe) on
+    /// the clipboard. The transcript files (`<n>.txt` delivered, `<n>.raw.txt` recognised), when asked for, are
+    /// written before the events, so whoever waits for an event finds them in place. Returns what to tell the user.
+    private func deliver(
+        _ processed: ProcessedText, of transcript: Transcript, processingSeconds: Double, target: FocusSnapshot
+    ) async -> String {
+        let text = processed.text
+        lastTranscript.remember(text)
         let inserting = insertion.isEnabled && !options.clipboardOnly
         if !inserting {
-            Clipboard.copy(transcript.text)
+            Clipboard.copy(text)
         }
         if let directory = options.transcriptDirectory {
             savedTranscripts += 1
-            try? TranscriptStore.save(transcript.text, number: savedTranscripts, in: URL(fileURLWithPath: directory))
+            let url = URL(fileURLWithPath: directory)
+            try? TranscriptStore.save(transcript.text, name: "\(savedTranscripts).raw", in: url)
+            try? TranscriptStore.save(text, name: "\(savedTranscripts)", in: url)
         }
         eventLog.log(.transcribed(language: transcript.language, characters: transcript.text.count, seconds: transcript.seconds))
-        guard inserting else { return transcript.text }
+        eventLog.log(.processed(
+            mode: processed.requested, applied: processed.applied, fallback: processed.fallback,
+            cloud: processed.contactedCloud, characters: text.count, seconds: processingSeconds
+        ))
+        guard !text.isEmpty else { return "Didn't catch that" }
+        guard inserting else { return text }
 
         if let only = options.insertOnlyInto, target.bundleIdentifier != only {
             eventLog.log(.insertionSkipped(.notAllowed))
-            return transcript.text
+            return text
         }
-        switch await inserter.insert(transcript.text, target: target) {
+        switch await inserter.insert(text, target: target) {
         case .inserted:
-            return transcript.text
+            return text
         case .skipped(.secureField):
             // Not copied either: a password field is where the text must not go, or linger.
             return "Not typed into a password field (menu: Copy last transcript)"
         case .skipped:
-            Clipboard.copy(transcript.text)
+            Clipboard.copy(text)
             return "Copied — ⌘V to paste"
         }
     }
