@@ -55,6 +55,33 @@ The ☁︎ modes use Claude Haiku and need your Anthropic API key: menu → **Se
 your Keychain). Without a key, offline, or when there is no answer within 3 seconds, Dictate uses Light instead
 and the pill says why, so you always get your text.
 
+**A mode per app:** menu → **Mode in Chrome** (the app you were in when you opened the menu) gives that app its
+own mode, say Formal in Mail and Raw in the terminal. Other apps follow the Mode menu.
+
+## Dictionary, snippets, history
+
+- **Dictionary:** menu → **Dictionary & snippets…** opens a small JSON file. List the names and terms Whisper
+  gets wrong, and how it writes them instead:
+
+  ```json
+  {
+    "terms": [
+      { "term": "Kubernetes", "spoken": ["кубернетис", "кубер"] },
+      { "term": "Ivan Petrov" }
+    ],
+    "snippets": [
+      { "trigger": "моя почта", "text": "ivan.petrov@example.com" }
+    ]
+  }
+  ```
+
+  The terms are given to Whisper as a hint, and whatever it still writes from `spoken` (any case, whole words)
+  is replaced by the term. This works in every mode, Raw included. Changes apply to the next dictation.
+- **Snippets:** say just the trigger ("моя почта") and its text is pasted as it is, in any mode, without going to
+  the cloud. A trigger inside a longer dictation is replaced too.
+- **History:** menu → **History** shows your last dictations; click one to copy it. Turn it off with **Keep
+  history**, delete it with **Clear history**.
+
 A few things it does on its own:
 
 - **Your clipboard is safe.** Dictate pastes through the clipboard, then puts back whatever you had copied.
@@ -70,6 +97,8 @@ A few things it does on its own:
   have set a key. See [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy) for how the API
   handles it.
 - The API key lives in your Keychain, nowhere else. **Remove API key** in the menu deletes it.
+- The history (your last 50 texts) is kept in `~/Library/Application Support/Dictate/history.json`, readable only
+  by your user. Switch it off or clear it in the History menu. The dictionary is in the same folder.
 - Audio stays in memory while you hold the key and is never saved.
 - The dictated text is never written to logs.
 
@@ -77,10 +106,10 @@ To remove the model: `rm -r ~/Library/Application\ Support/Dictate/Models ~/Libr
 
 ## What's next
 
-A personal dictionary for names and terms, snippets, a dictation history, and a default mode for each app.
+Hands-free mode (no holding the key), voice commands, editing the selected text, and a release build.
 
 ## More
 
-- [How it works](docs/how-it-works.md): modes, pasting, recognition, known limits
+- [How it works](docs/how-it-works.md): modes, dictionary, pasting, recognition, known limits
 - [Development](docs/development.md): tests, benchmarks, launch flags
 - [MIT License](LICENSE)

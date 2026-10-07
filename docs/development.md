@@ -46,6 +46,14 @@ needed; the file is copied to the temporary directory first, because macOS asks 
   uses it). A changed prompt or a different transcript is a miss: re-record.
 - `mode-cycle-hotkey`: ⌃⌥M five times (needs Accessibility for the terminal, like the push-to-talk checks).
 
+M5 checks (same launch: an empty dictionary and history in the temporary directory, Chrome in Light):
+
+- `dictionary-and-snippets`: ru-vocab-1 ("кубернетис") and en-vocab-1 ("WhisperKit") first with an empty
+  dictionary, then with one: the term must come out as written; "Моя почта" must become the snippet in Raw and
+  Light; the history file must end with it.
+- `app-mode-in-chrome`: opens Chrome, dictates in Raw, expects Chrome's Light; then brings back the app that was
+  in front.
+
 `E2ERunner --suite smoke --only a,b` runs just the named checks while you work on them (the report is marked
 partial); a stage hand-off runs the whole suite.
 
@@ -69,6 +77,9 @@ Meant for diagnostics and the E2E suite; a normal launch passes none.
 | `--model <variant>` | use this WhisperKit model variant instead of the default |
 | `--mode <raw\|light\|clean\|formal\|translate>` | use this mode for this launch (not saved) |
 | `--language <auto\|ru\|en\|ko>` | use this language choice for this launch (not saved) |
+| `--dictionary <path>` | use this dictionary file instead of the one in Application Support |
+| `--history-file <path>` | keep the history in this file instead |
+| `--app-mode <bundle>=<mode>,...` | use these per-app modes for this launch (not saved) |
 | `--llm-endpoint <url>` | **test-only** (needs `DICTATE_E2E=1`): send ☁︎ requests there instead of the Anthropic API, with the placeholder key `e2e` (the real key never goes to another address) |
 | `--transcript-dir <dir>` | **test-only**: save each delivered text as `<n>.txt` and what Whisper heard as `<n>.raw.txt` there. Honoured only when the environment has `DICTATE_E2E=1` (`open -n --env DICTATE_E2E=1 ...`); it puts dictated text on disk, so do not use it otherwise |
 

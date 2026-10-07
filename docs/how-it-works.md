@@ -2,6 +2,24 @@
 
 The details behind the [README](../README.md): how text gets into the app, how recognition behaves, and the known limits.
 
+## Dictionary, snippets and history
+
+- **File:** `~/Library/Application Support/Dictate/dictionary.json` (menu → *Dictionary & snippets…* creates and
+  opens it). It is read again when it changes; a file with a JSON error is reported in the event log and the
+  last good version stays in use.
+- **Terms:** go into Whisper's prompt after the style sentence (up to 200 characters of terms; Whisper reads
+  at most 224 tokens), so Whisper often writes them right by itself. Then every `spoken` form, and the term in
+  another case, is replaced by the term: whole words, any case, ё = е; a multi-word form must be separated by
+  spaces. Korean particles stay attached (쿠버네티스를 → Kubernetes를). Russian endings are not guessed: add
+  "кубера" as a separate form if you need it. Forms with other characters between words ("C++", "node.js") cannot
+  be matched word by word and are ignored as `spoken` forms (they still work as terms). The replacement runs before
+  the mode and again after it, because an LLM may undo it.
+- **Snippets:** if the whole dictation is a trigger (case and punctuation aside), the snippet text is delivered as
+  it is: no mode, nothing sent to the cloud. A trigger inside a longer text is replaced after the mode.
+- **History:** the last 50 delivered texts with time, mode and app, in `history.json` next to the dictionary (file
+  mode 600). *Keep history* (on by default) stops adding to it when off; *Clear history* deletes the file. The
+  in-memory *Copy last transcript* is separate and unchanged.
+
 ## Pasting
 
 How it types: Dictate puts the text on the clipboard and presses ⌘V for you, then puts your previous
@@ -135,8 +153,12 @@ one used, so switching while a text is still being recognised does not change it
 - **Event log:** each dictation logs the mode, what really ran, the fallback reason and whether a request was
   sent, never the text.
 
+- **Per-app mode:** menu → *Mode in <app>* sets a mode for the app that was in front when you opened the menu
+  (stored by bundle identifier; *Apps with their own mode* lists them, click one to remove it). The app is the
+  one in front when you pressed the key; the event log says when its own mode was used.
+
 Known limits:
 
-- The ☁︎ modes know nothing about the app you are typing into (a default mode per app is planned).
+- The ☁︎ modes know nothing about the app beyond its own mode.
 - ⌃⌥M is taken system-wide while Dictate runs; if another app already holds it, the menu says so and only the
   menu switches modes.
