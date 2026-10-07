@@ -10,6 +10,7 @@ final class TranscriptionPipeline {
         let samples: [Float]
         let language: Language?
         let mode: Mode
+        let vocabulary: Vocabulary
         let target: FocusSnapshot
     }
 
@@ -20,6 +21,7 @@ final class TranscriptionPipeline {
     private let inserter: Inserter
     private let insertion: InsertionSettings
     private let lastTranscript: LastTranscript
+    private let history: HistoryStore
     private let recordingPillIsVisible: @MainActor () -> Bool
     private let jobs: AsyncStream<Job>.Continuation
     private var pending = 0
@@ -36,6 +38,7 @@ final class TranscriptionPipeline {
         inserter: Inserter,
         insertion: InsertionSettings,
         lastTranscript: LastTranscript,
+        history: HistoryStore,
         recordingPillIsVisible: @escaping @MainActor () -> Bool
     ) {
         self.transcriber = transcriber
@@ -45,6 +48,7 @@ final class TranscriptionPipeline {
         self.inserter = inserter
         self.insertion = insertion
         self.lastTranscript = lastTranscript
+        self.history = history
         self.recordingPillIsVisible = recordingPillIsVisible
         let (stream, continuation) = AsyncStream.makeStream(of: Job.self)
         jobs = continuation
@@ -61,11 +65,11 @@ final class TranscriptionPipeline {
         await inserter.waitUntilIdle()
     }
 
-    /// Queues `samples`; `language` and `mode` are the menu choices at the moment of the recording, `target` the
-    /// focus at the moment the key went down.
-    func submit(samples: [Float], language: Language?, mode: Mode, target: FocusSnapshot) {
+    /// Queues `samples`; `language`, `mode` and `vocabulary` are the choices at the moment of the recording,
+    /// `target` the focus at the moment the key went down.
+    func submit(samples: [Float], language: Language?, mode: Mode, vocabulary: Vocabulary, target: FocusSnapshot) {
         pending += 1
-        jobs.yield(Job(samples: samples, language: language, mode: mode, target: target))
+        jobs.yield(Job(samples: samples, language: language, mode: mode, vocabulary: vocabulary, target: target))
         presentNext()
     }
 
@@ -90,11 +94,10 @@ final class TranscriptionPipeline {
     private func process(_ job: Job) async {
         let message: String
         do {
-            if let transcript = try await transcriber.transcribe(samples: job.samples, language: job.language) {
+            let terms = job.vocabulary.promptTerms
+            if let transcript = try await transcriber.transcribe(samples: job.samples, language: job.language, terms: terms) {
                 let start = ContinuousClock.now
-                let rewriter = job.mode.isCloud ? AnthropicRewriter.current(options: options) : nil
-                let processed = await ModeProcessor(rewriter: rewriter)
-                    .process(transcript.text, mode: job.mode, language: transcript.language)
+                let processed = await apply(job, to: transcript)
                 let seconds = (ContinuousClock.now - start) / .seconds(1)
                 let delivered = await deliver(processed, of: transcript, processingSeconds: seconds, target: job.target)
                 message = processed.fallback.map { "\(delivered)\n\($0.message)" } ?? delivered
@@ -111,6 +114,19 @@ final class TranscriptionPipeline {
         presentNext()
     }
 
+    /// The dictionary's spellings, then a whole-dictation snippet as it is, or the mode followed by the spellings
+    /// again (an LLM may undo them) and the snippets inside the text.
+    private func apply(_ job: Job, to transcript: Transcript) async -> ProcessedText {
+        let corrected = job.vocabulary.correcting(transcript.text)
+        if let snippet = job.vocabulary.wholeSnippet(for: corrected) {
+            eventLog.log(.snippetExpanded)
+            return ProcessedText(text: snippet, requested: job.mode, applied: .raw, fallback: nil, contactedCloud: false)
+        }
+        let rewriter = job.mode.isCloud ? AnthropicRewriter.current(options: options) : nil
+        let processed = await ModeProcessor(rewriter: rewriter).process(corrected, mode: job.mode, language: transcript.language)
+        return processed.with(text: job.vocabulary.expandingSnippets(in: job.vocabulary.correcting(processed.text)))
+    }
+
     /// Hands the processed text on: pasted into the focused field, or (setting off, or the paste was not safe) on
     /// the clipboard. The transcript files (`<n>.txt` delivered, `<n>.raw.txt` recognised), when asked for, are
     /// written before the events, so whoever waits for an event finds them in place. Returns what to tell the user.
@@ -119,6 +135,7 @@ final class TranscriptionPipeline {
     ) async -> String {
         let text = processed.text
         lastTranscript.remember(text)
+        history.add(.init(date: Date(), text: text, mode: processed.applied, app: target.bundleIdentifier))
         let inserting = insertion.isEnabled && !options.clipboardOnly
         if !inserting {
             Clipboard.copy(text)

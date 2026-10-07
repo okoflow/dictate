@@ -41,6 +41,8 @@ private struct MenuContent: View {
             .labelsHidden()
         }
         ModeMenu(dictation: dictation)
+        AppModeMenu(dictation: dictation)
+        HistoryMenu(dictation: dictation)
         Toggle("Insert into the focused field", isOn: Bindable(dictation.insertion).isEnabled)
         Button("Copy last transcript") {
             if let text = dictation.lastTranscript.text {

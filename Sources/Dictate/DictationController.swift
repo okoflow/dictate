@@ -44,6 +44,9 @@ final class DictationController {
     let apiKey = APIKeySettings()
     let insertion = InsertionSettings()
     let lastTranscript = LastTranscript()
+    let history: HistoryStore
+    let appModes: AppModeSettings
+    let vocabulary: VocabularyStore
 
     let options: LaunchOptions
     let eventLog: EventLogWriter
@@ -63,6 +66,9 @@ final class DictationController {
         language = LanguageSettings(override: options.language)
         mode = ModeSettings(override: options.mode)
         eventLog = EventLogWriter(path: options.eventLog)
+        appModes = AppModeSettings(override: options.appModes)
+        history = HistoryStore(path: options.historyFile)
+        vocabulary = VocabularyStore(path: options.dictionaryFile, eventLog: eventLog)
         models = ModelController(model: options.model ?? ModelStore.defaultModel, eventLog: eventLog)
         pipeline = TranscriptionPipeline(
             transcriber: models.transcriber,
@@ -72,6 +78,7 @@ final class DictationController {
             inserter: Inserter(eventLog: eventLog),
             insertion: insertion,
             lastTranscript: lastTranscript,
+            history: history,
             recordingPillIsVisible: { [overlay] in overlay.isRecording }
         )
         let (events, continuation) = AsyncStream.makeStream(of: (Int, RecorderEvent).self)
@@ -206,9 +213,7 @@ final class DictationController {
             }
         }
         eventLog.log(.recordingFinished(seconds: seconds, samples: samples.count, file: file))
-        pipeline.submit(
-            samples: samples, language: language.preference.language, mode: mode.mode, target: target ?? FocusProbe.current()
-        )
+        submit(samples, target: target ?? FocusProbe.current())
     }
 
     private func microphoneProblem() -> String? {
