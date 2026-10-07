@@ -153,9 +153,10 @@ case .full:
         ("overlay-shown-and-hidden", { pushToTalk.overlayShownAndHidden() }),
         ("option-letter-passes-through", optionLetter),
         ("dictate-into-testpad", { pushToTalk.dictateIntoTestPad() }),
-        // The clipboard path (insertion off) needs its own launch of the app.
+    ] + modeChecks + [
+        // The clipboard path (insertion off) needs its own launch of the app, so it comes last.
         ("dictate-fixture-to-clipboard", clipboardOnly),
-    ] + modeChecks
+    ]
 }
 /// `--only a,b`: run just these checks of the suite (for working on them; a stage hand-off runs everything).
 let only = argumentValue(after: "--only").map { Set($0.split(separator: ",").map(String.init)) }

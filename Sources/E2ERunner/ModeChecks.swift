@@ -39,7 +39,7 @@ struct ModeChecks {
         let fallback: FallbackReason?
         let cloud: Bool
         let processingSeconds: Double
-        /// From posting the notification to the delivery event.
+        /// From posting the notification to the `processed` event, which comes right before the paste.
         let seconds: Double
     }
 
@@ -136,6 +136,15 @@ struct ModeChecks {
     /// Sets `mode`, dictates the fixture `id` and waits for the result.
     func dictate(_ id: String, mode: Mode) throws -> Delivery {
         let fixture = try Self.fixture(id, in: fixturesDirectory)
+        guard waitUntil(timeout: 180, { log.events.contains {
+            if case .modelReady = $0 {
+                true
+            } else {
+                false
+            }
+        } }) else {
+            throw Verdict.fail("the app did not load the model within 180 s")
+        }
         try setMode(mode)
         let wav = try Self.copyOutsideDocuments(fixturesDirectory.appendingPathComponent("generated/\(id).wav"))
         let baseline = log.baseline()
@@ -240,15 +249,17 @@ private struct DictationProgress {
     var processed: AppEvent?
     var problem: String?
 
-    /// Reads the events since the file was sent; `true` once the text was delivered or something went wrong.
+    /// Reads the events since the file was sent; `true` once the text was processed (the transcript files are
+    /// written before that event; pasting, or not, follows at once) or something went wrong.
     mutating func read(_ events: [AppEvent]) -> Bool {
         for event in events {
             switch event {
             case let .transcribed(detected, _, _): language = detected
-            case .processed: processed = event
+            case .processed:
+                processed = event
+                return true
             case .noSpeech: problem = "the app heard no speech"
             case let .transcriptionFailed(reason): problem = "transcription failed: \(reason)"
-            case .inserted, .insertionSkipped: return processed != nil
             default: continue
             }
         }
