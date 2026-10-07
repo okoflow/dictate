@@ -9,6 +9,8 @@ import Foundation
 struct AppChecks {
     let buildDirectory: URL
     let scratchDirectory: URL
+    /// The suite's local LLM proxy: cloud modes never reach the real API (or see the real key) during a run.
+    let llmEndpoint: String
 
     var dictate: AppLauncher {
         AppLauncher(
@@ -59,6 +61,10 @@ struct AppChecks {
             "--transcript-dir", transcriptDirectory.path,
             // Dictated text is pasted only into TestPad: never into the app the suite is run from.
             "--insert-only-into", TestPadState.bundleIdentifier,
+            "--llm-endpoint", llmEndpoint,
+            // The M1–M3 checks expect Whisper's text as it is, in any of the three languages. Neither is saved.
+            "--mode", Mode.raw.rawValue,
+            "--language", LanguagePreference.auto.storedValue,
         ] + extraArguments
         // `--transcript-dir` is honoured only with this variable: dictated text stays off disk otherwise.
         guard let app = dictate.launch(arguments: arguments, environment: ["DICTATE_E2E": "1"]) else {

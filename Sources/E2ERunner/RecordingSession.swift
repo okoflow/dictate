@@ -64,6 +64,14 @@ struct RecordingSession {
         guard AXIsProcessTrusted() else {
             throw Verdict.blocked("Accessibility not granted to your terminal app (needed to post key events)")
         }
+        // Starting BlackHole makes macOS ask whether the terminal may use the microphone; while that dialog waits,
+        // the audio engine hangs inside CoreAudio and the suite with it.
+        guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
+            throw Verdict.blocked(
+                "your terminal app has no Microphone permission (macOS asks when BlackHole starts): "
+                    + "System Settings → Privacy & Security → Microphone, or answer its dialog"
+            )
+        }
         if IsSecureEventInputEnabled() {
             throw Verdict.blocked(
                 "Secure keyboard entry is on (Terminal → Secure Keyboard Entry, or a password field has focus): "

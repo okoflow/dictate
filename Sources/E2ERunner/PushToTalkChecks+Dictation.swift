@@ -104,10 +104,9 @@ extension PushToTalkChecks {
         let settled = waitUntil(timeout: timeout, interval: 0.25) {
             let events = log.events
             let recorded = events.filter {
-                if case .recordingFinished = $0 {
-                    true
-                } else {
-                    false
+                switch $0 {
+                case .recordingFinished, .fileSubmitted: true
+                default: false
                 }
             }.count
             let answered = events.filter { Self.transcriptionOutcome($0) != nil }.count

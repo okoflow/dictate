@@ -39,6 +39,8 @@ struct KeyboardDriver {
 
     /// `kVK_ANSI_A`.
     static let letterA: CGKeyCode = 0
+    /// `kVK_ANSI_M`.
+    static let letterM: CGKeyCode = 46
 
     private let source = CGEventSource(stateID: .hidSystemState)
 
@@ -57,6 +59,32 @@ struct KeyboardDriver {
             event?.flags = modifier.heldFlags
             event?.post(tap: .cghidEventTap)
         }
+    }
+
+    /// Presses left ⌃ and left ⌥ as real modifier keys, types `key` with both held, and releases them: the way
+    /// a hot key such as ⌃⌥M arrives from the keyboard. The releases are posted even if posting fails half way.
+    func typeControlOption(key: CGKeyCode) {
+        // Left ⌃ (59, device bit 0x1) and left ⌥ (58, device bit 0x20).
+        let control = CGEventFlags(rawValue: CGEventFlags.maskControl.rawValue | 0x1)
+        let both = CGEventFlags(rawValue: control.rawValue | CGEventFlags.maskAlternate.rawValue | 0x20)
+        postFlags(keyCode: 59, flags: control)
+        postFlags(keyCode: 58, flags: both)
+        defer {
+            postFlags(keyCode: 58, flags: control)
+            postFlags(keyCode: 59, flags: [])
+        }
+        for down in [true, false] {
+            let event = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: down)
+            event?.flags = both
+            event?.post(tap: .cghidEventTap)
+        }
+    }
+
+    private func postFlags(keyCode: CGKeyCode, flags: CGEventFlags) {
+        let event = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: !flags.isEmpty)
+        event?.type = .flagsChanged
+        event?.flags = flags
+        event?.post(tap: .cghidEventTap)
     }
 
     /// Posts a release for every modifier the suite ever presses. Harmless when nothing is held, so it

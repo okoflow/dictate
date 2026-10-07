@@ -9,9 +9,18 @@ AbortGuard.healKeyboard()
 let abortSources = AbortGuard.install()
 
 let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+let proxy: LLMProxy
+do {
+    proxy = try LLMProxy(cassetteURL: root.appendingPathComponent("e2e/cassettes/llm.json"))
+} catch {
+    print("cannot start the local LLM proxy: \(error)")
+    exit(1)
+}
+
 let checks = AppChecks(
     buildDirectory: root.appendingPathComponent("build"),
-    scratchDirectory: URL(fileURLWithPath: NSTemporaryDirectory())
+    scratchDirectory: URL(fileURLWithPath: NSTemporaryDirectory()),
+    llmEndpoint: proxy.endpoint
 )
 
 @MainActor
@@ -32,6 +41,26 @@ let pushToTalk = PushToTalkChecks(
     fixturesDirectory: root.appendingPathComponent("fixtures"),
     transcriptDirectory: checks.transcriptDirectory
 )
+
+let live = ProcessInfo.processInfo.environment["E2E_LLM"] == "live"
+let modes = ModeChecks(
+    log: pushToTalk.log,
+    proxy: proxy,
+    fixturesDirectory: root.appendingPathComponent("fixtures"),
+    transcriptDirectory: checks.transcriptDirectory,
+    live: live,
+    liveKey: live ? LiveKey.read() : nil
+)
+
+/// The M4 checks, the same in both suites.
+let modeChecks: [(name: String, run: () -> Outcome)] = [
+    ("mode-cycle-hotkey", { modes.modeCycleHotkey() }),
+    ("modes-offline", { modes.offlineModes() }),
+    ("cloud-plumbing", { modes.cloudPlumbing() }),
+    ("cloud-fallback", { modes.cloudFallback() }),
+    ("modes-cloud", { modes.cloudModes() }),
+    ("clean-latency", { modes.cleanLatency() }),
+]
 
 /// Everything `make e2e` (smoke) runs, in order; `make e2e-full` adds the rest around it.
 enum Suite: String {
@@ -103,7 +132,7 @@ case .smoke:
         ("record-fixture-through-blackhole", { pushToTalk.recordFixtureThroughBlackHole() }),
         ("option-letter-passes-through", optionLetter),
         ("dictate-into-testpad", { pushToTalk.dictateIntoTestPad() }),
-    ]
+    ] + modeChecks
 case .full:
     [
         ("fixtures-valid", {
@@ -126,13 +155,17 @@ case .full:
         ("dictate-into-testpad", { pushToTalk.dictateIntoTestPad() }),
         // The clipboard path (insertion off) needs its own launch of the app.
         ("dictate-fixture-to-clipboard", clipboardOnly),
-    ]
+    ] + modeChecks
 }
-print("E2E suite: \(suite.rawValue)")
-let results = (plan + [("modifiers-released", modifiersReleased)]).map { name, run in timed(name, run) }
+/// `--only a,b`: run just these checks of the suite (for working on them; a stage hand-off runs everything).
+let only = argumentValue(after: "--only").map { Set($0.split(separator: ",").map(String.init)) }
+let selected = only.map { names in plan.filter { names.contains($0.name) } } ?? plan
+print("E2E suite: \(suite.rawValue)" + (only == nil ? "" : " (only \(selected.map(\.name).joined(separator: ", ")))"))
+let results = (selected + [("modifiers-released", modifiersReleased)]).map { name, run in timed(name, run) }
 checks.cleanUp()
+proxy.stop()
 
-let report = Report(suite: suite.rawValue, results: results, date: Date())
+let report = Report(suite: suite.rawValue + (only == nil ? "" : " (partial: --only)"), results: results, date: Date())
 if let url = try? report.save(in: root.appendingPathComponent("e2e/reports")) {
     print("Report: \(url.path)")
 }
