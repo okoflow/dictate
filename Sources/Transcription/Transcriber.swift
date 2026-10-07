@@ -30,8 +30,8 @@ public actor Transcriber {
     private let baseDirectory: URL
     private var kit: WhisperKit?
     private let usesStylePrompt: Bool
-    /// `StylePrompt` as tokens, per language; empty when the prompt is off.
-    private var promptTokens: [Language: [Int]] = [:]
+    /// Whisper reads at most 224 prompt tokens; the newest ones are kept.
+    private static let maximumPromptTokens = 200
     private var busy = false
     private var waiters: [CheckedContinuation<Void, Never>] = []
 
@@ -86,21 +86,15 @@ public actor Transcriber {
         let tokens = Set(Language.allCases.compactMap { tokenizer.convertTokenToId("<|\($0.rawValue)|>") })
         guard tokens.count == Language.allCases.count else { throw TranscriberError.languageTokensMissing }
         loaded.tokenizer = RestrictedTokenizer(base: tokenizer, allLanguageTokens: tokens)
-        if usesStylePrompt {
-            let firstSpecial = tokenizer.specialTokens.specialTokenBegin
-            promptTokens = Dictionary(uniqueKeysWithValues: Language.allCases.compactMap { language in
-                StylePrompt.text(for: language).map { (language, tokenizer.encode(text: " " + $0).filter { $0 < firstSpecial }) }
-            })
-        }
         kit = loaded
         return (ContinuousClock.now - start).seconds
     }
 
     /// Turns 16 kHz mono `samples` into text in `language`, or in the most probable of ru / en / ko
-    /// when `language` is `nil`. Returns `nil` when there is nothing to transcribe: the audio has no
+    /// when `language` is `nil`. `terms` (the personal dictionary) go into Whisper's prompt after the style sentence. Returns `nil` when there is nothing to transcribe: the audio has no
     /// speech in it (`SpeechGate`), or the result looks made up (`TranscriptFilter`). WhisperKit's own
     /// `noSpeechThreshold` is not used: its no-speech probability is always 0.
-    public func transcribe(samples: [Float], language: Language?) async throws -> Transcript? {
+    public func transcribe(samples: [Float], language: Language?, terms: [String] = []) async throws -> Transcript? {
         guard SpeechGate.decide(samples: samples, sampleRate: Self.sampleRate) == .transcribe else { return nil }
         guard let kit else { throw TranscriberError.notLoaded }
         await acquire()
@@ -126,7 +120,7 @@ public actor Transcriber {
             usePrefillPrompt: true,
             detectLanguage: false,
             skipSpecialTokens: true,
-            promptTokens: promptTokens[chosen],
+            promptTokens: promptTokens(for: chosen, terms: terms, kit: kit),
             chunkingStrategy: samples.count > Self.windowSamples ? .vad : nil
         )
         let results = try await kit.transcribe(audioArray: samples, decodeOptions: options)
@@ -138,6 +132,16 @@ public actor Transcriber {
             detectSeconds: detectSeconds,
             transcribeSeconds: (ContinuousClock.now - start).seconds
         )
+    }
+
+    /// `WhisperPrompt` as tokens; `nil` when the prompt is off (the bench's comparison) or empty.
+    private func promptTokens(for language: Language, terms: [String], kit: WhisperKit) -> [Int]? {
+        guard usesStylePrompt, let tokenizer = kit.tokenizer, let text = WhisperPrompt.text(for: language, terms: terms) else {
+            return nil
+        }
+        let firstSpecial = tokenizer.specialTokens.specialTokenBegin
+        let tokens = tokenizer.encode(text: " " + text).filter { $0 < firstSpecial }
+        return tokens.isEmpty ? nil : Array(tokens.suffix(Self.maximumPromptTokens))
     }
 
     private static func keeps(_ segment: TranscriptionSegment) -> Bool {
