@@ -38,6 +38,23 @@ Give it a beat after pressing the key before you start talking, or the first syl
 
 The language is picked automatically. To pin one, use the menu: **Language → Russian / English / Korean**.
 
+## Modes
+
+What happens to the text before it is pasted. Pick one in the menu (**Mode**) or press **⌃⌥M** to go to the
+next one; the pill shows which.
+
+| Mode | What it does | Leaves your Mac? |
+|---|---|---|
+| **Raw** | Exactly what Whisper heard | no |
+| **Light** (default) | Drops "um", "uh", "ээ", "мм", "음", "어", tidies spaces, capital letter, full stop at the end | no |
+| **Clean** ☁︎ | Removes fillers and self-corrections ("Thursday, no, Friday" → "Friday"), fixes grammar. Keeps your language | **yes** |
+| **Formal** ☁︎ | Clean, in a polite business tone. Keeps your language | **yes** |
+| **Translate → EN** ☁︎ | Translates to English | **yes** |
+
+The ☁︎ modes use Claude Haiku and need your Anthropic API key: menu → **Set Anthropic API key…** (it is kept in
+your Keychain). Without a key, offline, or when there is no answer within 3 seconds, Dictate uses Light instead
+and the pill says why, so you always get your text.
+
 A few things it does on its own:
 
 - **Your clipboard is safe.** Dictate pastes through the clipboard, then puts back whatever you had copied.
@@ -46,7 +63,13 @@ A few things it does on its own:
 
 ## Privacy
 
-- Everything runs locally. The only thing Dictate downloads is the speech model, once.
+- Recognition runs locally. Apart from the speech model (downloaded once), Dictate talks to the network only in
+  the ☁︎ modes.
+- Raw and Light never leave your Mac.
+- Clean, Formal and Translate send the **recognised text** (never audio) to the Anthropic API, and only when you
+  have set a key. See [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy) for how the API
+  handles it.
+- The API key lives in your Keychain, nowhere else. **Remove API key** in the menu deletes it.
 - Audio stays in memory while you hold the key and is never saved.
 - The dictated text is never written to logs.
 
@@ -54,10 +77,10 @@ To remove the model: `rm -r ~/Library/Application\ Support/Dictate/Models ~/Libr
 
 ## What's next
 
-Right now Dictate types exactly what Whisper hears. Next up are modes that tidy the text: dropping "um"s offline, and optional LLM clean-up, formal tone and translation to English.
+A personal dictionary for names and terms, snippets, a dictation history, and a default mode for each app.
 
 ## More
 
-- [How it works](docs/how-it-works.md): pasting, recognition, known limits
+- [How it works](docs/how-it-works.md): modes, pasting, recognition, known limits
 - [Development](docs/development.md): tests, benchmarks, launch flags
 - [MIT License](LICENSE)

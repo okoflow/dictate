@@ -105,16 +105,38 @@ Check what an app instance holds: `build/Dictate.app/Contents/MacOS/Dictate --pr
 (when run from a terminal this reports the *terminal's* permissions; the E2E suite asks the
 LaunchServices-launched app instead).
 
-## Planned modes (not built yet)
+## Modes
 
-| Mode | What it does | Leaves your Mac? |
-|---|---|---|
-| **Raw** | Whisper's text as-is | no |
-| **Light** | Offline rules: drops fillers ("um", "ээ", "음"), fixes spacing and punctuation | no |
-| **Clean** | LLM removes false starts and self-corrections, fixes grammar. Keeps your language | **yes** |
-| **Formal** | Clean, in a business tone | **yes** |
-| **Translate→EN** | Translates to English | **yes** |
+After recognition the text goes through the mode chosen in the menu (or with ⌃⌥M, which cycles Raw → Light →
+Clean → Formal → Translate → Raw). The mode is remembered. The mode at the moment you let go of the key is the
+one used, so switching while a text is still being recognised does not change it.
 
-Recognition runs locally ([WhisperKit](https://github.com/argmaxinc/argmax-oss-swift), Apple Silicon).
-Only Clean, Formal and Translate send text (never audio) to an LLM API, and only if you set a key.
-If the network fails, they fall back to Light.
+- **Raw:** Whisper's text, untouched.
+- **Light** (offline rules, the default): removes hesitation sounds as whole words: "э", "ээ", "эм", "мм", "хм",
+  "um", "uh", "uhm", "er", "erm", "hmm", "음", "으음", "어", "흠" (stretched or hyphenated forms too, never "мм"
+  after a number), with the commas around them; tidies spaces; capitalises the first letter (Russian and
+  English) and adds a full stop if the text ends in a letter or a digit. Real filler *words* ("ну", "значит",
+  "like", "그러니까") and self-corrections need meaning, so they are left to Clean. Korean word spacing is kept.
+- **Clean, Formal, Translate → EN** (☁︎): the text goes to Claude Haiku (`claude-haiku-4-5-20251001`) with a
+  short instruction per mode: remove fillers and self-corrections, fix grammar, keep the language (Formal: also a
+  business tone; Translate: into English). The transcript is sent as text to edit, with an instruction never
+  to follow requests inside it, so dictating a question gives you the question, not an answer.
+- **Checks on the answer:** an empty answer, one far longer than what you said, one cut off or refused, or one in
+  the wrong script (Clean and Formal must stay Cyrillic, Latin or Hangul as spoken; Translate must be Latin) is not
+  pasted.
+- **Fallback:** no key, no network, an error from the API, no answer within 3 s, or an answer that fails the
+  checks → Light is used instead and the pill adds a line saying why ("Light: offline", "Light: no answer in 3 s",
+  ...). The text is never lost.
+- **Speed:** Light adds nothing noticeable. The ☁︎ modes add the round trip to the API, usually well under a
+  second; the target is at most 2.5 s from letting go to the text for 10 s of speech.
+- **API key:** menu → *Set Anthropic API key…* stores it in the login Keychain (service `dev.dictate.app`,
+  account `anthropic-api-key`, this device only); *Remove API key* deletes it. It is read for each ☁︎ request and
+  never written anywhere else.
+- **Event log:** each dictation logs the mode, what really ran, the fallback reason and whether a request was
+  sent, never the text.
+
+Known limits:
+
+- The ☁︎ modes know nothing about the app you are typing into (a default mode per app is planned).
+- ⌃⌥M is taken system-wide while Dictate runs; if another app already holds it, the menu says so and only the
+  menu switches modes.
