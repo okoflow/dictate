@@ -24,6 +24,15 @@ public struct LaunchOptions: Equatable, Sendable {
     /// `DICTATE_E2E=1` (the E2E runner sets it), so a normal launch, even with this flag typed by
     /// mistake, never writes dictated text to disk.
     public var transcriptDirectory: String?
+    /// Use this mode for this launch instead of the stored one (not saved).
+    public var mode: Mode?
+    /// Use this language choice for this launch instead of the stored one (not saved): `auto`, `ru`, `en`, `ko`.
+    public var language: LanguagePreference?
+    /// Test-only, honoured only with `DICTATE_E2E=1`: send cloud requests here instead of the Anthropic API, with a
+    /// placeholder key (the real one never goes to another address).
+    public var llmEndpoint: String?
+    /// Test-only: `DICTATE_E2E=1`, so the app accepts the E2E suite's notifications (dictate a file, set the mode).
+    public var acceptsTestControl: Bool
 
     public init(arguments: [String], environment: [String: String] = ProcessInfo.processInfo.environment) {
         reportFile = argumentValue(after: "--report-file", in: arguments)
@@ -34,5 +43,9 @@ public struct LaunchOptions: Equatable, Sendable {
         model = argumentValue(after: "--model", in: arguments)
         insertOnlyInto = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--insert-only-into", in: arguments) : nil
         transcriptDirectory = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--transcript-dir", in: arguments) : nil
+        mode = argumentValue(after: "--mode", in: arguments).flatMap(Mode.init(rawValue:))
+        language = argumentValue(after: "--language", in: arguments).map { LanguagePreference(storedValue: $0) }
+        llmEndpoint = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--llm-endpoint", in: arguments) : nil
+        acceptsTestControl = environment["DICTATE_E2E"] == "1"
     }
 }

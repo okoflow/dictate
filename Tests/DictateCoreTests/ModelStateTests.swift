@@ -96,13 +96,15 @@ struct FixtureManifestTests {
     @Test func decodesOptionalAlternatives() throws {
         let json = """
         [{"id":"ru-plain-1","language":"ru","voice":"Milena","text":"в три часа","alternatives":["в 3 часа"],"tags":["plain"]},
-         {"id":"en-plain-2","language":"en","voice":"Samantha","text":"hello","tags":["plain"]}]
+         {"id":"en-plain-2","language":"en","voice":"Samantha","text":"hello","clean":"Hello.","tags":["plain"]}]
         """
         let fixtures = try JSONDecoder().decode([Fixture].self, from: Data(json.utf8))
         #expect(fixtures.map(\.id) == ["ru-plain-1", "en-plain-2"])
         #expect(fixtures[0].alternatives == ["в 3 часа"])
         #expect(fixtures[1].alternatives.isEmpty)
         #expect(fixtures[0].language == .ru)
+        #expect(fixtures[0].clean == nil)
+        #expect(fixtures[1].clean == "Hello.")
     }
 }
 

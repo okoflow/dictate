@@ -34,6 +34,13 @@ public enum AppEvent: Codable, Equatable, Sendable {
     case insertionSkipped(InsertionRules.SkipReason)
     /// The clipboard the user had before the paste was left as it is now, and why.
     case restoreSkipped(String)
+    /// The mode was switched (menu or hotkey).
+    case modeChanged(Mode)
+    /// The transcript went through `mode`; `applied` is what really ran (Light after a fallback, and why).
+    /// `cloud` says whether a request was sent to the LLM API. Never the text, only its length after processing.
+    case processed(mode: Mode, applied: Mode, fallback: FallbackReason?, cloud: Bool, characters: Int, seconds: Double)
+    /// Test-only: a WAV file was dictated through a notification instead of the microphone.
+    case fileSubmitted(file: String)
 
     public func jsonLine() throws -> String {
         let data = try JSONEncoder().encode(self)
