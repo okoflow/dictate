@@ -39,6 +39,10 @@ public enum AppEvent: Codable, Equatable, Sendable {
     /// The transcript went through `mode`; `applied` is what really ran (Light after a fallback, and why).
     /// `cloud` says whether a request was sent to the LLM API. Never the text, only its length after processing.
     case processed(mode: Mode, applied: Mode, fallback: FallbackReason?, cloud: Bool, characters: Int, seconds: Double)
+    /// The app the dictation was for has its own mode, and it was used instead of the menu's.
+    case appModeUsed(app: String, mode: Mode)
+    /// The whole dictation was a snippet's trigger; its text was delivered as it is (no mode, no cloud).
+    case snippetExpanded
     /// Test-only: a WAV file was dictated through a notification instead of the microphone.
     case fileSubmitted(file: String)
 

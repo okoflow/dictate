@@ -50,6 +50,19 @@ public struct ProcessedText: Equatable, Sendable {
     public let fallback: FallbackReason?
     /// Whether a request was sent to the cloud (even one that then failed).
     public let contactedCloud: Bool
+
+    public init(text: String, requested: Mode, applied: Mode, fallback: FallbackReason?, contactedCloud: Bool) {
+        self.text = text
+        self.requested = requested
+        self.applied = applied
+        self.fallback = fallback
+        self.contactedCloud = contactedCloud
+    }
+
+    /// The same outcome with another text (the dictionary and snippets applied after the mode).
+    public func with(text: String) -> ProcessedText {
+        ProcessedText(text: text, requested: requested, applied: applied, fallback: fallback, contactedCloud: contactedCloud)
+    }
 }
 
 /// Applies a mode. Raw and Light run here and never touch the rewriter; the cloud modes call it with a deadline

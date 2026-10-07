@@ -3,10 +3,10 @@ import Foundation
 /// A short, properly written sentence handed to Whisper as the "previous text". Whisper imitates the
 /// style of what came before, so a capitalised, punctuated sentence keeps its output the same way; without
 /// it a long or quiet recording often comes back in lowercase with no punctuation.
-public enum StylePrompt {
+enum StylePrompt {
     /// `nil` for Korean: it has no capitals to lose, and in the bench the prompt made noisy Korean worse
     /// (25.9 % to 33.3 % character error rate) without improving its punctuation.
-    public static func text(for language: Language) -> String? {
+    static func text(for language: Language) -> String? {
         switch language {
         case .ru: "Привет! Это пример текста: с заглавными буквами, запятыми и точками."
         case .en: "Hello! This is a sample of text, with capital letters, commas and full stops."

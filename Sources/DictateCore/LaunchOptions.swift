@@ -28,6 +28,12 @@ public struct LaunchOptions: Equatable, Sendable {
     public var mode: Mode?
     /// Use this language choice for this launch instead of the stored one (not saved): `auto`, `ru`, `en`, `ko`.
     public var language: LanguagePreference?
+    /// Use this dictionary file instead of the one in Application Support (for this launch).
+    public var dictionaryFile: String?
+    /// Keep the dictation history in this file instead of the one in Application Support.
+    public var historyFile: String?
+    /// Use these per-app modes for this launch instead of the stored ones (not saved): `bundle=mode,...`.
+    public var appModes: AppModes?
     /// Test-only, honoured only with `DICTATE_E2E=1`: send cloud requests here instead of the Anthropic API, with a
     /// placeholder key (the real one never goes to another address).
     public var llmEndpoint: String?
@@ -45,6 +51,9 @@ public struct LaunchOptions: Equatable, Sendable {
         transcriptDirectory = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--transcript-dir", in: arguments) : nil
         mode = argumentValue(after: "--mode", in: arguments).flatMap(Mode.init(rawValue:))
         language = argumentValue(after: "--language", in: arguments).map { LanguagePreference(storedValue: $0) }
+        dictionaryFile = argumentValue(after: "--dictionary", in: arguments)
+        historyFile = argumentValue(after: "--history-file", in: arguments)
+        appModes = argumentValue(after: "--app-mode", in: arguments).map(AppModes.init(launchValue:))
         llmEndpoint = environment["DICTATE_E2E"] == "1" ? argumentValue(after: "--llm-endpoint", in: arguments) : nil
         acceptsTestControl = environment["DICTATE_E2E"] == "1"
     }

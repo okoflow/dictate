@@ -63,39 +63,9 @@ public enum LightRules {
         return result
     }
 
-    private struct Piece {
-        var text: String
-        let isWord: Bool
-    }
-
-    /// Splits into words (letters and digits, with inner hyphens and apostrophes: "кто-то", "don't") and the
-    /// separators between them.
-    private static func pieces(of text: String) -> [Piece] {
-        let characters = Array(text)
-        var pieces: [Piece] = []
-        for (index, character) in characters.enumerated() {
-            let isWordCharacter = character.isLetter || character.isNumber || character.unicodeScalars.allSatisfy {
-                $0.properties.generalCategory == .nonspacingMark
-            } || isInnerJoiner(at: index, in: characters)
-            if let last = pieces.last, last.isWord == isWordCharacter {
-                pieces[pieces.count - 1].text.append(character)
-            } else {
-                pieces.append(Piece(text: String(character), isWord: isWordCharacter))
-            }
-        }
-        return pieces
-    }
-
-    private static func isInnerJoiner(at index: Int, in characters: [Character]) -> Bool {
-        guard ["-", "'", "’", "‐"].contains(characters[index]), index > 0, index + 1 < characters.count else { return false }
-        let before = characters[index - 1]
-        let after = characters[index + 1]
-        return (before.isLetter || before.isNumber) && after.isLetter
-    }
-
     private static func removingHesitations(from text: String, capitalises: Bool) -> String {
-        let all = pieces(of: text.replacingOccurrences(of: "...", with: "…"))
-        var kept: [Piece] = []
+        let all = TextPiece.split(text.replacingOccurrences(of: "...", with: "…"))
+        var kept: [TextPiece] = []
         var previousWord: String?
         var capitaliseNext = false
         var index = 0
@@ -124,7 +94,7 @@ public enum LightRules {
             let isAtEnd = !all[index...].contains { $0.isWord }
             let joined = joinedSeparator(before, after, isAtStart: isAtStart, isAtEnd: isAtEnd)
             if !joined.isEmpty {
-                kept.append(Piece(text: joined, isWord: false))
+                kept.append(TextPiece(text: joined, isWord: false))
             }
             if isAtStart || joined.contains(where: { ".!?".contains($0) }) {
                 capitaliseNext = true
@@ -160,8 +130,8 @@ public enum LightRules {
         return core + (breaksLine ? "\n" : " ")
     }
 
-    private static func capitalisingFirstLetter(_ piece: Piece) -> Piece {
-        Piece(text: capitalisingFirstLetter(piece.text), isWord: piece.isWord)
+    private static func capitalisingFirstLetter(_ piece: TextPiece) -> TextPiece {
+        TextPiece(text: capitalisingFirstLetter(piece.text), isWord: piece.isWord)
     }
 
     // MARK: Tidying
