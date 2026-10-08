@@ -22,6 +22,11 @@ mkdir -p "$app/Contents/MacOS"
 cp "$bin_dir/$product" "$app/Contents/MacOS/$product"
 cp "Packaging/$product-Info.plist" "$app/Contents/Info.plist"
 
+if [[ "$product" == "Dictate" ]]; then
+    mkdir -p "$app/Contents/Resources"
+    cp Packaging/Dictate.icns "$app/Contents/Resources/Dictate.icns"
+fi
+
 find_args=(-p codesigning)
 sign_args=(--force)
 if [[ -n "$keychain" ]]; then

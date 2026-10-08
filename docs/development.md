@@ -62,6 +62,22 @@ partial); a stage hand-off runs the whole suite.
 
 See also [CONTRIBUTING.md](../CONTRIBUTING.md).
 
+## App icon
+
+`Packaging/Dictate.icns` contains the standard and Retina icon sizes for Finder and macOS settings.
+The bundle script copies it into `Contents/Resources` before signing; `CFBundleIconFile` in the plist
+points to it. `Packaging/Dictate.png` is the 1024 px preview.
+
+To change the artwork, edit the geometry and colors in `scripts/generate-icon.swift`, then run from
+the repository root:
+
+```sh
+swift scripts/generate-icon.swift
+scripts/bundle.sh Dictate
+```
+
+The generator uses only macOS AppKit and `iconutil`; normal builds use the checked-in icon.
+
 ## Launch options
 
 Meant for diagnostics and the E2E suite; a normal launch passes none.
