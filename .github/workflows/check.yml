@@ -21,4 +21,3 @@ jobs:
         run: brew install swiftlint swiftformat gitleaks shellcheck periphery
       - name: make check
         run: make check
-      # `make e2e` is not run here: hosted runners have no microphone and no TCC permissions.

@@ -2,9 +2,8 @@
 useDefault = true
 
 [allowlist]
-description = "build output and generated audio"
+description = "build output"
 paths = [
   '''^\.build/''',
   '''^build/''',
-  '''^fixtures/generated/''',
 ]

@@ -10,10 +10,6 @@ let package = Package(
     platforms: [.macOS(.v14)],
     products: [
         .executable(name: "Dictate", targets: ["Dictate"]),
-        .executable(name: "TestPad", targets: ["TestPad"]),
-        .executable(name: "E2ERunner", targets: ["E2ERunner"]),
-        .executable(name: "FetchModel", targets: ["FetchModel"]),
-        .executable(name: "Bench", targets: ["Bench"]),
     ],
     dependencies: [
         // Speech recognition (MIT). Pinned exactly: only the `WhisperKit` product is used.
@@ -23,7 +19,7 @@ let package = Package(
         // Pure, testable logic. No system frameworks beyond Foundation.
         .target(name: "DictateCore", swiftSettings: strict),
 
-        // CoreAudio device lookup by UID or name, shared by the app and the E2E runner.
+        // CoreAudio device lookup by UID or name, used by the app.
         .target(name: "AudioDevices", swiftSettings: strict),
 
         // Speech recognition with WhisperKit; the only target that imports it.
@@ -31,24 +27,6 @@ let package = Package(
 
         // The menu bar app.
         .executableTarget(name: "Dictate", dependencies: ["DictateCore", "AudioDevices", "Transcription"], swiftSettings: strict),
-
-        // Test-only app: a text view and a password field the E2E suite drives via Accessibility.
-        .executableTarget(name: "TestPad", dependencies: ["DictateCore", "E2ESupport"], swiftSettings: strict),
-
-        // Shared between TestPad and E2ERunner.
-        .target(name: "E2ESupport", swiftSettings: strict),
-
-        // `make e2e` entry point.
-        .executableTarget(name: "E2ERunner", dependencies: ["DictateCore", "E2ESupport", "AudioDevices"], swiftSettings: strict),
-
-        // `make model`: downloads and warms up the speech model.
-        .executableTarget(name: "FetchModel", dependencies: ["DictateCore", "Transcription"], swiftSettings: strict),
-
-        // `make bench`: accuracy and speed of the recogniser on the fixtures.
-        .executableTarget(name: "Bench", dependencies: ["DictateCore", "Transcription"], swiftSettings: strict),
-
-        // Unit tests never load a model: they cover DictateCore only.
-        .testTarget(name: "DictateCoreTests", dependencies: ["DictateCore"], swiftSettings: strict),
     ],
     swiftLanguageModes: [.v6]
 )
