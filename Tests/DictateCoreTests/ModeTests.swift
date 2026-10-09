@@ -85,8 +85,8 @@ struct CloudPromptTests {
     @Test func theRequestBodyHasTheModelPromptAndTranscript() throws {
         let data = try CloudPrompt.requestBody(text: "ну, это, привет", mode: .clean, language: .ru)
         let request = try JSONDecoder().decode(MessagesRequest.self, from: data)
-        #expect(request.model == "claude-haiku-4-5-20251001")
-        #expect(request.temperature == 0)
+        #expect(request.model == "claude-haiku-5-5")
+        #expect(request.thinking == .init(type: "disabled"))
         #expect(request.maxTokens == 256)
         #expect(request.system == CloudPrompt.system(for: .clean))
         let user = "Spoken language: Russian.\n<transcript>\nну, это, привет\n</transcript>"
@@ -95,6 +95,7 @@ struct CloudPromptTests {
         #expect(request.messages.first?.content == user)
         let json = try #require(String(bytes: data, encoding: .utf8))
         #expect(json.contains("\"max_tokens\":256"))
+        #expect(!json.contains("temperature"))
     }
 
     @Test func everyCloudPromptGuardsAgainstInstructionsAndExtraOutput() {
@@ -116,7 +117,7 @@ struct CloudPromptTests {
 
     @Test func theAnswerIsTheTextBlocks() throws {
         let body = """
-        {"id":"msg_1","type":"message","role":"assistant","model":"claude-haiku-4-5-20251001",
+        {"id":"msg_1","type":"message","role":"assistant","model":"claude-haiku-5-5",
          "content":[{"type":"text","text":" Нужно перенести созвон "},{"type":"text","text":"на пятницу."}],
          "stop_reason":"end_turn","usage":{"input_tokens":10,"output_tokens":5}}
         """

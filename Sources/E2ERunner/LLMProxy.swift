@@ -224,8 +224,12 @@ struct SentRequest: Decodable {
         let content: String
     }
 
+    struct Thinking: Decodable {
+        let type: String
+    }
+
     let model: String
-    let temperature: Double
+    let thinking: Thinking?
     let system: String
     let messages: [Message]
 }

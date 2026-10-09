@@ -135,7 +135,7 @@ one used, so switching while a text is still being recognised does not change it
   after a number), with the commas around them; tidies spaces; capitalises the first letter (Russian and
   English) and adds a full stop if the text ends in a letter or a digit. Real filler *words* ("ну", "значит",
   "like", "그러니까") and self-corrections need meaning, so they are left to Clean. Korean word spacing is kept.
-- **Clean, Formal, Translate → EN** (☁︎): the text goes to Claude Haiku (`claude-haiku-4-5-20251001`) with a
+- **Clean, Formal, Translate → EN** (☁︎): the text goes to Claude Haiku 5.5 (`claude-haiku-5-5`, thinking off) with a
   short instruction per mode: remove fillers and self-corrections, fix grammar, keep the language (Formal: also a
   business tone; Translate: into English). The transcript is sent as text to edit, with an instruction never
   to follow requests inside it, so dictating a question gives you the question, not an answer.

@@ -18,7 +18,7 @@ extension ModeChecks {
     ]
 
     /// With the stub behind the proxy: the request is what the plan says (model, version header, placeholder key,
-    /// the Clean prompt, the transcript in tags, temperature 0), and the answer is what gets delivered.
+    /// the Clean prompt, the transcript in tags, thinking off), and the answer is what gets delivered.
     func cloudPlumbing() -> Outcome {
         run {
             proxy.behaviour = .stub
@@ -37,12 +37,11 @@ extension ModeChecks {
                 throw Verdict.fail("the request body is not a Messages API request")
             }
             let expectedUser = CloudPrompt.userMessage(text: delivery.raw, language: .ru)
-            guard sent.model == CloudPrompt.model, sent.temperature == 0, sent.system == CloudPrompt.system(for: .clean),
+            guard sent.model == CloudPrompt.model, sent.thinking?.type == "disabled", sent.system == CloudPrompt.system(for: .clean),
                   sent.messages.map(\.role) == ["user"], sent.messages.first?.content == expectedUser
             else {
-                throw Verdict.fail(
-                    "unexpected request: model \(sent.model), temperature \(sent.temperature), \(sent.messages.count) message(s)"
-                )
+                let thinking = sent.thinking?.type ?? "missing"
+                throw Verdict.fail("unexpected request: model \(sent.model), thinking \(thinking), \(sent.messages.count) message(s)")
             }
             guard delivery.applied == .clean, delivery.cloud, delivery.text == LLMProxy.stubPrefix + delivery.raw else {
                 throw Verdict.fail("delivered \"\(delivery.text)\" (applied \(delivery.applied)), expected the stub's answer")

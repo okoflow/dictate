@@ -3,8 +3,8 @@ import Foundation
 /// The request Dictate sends to the Anthropic Messages API for the cloud modes, and how it reads the answer.
 /// Pure: the app's `AnthropicRewriter` does the networking.
 public enum CloudPrompt {
-    /// Claude Haiku 4.5: fast and cheap enough for a dictation round trip.
-    public static let model = "claude-haiku-4-5-20251001"
+    /// Claude Haiku 5.5: fast and cheap enough for a dictation round trip.
+    public static let model = "claude-haiku-5-5"
     public static let endpoint = "https://api.anthropic.com/v1/messages"
     public static let apiVersion = "2023-06-01"
 
@@ -47,12 +47,13 @@ public enum CloudPrompt {
         "Spoken language: \(language.displayName).\n<transcript>\n\(text)\n</transcript>"
     }
 
-    /// The JSON body of the Messages API request.
+    /// The JSON body of the Messages API request. No `temperature`: Haiku 5.5 rejects any value but its default.
+    /// Thinking is off: Haiku 5.5 thinks by default, which costs time against the 3 s deadline and eats `max_tokens`.
     public static func requestBody(text: String, mode: Mode, language: Language) throws -> Data {
         let request = MessagesRequest(
             model: model,
             maxTokens: maxTokens(for: text),
-            temperature: 0,
+            thinking: .init(type: "disabled"),
             system: system(for: mode),
             messages: [.init(role: "user", content: userMessage(text: text, language: language))]
         )
@@ -109,16 +110,20 @@ struct MessagesRequest: Codable, Equatable {
         let content: String
     }
 
+    struct Thinking: Codable, Equatable {
+        let type: String
+    }
+
     let model: String
     let maxTokens: Int
-    let temperature: Double
+    let thinking: Thinking
     let system: String
     let messages: [Message]
 
     enum CodingKeys: String, CodingKey {
         case model
         case maxTokens = "max_tokens"
-        case temperature
+        case thinking
         case system
         case messages
     }
