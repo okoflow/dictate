@@ -30,7 +30,7 @@ struct HistorySettingsPane: View {
         )
     }
 
-    private var emptyText: String {
+    private var emptyText: LocalizedStringKey {
         history.searchText.isEmpty ? "Nothing yet" : "No matches"
     }
 
@@ -88,15 +88,15 @@ struct HistorySettingsPane: View {
     }
 
     private static func limitTitle(_ limit: Int) -> String {
-        "\(limit.formatted()) dictations"
+        String(localized: "\(limit.formatted()) dictations")
     }
 
     private func confirmClear() {
         let alert = NSAlert()
-        alert.messageText = "Clear the dictation history?"
-        alert.informativeText = "This deletes every saved dictation. It can't be undone."
-        alert.addButton(withTitle: "Clear History")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = String(localized: "Clear the dictation history?")
+        alert.informativeText = String(localized: "This deletes every saved dictation. It can't be undone.")
+        alert.addButton(withTitle: String(localized: "Clear History"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
         alert.buttons.first?.hasDestructiveAction = true
 
         if alert.runModal() == .alertFirstButtonReturn {

@@ -14,12 +14,12 @@ struct CopyButton: View {
                         .modifier(CheckmarkAppear())
                 }
 
-                Text(isCopied ? "Copied" : "Copy")
+                (isCopied ? Text("Copied") : Text("Copy"))
                     .contentTransition(.opacity)
             }
             .frame(minWidth: 52)
         }
         .animation(Motion.feedback, value: isCopied)
-        .accessibilityLabel(isCopied ? "Copied" : "Copy")
+        .accessibilityLabel(isCopied ? Text("Copied") : Text("Copy"))
     }
 }

@@ -20,7 +20,7 @@ struct LocalServerSection: View {
         )
     }
 
-    private var status: String {
+    private var status: LocalizedStringKey {
         switch localModels.serverState {
         case .unknown: "Not checked yet"
         case .checking: "Checking…"
@@ -30,7 +30,7 @@ struct LocalServerSection: View {
     }
 
     private var modelTitle: String {
-        settings.settings.localServer.model.isEmpty ? "Choose" : settings.settings.localServer.model
+        settings.settings.localServer.model.isEmpty ? String(localized: "Choose") : settings.settings.localServer.model
     }
 
     var body: some View {
@@ -39,7 +39,7 @@ struct LocalServerSection: View {
             subtitle: "Ollama, LM Studio, llama.cpp, MLX or Jan on this Mac; the text never leaves it.",
         ) {
             HStack(spacing: Metrics.controlSpacing) {
-                InputField("http://localhost:11434/v1", text: baseURL)
+                InputField(.verbatim("http://localhost:11434/v1"), text: baseURL)
                     .onSubmit { refresh() }
 
                 Button("Detect", action: detect)

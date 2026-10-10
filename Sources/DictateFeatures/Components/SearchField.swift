@@ -4,9 +4,9 @@ struct SearchField: View {
     @Binding private var text: String
     @FocusState private var isFocused: Bool
 
-    private let prompt: String
+    private let prompt: LocalizedStringKey
 
-    init(_ prompt: String, text: Binding<String>) {
+    init(_ prompt: LocalizedStringKey, text: Binding<String>) {
         self.prompt = prompt
         _text = text
     }

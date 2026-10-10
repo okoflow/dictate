@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct SettingsSection<Content: View, Accessory: View, Footer: View>: View {
-    private let title: String?
-    private let subtitle: String?
+    private let title: LocalizedStringKey?
+    private let subtitle: LocalizedStringKey?
     private let content: Content
     private let accessory: Accessory?
     private let footer: Footer?
 
     init(
-        _ title: String?,
-        subtitle: String? = nil,
+        _ title: LocalizedStringKey?,
+        subtitle: LocalizedStringKey? = nil,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessory: () -> Accessory,
         @ViewBuilder footer: () -> Footer,
@@ -17,7 +17,13 @@ struct SettingsSection<Content: View, Accessory: View, Footer: View>: View {
         self.init(title: title, subtitle: subtitle, content: content(), accessory: accessory(), footer: footer())
     }
 
-    private init(title: String?, subtitle: String?, content: Content, accessory: Accessory?, footer: Footer?) {
+    private init(
+        title: LocalizedStringKey?,
+        subtitle: LocalizedStringKey?,
+        content: Content,
+        accessory: Accessory?,
+        footer: Footer?,
+    ) {
         self.title = title
         self.subtitle = subtitle
         self.content = content
@@ -70,21 +76,26 @@ struct SettingsSection<Content: View, Accessory: View, Footer: View>: View {
 }
 
 extension SettingsSection where Accessory == EmptyView, Footer == EmptyView {
-    init(_ title: String? = nil, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
+    init(_ title: LocalizedStringKey? = nil, subtitle: LocalizedStringKey? = nil, @ViewBuilder content: () -> Content) {
         self.init(title: title, subtitle: subtitle, content: content(), accessory: nil, footer: nil)
     }
 }
 
 extension SettingsSection where Accessory == EmptyView {
-    init(_ title: String?, subtitle: String? = nil, @ViewBuilder content: () -> Content, @ViewBuilder footer: () -> Footer) {
+    init(
+        _ title: LocalizedStringKey?,
+        subtitle: LocalizedStringKey? = nil,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder footer: () -> Footer,
+    ) {
         self.init(title: title, subtitle: subtitle, content: content(), accessory: nil, footer: footer())
     }
 }
 
 extension SettingsSection where Footer == EmptyView {
     init(
-        _ title: String?,
-        subtitle: String? = nil,
+        _ title: LocalizedStringKey?,
+        subtitle: LocalizedStringKey? = nil,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessory: () -> Accessory,
     ) {

@@ -1,14 +1,16 @@
 CONFIG        ?= debug
 INDEX_STORE    = $(if $(wildcard .build/out/v5),.build/out,.build/debug/index/store)
+STRINGS_DIR    = $(CURDIR)/.build/strings
 TOOLCHAIN_DIR  = $(shell xcrun --find swift | sed 's|/usr/bin/swift$$||')
 
-.PHONY: help build bundle run format check format-check lint periphery secrets shellcheck hooks signing clean
+.PHONY: help build bundle run format check format-check lint periphery secrets shellcheck strings strings-update hooks signing clean
 
 help: ## List targets
 	@awk 'BEGIN { FS = ":.*## " } /^[a-z0-9-]+:.*## / { printf "  %-14s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-build: ## Build every target
-	swift build --configuration $(CONFIG)
+build: ## Build every target and extract its localizable strings
+	mkdir -p $(STRINGS_DIR)
+	swift build --configuration $(CONFIG) -Xswiftc -emit-localized-strings -Xswiftc -emit-localized-strings-path -Xswiftc $(STRINGS_DIR)
 
 bundle: ## Build and sign build/Dictate.app
 	scripts/bundle.sh $(CONFIG)
@@ -21,7 +23,7 @@ format: ## Format Swift, shell, and the property list
 	shfmt -w scripts
 	plutil -convert xml1 Packaging/Dictate-Info.plist
 
-check: format-check lint build periphery secrets shellcheck ## Run every check that CI runs
+check: format-check lint build periphery secrets shellcheck strings ## Run every check that CI runs
 	@echo "make check: OK"
 
 format-check: ## Fail on any formatting difference
@@ -40,6 +42,12 @@ secrets: ## Scan the git history for secrets
 
 shellcheck: ## Lint shell scripts
 	shellcheck scripts/*.sh
+
+strings: build ## Check every translation against the strings in the code
+	scripts/strings.sh check
+
+strings-update: build ## Rewrite the English strings table from the code
+	scripts/strings.sh update
 
 hooks: ## Install the git pre-commit hooks
 	lefthook install

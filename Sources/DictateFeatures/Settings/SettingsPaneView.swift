@@ -10,7 +10,7 @@ struct SettingsPaneView: View {
     }
 
     var body: some View {
-        SettingsPage(state.selection.title) {
+        SettingsPage(.verbatim(state.selection.title)) {
             content
         }
         .id(state.selection)

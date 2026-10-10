@@ -59,9 +59,9 @@ private struct InstructionsEditor: View {
                 Text(mode.title)
                     .font(.sectionTitle)
 
-                Text(provider
-                    .isCloud ? "Instructions sent to \(provider.title) with your text." :
-                    "Instructions for \(provider.title) on this Mac.")
+                (provider
+                    .isCloud ? Text("Instructions sent to \(provider.title) with your text.") :
+                    Text("Instructions for \(provider.title) on this Mac."))
                     .font(.rowDetail)
                     .foregroundStyle(.secondary)
             }

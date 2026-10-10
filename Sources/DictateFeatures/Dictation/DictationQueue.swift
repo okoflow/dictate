@@ -52,16 +52,20 @@ final class DictationQueue {
 
     private static func workingLabel(for job: DictationJob, spoken: Language) -> String {
         if job.mode == .translate {
-            return "Translating into \(job.setup.translation.target(forSpoken: spoken).name)…"
+            return String(localized: "Translating into \(job.setup.translation.target(forSpoken: spoken).inlineName)…")
         }
 
-        return job.setup.provider.isCloud ? "Polishing with \(job.setup.provider.title)…" : "Polishing on this Mac…"
+        if job.setup.provider.isCloud {
+            return String(localized: "Polishing with \(job.setup.provider.title)…")
+        }
+
+        return String(localized: "Polishing on this Mac…")
     }
 
     func submit(_ job: DictationJob) {
         pendingCount += 1
 
-        hud.setWorking("Transcribing…")
+        hud.setWorking(String(localized: "Transcribing…"))
         continuation.yield(job)
     }
 
@@ -74,7 +78,7 @@ final class DictationQueue {
 
         pendingCount -= 1
 
-        hud.setWorking(pendingCount > 0 ? "Transcribing…" : nil)
+        hud.setWorking(pendingCount > 0 ? String(localized: "Transcribing…") : nil)
         hud.show(outcome.message(for: job.setup.provider))
     }
 

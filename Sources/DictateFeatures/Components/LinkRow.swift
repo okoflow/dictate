@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LinkRow: View {
-    let title: String
+    let title: LocalizedStringKey
     var detail: String?
     let url: URL
 

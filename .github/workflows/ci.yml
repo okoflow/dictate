@@ -51,5 +51,8 @@ jobs:
       - name: Shell scripts
         run: make shellcheck
 
+      - name: Translations
+        run: make strings
+
       - name: App bundle
         run: make bundle

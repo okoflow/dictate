@@ -85,7 +85,7 @@ private struct AppModeMenu: View {
     }
 
     var body: some View {
-        Menu("Mode in \(app.name): \(ownMode?.title ?? "Same")") {
+        Menu("Mode in \(app.name): \(ownMode?.title ?? String(localized: "Same"))") {
             Picker("Mode in \(app.name)", selection: mode) {
                 Text("Same as Mode (\(settings.settings.mode.title))").tag(Mode?.none)
                 ForEach(Mode.allCases, id: \.self) { mode in
@@ -104,7 +104,7 @@ private struct LanguageMenu: View {
     let chooseLanguages: () -> Void
 
     private var languageNames: String {
-        settings.settings.languages.languages.map(\.name).joined(separator: ", ")
+        settings.settings.languages.languages.map(\.displayName).joined(separator: ", ")
     }
 
     private var pinned: Binding<Language?> {
@@ -115,11 +115,11 @@ private struct LanguageMenu: View {
     }
 
     var body: some View {
-        Menu("Language: \(settings.settings.languages.pinned?.name ?? "Automatic")") {
+        Menu("Language: \(settings.settings.languages.pinned?.displayName ?? String(localized: "Automatic"))") {
             Picker("Language", selection: pinned) {
                 Text("Automatic (\(languageNames))").tag(Language?.none)
                 ForEach(settings.settings.languages.languages, id: \.self) { language in
-                    Text(language.name).tag(Language?.some(language))
+                    Text(language.displayName).tag(Language?.some(language))
                 }
             }
             .pickerStyle(.inline)

@@ -168,7 +168,7 @@ extension DictationController {
         }
 
         if permissions.status(of: .microphone) == .denied {
-            return "Dictate can't use the microphone. Allow it in Settings › General."
+            return String(localized: "Dictate can't use the microphone. Allow it in Settings › General.")
         }
 
         return nil
@@ -230,9 +230,9 @@ extension DictationController {
         let samples = await recorder.stop(ended.id, releasedAt: ended.hasFailed ? nil : releasedAt)
         guard !ended.hasFailed else { return }
         guard !samples.isEmpty else {
-            let reason = await recorder.failureReason(for: ended.id) ?? "no audio was captured"
+            let reason = await recorder.failureReason(for: ended.id) ?? String(localized: "No audio was captured.")
 
-            hud.show(HUDMessage(kind: .warning, title: "Recording failed", detail: reason))
+            hud.show(HUDMessage(kind: .warning, title: String(localized: "Recording failed"), detail: reason))
 
             return
         }
@@ -257,7 +257,7 @@ extension DictationController {
         recording = failed
 
         hud.hideListening()
-        hud.show(HUDMessage(kind: .warning, title: "Recording failed", detail: reason))
+        hud.show(HUDMessage(kind: .warning, title: String(localized: "Recording failed"), detail: reason))
 
         let id = failed.id
 

@@ -61,7 +61,7 @@ private struct OnboardingFooter: View {
         return permission.flatMap { model.permissions.status(of: $0).isGranted ? nil : $0 }
     }
 
-    private var primaryTitle: String {
+    private var primaryTitle: LocalizedStringKey {
         if let permission = missingPermission {
             return permission == .microphone ? "Allow Microphone" : "Open System Settings"
         }

@@ -4,10 +4,10 @@ struct InputField: View {
     @Binding private var text: String
     @FocusState private var isFocused: Bool
 
-    private let prompt: String
+    private let prompt: LocalizedStringKey
     private let isSecure: Bool
 
-    init(_ prompt: String, text: Binding<String>, isSecure: Bool = false) {
+    init(_ prompt: LocalizedStringKey, text: Binding<String>, isSecure: Bool = false) {
         self.prompt = prompt
         _text = text
         self.isSecure = isSecure

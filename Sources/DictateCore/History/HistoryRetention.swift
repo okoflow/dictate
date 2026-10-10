@@ -9,11 +9,11 @@ package enum HistoryRetention: String, CaseIterable, Codable, Sendable {
 
     package var title: String {
         switch self {
-        case .day: "1 day"
-        case .week: "1 week"
-        case .month: "1 month"
-        case .year: "1 year"
-        case .forever: "Forever"
+        case .day: String(localized: "1 day")
+        case .week: String(localized: "1 week")
+        case .month: String(localized: "1 month")
+        case .year: String(localized: "1 year")
+        case .forever: String(localized: "Forever")
         }
     }
 

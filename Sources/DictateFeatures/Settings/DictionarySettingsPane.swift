@@ -61,11 +61,11 @@ struct DictionarySettingsPane: View {
 private struct EntryRow: View {
     @Binding var first: String
 
-    let firstPrompt: String
+    let firstPrompt: LocalizedStringKey
 
     @Binding var second: String
 
-    let secondPrompt: String
+    let secondPrompt: LocalizedStringKey
     let remove: () -> Void
 
     var body: some View {

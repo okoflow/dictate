@@ -1,4 +1,5 @@
 import DictateCore
+import Foundation
 
 enum DictationOutcome {
     case pasted(ProcessedText)
@@ -10,7 +11,7 @@ enum DictationOutcome {
     private static func copiedDetail(_ processed: ProcessedText, provider: ModelProvider) -> String {
         let fallback = processed.fallback?.message(for: provider)
 
-        return ["Copied: press ⌘V to paste", fallback].compactMap(\.self).joined(separator: "\n")
+        return [String(localized: "Copied: press ⌘V to paste"), fallback].compactMap(\.self).joined(separator: "\n")
     }
 
     func message(for provider: ModelProvider) -> HUDMessage {
@@ -24,15 +25,15 @@ enum DictationOutcome {
         case .blockedInPasswordField:
             HUDMessage(
                 kind: .warning,
-                title: "Not pasted into a password field",
-                detail: "Copy it from the menu: Copy Last Transcript",
+                title: String(localized: "Not pasted into a password field"),
+                detail: String(localized: "Copy it from the menu: Copy Last Transcript"),
             )
 
         case .noSpeech:
-            HUDMessage(kind: .info, title: "Didn't catch that")
+            HUDMessage(kind: .info, title: String(localized: "Didn't catch that"))
 
         case let .failed(reason):
-            HUDMessage(kind: .warning, title: "Transcription failed", detail: reason)
+            HUDMessage(kind: .warning, title: String(localized: "Transcription failed"), detail: reason)
         }
     }
 }

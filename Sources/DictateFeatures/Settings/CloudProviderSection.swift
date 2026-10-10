@@ -20,7 +20,7 @@ struct CloudProviderSection: View {
     }
 
     var body: some View {
-        SettingsSection(provider.title, subtitle: "Your own key; the text, never audio, goes to \(company).") {
+        SettingsSection(.verbatim(provider.title), subtitle: "Your own key; the text, never audio, goes to \(company).") {
             APIKeyRows(apiKey: apiKey, provider: provider)
             RowDivider()
             LinkRow(title: "Get an API key", url: Self.consoles[provider])
@@ -38,14 +38,14 @@ private struct APIKeyRows: View {
 
     let provider: CloudProvider
 
-    private var prompt: String {
+    private var prompt: LocalizedStringKey {
         if apiKey.isSet {
             return "Replace the key"
         }
 
         return switch provider {
-        case .claude: "sk-ant-…"
-        case .openAI: "sk-proj-…"
+        case .claude: .verbatim("sk-ant-…")
+        case .openAI: .verbatim("sk-proj-…")
         }
     }
 

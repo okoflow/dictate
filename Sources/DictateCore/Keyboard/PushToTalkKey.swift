@@ -1,6 +1,9 @@
+import Foundation
+
 package struct PushToTalkKey: Hashable, Sendable {
     private struct Modifier {
         let name: String
+        let shortName: String
         let symbol: String
         let flag: UInt64
     }
@@ -11,15 +14,20 @@ package struct PushToTalkKey: Hashable, Sendable {
     package static let function = PushToTalkKey(known: 63)
 
     private static let modifiers: [Int64: Modifier] = [
-        54: Modifier(name: "Right Command", symbol: "⌘", flag: 0x10),
-        55: Modifier(name: "Left Command", symbol: "⌘", flag: 0x08),
-        56: Modifier(name: "Left Shift", symbol: "⇧", flag: 0x02),
-        60: Modifier(name: "Right Shift", symbol: "⇧", flag: 0x04),
-        58: Modifier(name: "Left Option", symbol: "⌥", flag: 0x20),
-        61: Modifier(name: "Right Option", symbol: "⌥", flag: 0x40),
-        59: Modifier(name: "Left Control", symbol: "⌃", flag: 0x01),
-        62: Modifier(name: "Right Control", symbol: "⌃", flag: 0x2000),
-        63: Modifier(name: "Fn", symbol: "🌐", flag: 0x800000),
+        54: Modifier(name: String(localized: "Right Command"), shortName: String(localized: "right ⌘"), symbol: "⌘", flag: 0x10),
+        55: Modifier(name: String(localized: "Left Command"), shortName: String(localized: "left ⌘"), symbol: "⌘", flag: 0x08),
+        56: Modifier(name: String(localized: "Left Shift"), shortName: String(localized: "left ⇧"), symbol: "⇧", flag: 0x02),
+        60: Modifier(name: String(localized: "Right Shift"), shortName: String(localized: "right ⇧"), symbol: "⇧", flag: 0x04),
+        58: Modifier(name: String(localized: "Left Option"), shortName: String(localized: "left ⌥"), symbol: "⌥", flag: 0x20),
+        61: Modifier(name: String(localized: "Right Option"), shortName: String(localized: "right ⌥"), symbol: "⌥", flag: 0x40),
+        59: Modifier(name: String(localized: "Left Control"), shortName: String(localized: "left ⌃"), symbol: "⌃", flag: 0x01),
+        62: Modifier(
+            name: String(localized: "Right Control"),
+            shortName: String(localized: "right ⌃"),
+            symbol: "⌃",
+            flag: 0x2000,
+        ),
+        63: Modifier(name: String(localized: "Fn"), shortName: "fn", symbol: "🌐", flag: 0x800000),
     ]
 
     private static let functionKeys: [Int64: Int] = [
@@ -58,10 +66,7 @@ package struct PushToTalkKey: Hashable, Sendable {
     }
 
     package var shortTitle: String {
-        guard let modifier = Self.modifiers[keyCode] else { return functionKeyTitle }
-        guard self != .function, let side = modifier.name.split(separator: " ").first else { return "fn" }
-
-        return "\(side.lowercased()) \(modifier.symbol)"
+        Self.modifiers[keyCode]?.shortName ?? functionKeyTitle
     }
 
     private var functionKeyTitle: String {

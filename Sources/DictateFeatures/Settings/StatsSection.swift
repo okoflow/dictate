@@ -53,10 +53,10 @@ struct StatsSection: View {
 
     private func confirmReset() {
         let alert = NSAlert()
-        alert.messageText = "Reset your dictation stats?"
-        alert.informativeText = "This sets the word and time counts back to zero. Your history stays."
-        alert.addButton(withTitle: "Reset Stats")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = String(localized: "Reset your dictation stats?")
+        alert.informativeText = String(localized: "This sets the word and time counts back to zero. Your history stays.")
+        alert.addButton(withTitle: String(localized: "Reset Stats"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
         alert.buttons.first?.hasDestructiveAction = true
 
         if alert.runModal() == .alertFirstButtonReturn {
@@ -67,7 +67,7 @@ struct StatsSection: View {
 
 private struct Metric: View {
     let value: String
-    let label: String
+    let label: LocalizedStringKey
 
     var body: some View {
         VStack(spacing: 2) {

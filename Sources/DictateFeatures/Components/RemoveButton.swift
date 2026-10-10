@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct RemoveButton: View {
-    let help: String
+    let help: LocalizedStringKey
     let action: () -> Void
 
     var body: some View {

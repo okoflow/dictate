@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 
 struct WritingSettingsPane: View {
     private static var languagesByName: [Language] {
-        Language.allCases.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        Language.allCases.sorted { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }
     }
 
     @Bindable var settings: SettingsModel
@@ -42,17 +42,17 @@ struct WritingSettingsPane: View {
         )
     }
 
-    private var translationNote: String {
-        let translation = settings.settings.translation
+    private var translationNote: LocalizedStringKey {
+        let target = settings.settings.translation.target.inlineName
 
-        guard let other = translation.twoWayLanguage else {
-            return "Translate turns anything you say into \(translation.target.name)."
+        guard let other = settings.settings.translation.twoWayLanguage?.inlineName else {
+            return .verbatim(String(localized: "Translate turns anything you say into \(target)."))
         }
 
-        return "Speak \(other.name) to get \(translation.target.name), and \(translation.target.name) to get \(other.name)."
+        return .verbatim(String(localized: "Speak \(other) to get \(target), and \(target) to get \(other).").sentenceCased)
     }
 
-    private var setupNote: String? {
+    private var setupNote: LocalizedStringKey? {
         switch provider {
         case let .cloud(cloud):
             apiKeys[cloud].isSet ? nil : "Clean, Formal and Translate need a \(cloud.title) API key."
@@ -87,21 +87,21 @@ struct WritingSettingsPane: View {
         }
 
         SettingsSection("Translation", subtitle: translationNote) {
-            PickerRow("Translate into", selection: translationTarget, current: settings.settings.translation.target.name) {
+            PickerRow("Translate into", selection: translationTarget, current: settings.settings.translation.target.displayName) {
                 ForEach(Self.languagesByName, id: \.self) { language in
-                    Text(language.name).tag(language)
+                    Text(language.displayName).tag(language)
                 }
             }
             RowDivider()
             PickerRow(
                 "Two-way with",
                 selection: twoWayLanguage,
-                current: settings.settings.translation.twoWayLanguage?.name ?? "Off",
+                current: settings.settings.translation.twoWayLanguage?.displayName ?? String(localized: "Off"),
             ) {
                 Text("Off").tag(Language?.none)
                 Divider()
                 ForEach(Self.languagesByName.filter { $0 != settings.settings.translation.target }, id: \.self) { language in
-                    Text(language.name).tag(Language?.some(language))
+                    Text(language.displayName).tag(Language?.some(language))
                 }
             }
         }
@@ -138,7 +138,7 @@ struct WritingSettingsPane: View {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.application]
         panel.directoryURL = URL(filePath: "/Applications")
-        panel.prompt = "Add"
+        panel.prompt = String(localized: "Add")
 
         guard panel.runModal() == .OK, let url = panel.url,
               let bundleIdentifier = Bundle(url: url)?.bundleIdentifier else { return }
@@ -214,8 +214,8 @@ private struct ModeLabel: View {
                         .font(.glyph)
                         .foregroundStyle(.secondary)
                         .help(provider
-                            .isCloud ? "Sends the recognized text to \(provider.title)" :
-                            "Runs on this Mac with \(provider.title)")
+                            .isCloud ? Text("Sends the recognized text to \(provider.title)") :
+                            Text("Runs on this Mac with \(provider.title)"))
                 }
 
                 if isCustomized {

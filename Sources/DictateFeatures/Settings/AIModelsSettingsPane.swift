@@ -27,7 +27,7 @@ private struct SpeechModelRow: View {
     let controller: SpeechModelController
 
     var body: some View {
-        SettingsRow(controller.state.statusText, description: "Whisper large-v3 turbo · 630 MB") {
+        SettingsRow(.verbatim(controller.state.statusText), description: "Whisper large-v3 turbo · 630 MB") {
             if let progress = controller.state.progress {
                 ProgressView(value: progress)
                     .frame(width: 100)

@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct SettingsRow<Accessory: View>: View {
-    private let title: String
-    private let description: String?
+    private let title: LocalizedStringKey
+    private let description: LocalizedStringKey?
     private let accessory: Accessory
 
-    init(_ title: String, description: String? = nil, @ViewBuilder accessory: () -> Accessory) {
+    init(_ title: LocalizedStringKey, description: LocalizedStringKey? = nil, @ViewBuilder accessory: () -> Accessory) {
         self.title = title
         self.description = description
         self.accessory = accessory()
@@ -26,8 +26,8 @@ struct SettingsRow<Accessory: View>: View {
 }
 
 struct RowLabel: View {
-    let title: String
-    var description: String?
+    let title: LocalizedStringKey
+    var description: LocalizedStringKey?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {

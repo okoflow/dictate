@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct EmptyRow: View {
-    private let text: String
+    private let text: LocalizedStringKey
 
-    init(_ text: String) {
+    init(_ text: LocalizedStringKey) {
         self.text = text
     }
 

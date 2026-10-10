@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct Badge: View {
-    private let text: String
+    private let text: LocalizedStringKey
     private let tint: Color?
 
-    init(_ text: String, tint: Color? = nil) {
+    init(_ text: LocalizedStringKey, tint: Color? = nil) {
         self.text = text
         self.tint = tint
     }

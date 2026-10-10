@@ -3,8 +3,8 @@ import DictateCore
 import SwiftUI
 
 struct OnboardingStep<Hero: View, Content: View>: View {
-    let title: String
-    let message: String
+    let title: LocalizedStringKey
+    let message: LocalizedStringKey
     @ViewBuilder let hero: Hero
     @ViewBuilder let content: Content
 
@@ -55,14 +55,14 @@ struct PermissionStep: View {
     let permission: Permission
     let monitor: PermissionMonitor
 
-    private var title: String {
+    private var title: LocalizedStringKey {
         switch permission {
         case .microphone: "Allow the microphone"
         case .accessibility: "Allow Accessibility"
         }
     }
 
-    private var message: String {
+    private var message: LocalizedStringKey {
         switch permission {
         case .microphone:
             "Dictate listens only while you hold the key, and the audio stays on your Mac."
@@ -91,7 +91,7 @@ struct PracticeStep: View {
 
     let model: AppModel
 
-    private var message: String {
+    private var message: LocalizedStringKey {
         let key = model.settings.settings.pushToTalkKey.shortTitle
 
         guard model.speechModel.state.isReady else {
@@ -102,7 +102,7 @@ struct PracticeStep: View {
     }
 
     private var modelStatus: String {
-        model.speechModel.state.isReady ? "Speech model ready" : model.speechModel.state.statusText
+        model.speechModel.state.isReady ? String(localized: "Speech model ready") : model.speechModel.state.statusText
     }
 
     init(model: AppModel) {
@@ -148,7 +148,10 @@ struct FinishStep: View {
             SettingsCard {
                 ToggleRow("Open at login", isOn: launchesAtLogin)
                 RowDivider()
-                SettingsRow("Cleanup modes", description: "Clean, Formal and Translate use Claude or OpenAI.") {
+                SettingsRow(
+                    "Cleanup modes",
+                    description: "Clean, Formal and Translate need an AI model, on this Mac or in the cloud.",
+                ) {
                     Button("Set Up…") {
                         model.onboarding.advance()
                         model.windows.showSettings(.writing)
@@ -162,8 +165,8 @@ struct FinishStep: View {
 private struct GestureRow: View {
     let symbolName: String
     let tint: TileTint
-    let title: String
-    let detail: String
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
 
     var body: some View {
         HStack(spacing: 12) {

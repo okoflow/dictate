@@ -29,6 +29,7 @@ assemble_app() {
   cp "${binary_dir}/${PRODUCT}" "${APP}/Contents/MacOS/${PRODUCT}"
   cp "Packaging/${PRODUCT}-Info.plist" "${APP}/Contents/Info.plist"
   cp "Packaging/${PRODUCT}.icns" "${APP}/Contents/Resources/${PRODUCT}.icns"
+  cp -R Packaging/Localizations/*.lproj "${APP}/Contents/Resources/"
 }
 
 has_identity() {

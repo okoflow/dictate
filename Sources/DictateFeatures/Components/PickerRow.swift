@@ -3,16 +3,16 @@ import SwiftUI
 struct PickerRow<Value: Hashable, Options: View>: View {
     @Binding private var selection: Value
 
-    private let title: String
+    private let title: LocalizedStringKey
     private let current: String
-    private let description: String?
+    private let description: LocalizedStringKey?
     private let options: Options
 
     init(
-        _ title: String,
+        _ title: LocalizedStringKey,
         selection: Binding<Value>,
         current: String,
-        description: String? = nil,
+        description: LocalizedStringKey? = nil,
         @ViewBuilder options: () -> Options,
     ) {
         self.title = title

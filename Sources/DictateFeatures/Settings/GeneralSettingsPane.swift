@@ -10,7 +10,7 @@ struct GeneralSettingsPane: View {
         Binding(get: { settings.launchesAtLogin }, set: { settings.setLaunchesAtLogin($0) })
     }
 
-    private var menuBarNote: String? {
+    private var menuBarNote: LocalizedStringKey? {
         settings.settings.showsMenuBarIcon ? nil : "Open Dictate again to get to Settings."
     }
 

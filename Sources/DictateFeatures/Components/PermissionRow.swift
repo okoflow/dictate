@@ -11,7 +11,7 @@ struct PermissionRow: View {
     }
 
     var body: some View {
-        SettingsRow(permission.title, description: permission.purpose) {
+        SettingsRow(.verbatim(permission.title), description: .verbatim(permission.purpose)) {
             Group {
                 if isGranted {
                     HStack(spacing: 5) {

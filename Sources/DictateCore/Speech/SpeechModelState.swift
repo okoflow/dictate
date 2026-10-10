@@ -1,3 +1,5 @@
+import Foundation
+
 package struct SpeechModelState: Equatable, Sendable {
     package enum Phase: Equatable, Sendable {
         case notInstalled
@@ -55,27 +57,27 @@ package struct SpeechModelState: Equatable, Sendable {
 
     package var statusText: String {
         switch phase {
-        case .notInstalled: "Speech model not installed"
-        case let .downloading(progress): "Downloading speech model… \(Self.percent(progress))"
-        case .loading: "Preparing speech model…"
-        case .ready: "Ready"
-        case let .failed(reason, _): "Speech model failed: \(reason)"
+        case .notInstalled: String(localized: "Speech model not installed")
+        case let .downloading(progress): String(localized: "Downloading speech model… \(Self.percent(progress))")
+        case .loading: String(localized: "Preparing speech model…")
+        case .ready: String(localized: "Ready")
+        case let .failed(reason, _): String(localized: "Speech model failed: \(reason)")
         }
     }
 
     package var notReadyMessage: String {
         switch phase {
-        case .notInstalled, .ready: "The speech model isn't ready yet"
-        case let .downloading(progress): "Downloading the speech model… \(Self.percent(progress))"
-        case .loading: "Preparing the speech model, about a minute the first time…"
-        case .failed: "The speech model failed to load. Retry from the menu."
+        case .notInstalled, .ready: String(localized: "The speech model isn't ready yet")
+        case let .downloading(progress): String(localized: "Downloading the speech model… \(Self.percent(progress))")
+        case .loading: String(localized: "Preparing the speech model, about a minute the first time…")
+        case .failed: String(localized: "The speech model failed to load. Retry from the menu.")
         }
     }
 
     package init() {}
 
     private static func percent(_ progress: Double) -> String {
-        "\(Int((progress * 100).rounded()))%"
+        progress.formatted(.percent.precision(.fractionLength(0)))
     }
 
     private static func reason(of event: Event) -> String {

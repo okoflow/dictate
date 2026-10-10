@@ -1,3 +1,5 @@
+import Foundation
+
 package enum Mode: String, CaseIterable, Codable, Sendable {
     case raw
     case light
@@ -23,21 +25,21 @@ package enum Mode: String, CaseIterable, Codable, Sendable {
 
     package var title: String {
         switch self {
-        case .raw: "Raw"
-        case .light: "Light"
-        case .clean: "Clean"
-        case .formal: "Formal"
-        case .translate: "Translate"
+        case .raw: String(localized: "Raw")
+        case .light: String(localized: "Light")
+        case .clean: String(localized: "Clean")
+        case .formal: String(localized: "Formal")
+        case .translate: String(localized: "Translate")
         }
     }
 
     package var summary: String {
         switch self {
-        case .raw: "Exactly what was heard."
-        case .light: "Drops um and uh, adds a capital letter and a full stop."
-        case .clean: "Removes fillers and false starts, fixes grammar, keeps your language."
-        case .formal: "Like Clean, in a polite business tone."
-        case .translate: "Translates what you said into another language."
+        case .raw: String(localized: "Exactly what was heard.")
+        case .light: String(localized: "Drops um and uh, adds a capital letter and a full stop.")
+        case .clean: String(localized: "Removes fillers and false starts, fixes grammar, keeps your language.")
+        case .formal: String(localized: "Like Clean, in a polite business tone.")
+        case .translate: String(localized: "Translates what you said into another language.")
         }
     }
 }

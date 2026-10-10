@@ -1,4 +1,5 @@
 import DictateCore
+import Foundation
 
 package enum AppStatus: Equatable {
     case needsPermission
@@ -21,12 +22,19 @@ package enum AppStatus: Equatable {
 
     func title(key: PushToTalkKey) -> String {
         switch self {
-        case .needsPermission: "Setup needed"
-        case let .downloading(progress): "Downloading speech model… \(Int((progress * 100).rounded()))%"
-        case .preparing: "Preparing speech model…"
-        case .modelFailed: "Speech model failed"
-        case .recording: "Listening…"
-        case .ready: "Hold \(key.shortTitle) to dictate"
+        case .needsPermission: String(localized: "Setup needed")
+
+        case let .downloading(progress): String(
+                localized: "Downloading speech model… \(progress.formatted(.percent.precision(.fractionLength(0))))",
+            )
+
+        case .preparing: String(localized: "Preparing speech model…")
+
+        case .modelFailed: String(localized: "Speech model failed")
+
+        case .recording: String(localized: "Listening…")
+
+        case .ready: String(localized: "Hold \(key.shortTitle) to dictate")
         }
     }
 }

@@ -9,7 +9,7 @@ struct AboutSettingsPane: View {
     private var versionText: String {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
 
-        return version.map { "Version \($0)" } ?? "Development build"
+        return version.map { String(localized: "Version \($0)") } ?? String(localized: "Development build")
     }
 
     var body: some View {

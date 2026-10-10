@@ -1,3 +1,5 @@
+import Foundation
+
 package enum ModelProvider: Hashable, Sendable {
     case apple
     case localServer
@@ -6,7 +8,7 @@ package enum ModelProvider: Hashable, Sendable {
     package var title: String {
         switch self {
         case .apple: "Apple Intelligence"
-        case .localServer: "Local server"
+        case .localServer: String(localized: "Local server")
         case let .cloud(provider): provider.title
         }
     }

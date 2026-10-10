@@ -6,7 +6,7 @@ struct AppleIntelligenceSection: View {
 
     let localModels: LocalModelsModel
 
-    private var status: String {
+    private var status: LocalizedStringKey {
         switch localModels.appleAvailability {
         case .available: "Ready"
         case .notEnabled: "Turn on Apple Intelligence in System Settings"

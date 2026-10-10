@@ -18,12 +18,12 @@ struct DictationSettingsPane: View {
         )
     }
 
-    private var spokenLanguageNote: String? {
+    private var spokenLanguageNote: LocalizedStringKey? {
         guard let alike = Language.soundAlike(among: selection.languages) else { return nil }
 
-        let names = ListFormatter.localizedString(byJoining: alike.map(\.name))
+        let names = Language.inlineList(alike)
 
-        return "\(names) sound alike: pin one if Dictate mixes them up."
+        return .verbatim(String(localized: "\(names) sound alike: pin one if Dictate mixes them up.").sentenceCased)
     }
 
     private var suggestedLanguages: [Language] {
@@ -37,7 +37,7 @@ struct DictationSettingsPane: View {
         return suggested
     }
 
-    private var keyNote: String? {
+    private var keyNote: LocalizedStringKey? {
         if keyRecorder.rejectedKey {
             return "That key types text. Press a modifier, fn, or an F-key."
         }
@@ -52,13 +52,13 @@ struct DictationSettingsPane: View {
     }
 
     private var microphoneName: String {
-        settings.microphones.first { $0.id == settings.settings.microphoneID }?.name ?? "System default"
+        settings.microphones.first { $0.id == settings.settings.microphoneID }?.name ?? String(localized: "System default")
     }
 
     private var addableLanguages: [Language] {
         Language.allCases
             .filter { !selection.languages.contains($0) }
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .sorted { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }
     }
 
     var body: some View {
@@ -96,13 +96,13 @@ struct DictationSettingsPane: View {
             PickerRow(
                 "Spoken language",
                 selection: pinnedLanguage,
-                current: selection.pinned?.name ?? "Detect automatically",
+                current: selection.pinned?.displayName ?? String(localized: "Detect automatically"),
                 description: spokenLanguageNote,
             ) {
                 Text("Detect automatically").tag(Language?.none)
                 Divider()
                 ForEach(selection.languages, id: \.self) { language in
-                    Text(language.name).tag(Language?.some(language))
+                    Text(language.displayName).tag(Language?.some(language))
                 }
             }
         } footer: {
@@ -139,7 +139,7 @@ private struct AddLanguageButton: View {
     @Bindable var settings: SettingsModel
 
     private var title: String {
-        language.name == language.nativeName ? language.name : "\(language.name) · \(language.nativeName)"
+        language.displayName == language.nativeName ? language.displayName : "\(language.displayName) · \(language.nativeName)"
     }
 
     var body: some View {
@@ -155,8 +155,11 @@ private struct LanguageRow: View {
     let remove: () -> Void
 
     var body: some View {
-        SettingsRow(language.nativeName, description: language.nativeName == language.name ? nil : language.name) {
-            RemoveButton(help: "Remove \(language.name)", action: remove)
+        SettingsRow(
+            .verbatim(language.nativeName),
+            description: language.nativeName == language.displayName ? nil : .verbatim(language.displayName),
+        ) {
+            RemoveButton(help: "Remove \(language.displayName)", action: remove)
                 .disabled(!canRemove)
         }
     }

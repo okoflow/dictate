@@ -1,3 +1,5 @@
+import Foundation
+
 package enum SettingsPane: CaseIterable {
     case general
     case dictation
@@ -11,13 +13,13 @@ package enum SettingsPane: CaseIterable {
 
     var title: String {
         switch self {
-        case .general: "General"
-        case .dictation: "Dictation"
-        case .writing: "Writing"
-        case .aiModels: "AI Models"
-        case .dictionary: "Dictionary"
-        case .history: "History"
-        case .about: "About"
+        case .general: String(localized: "General")
+        case .dictation: String(localized: "Dictation")
+        case .writing: String(localized: "Writing")
+        case .aiModels: String(localized: "AI Models")
+        case .dictionary: String(localized: "Dictionary")
+        case .history: String(localized: "History")
+        case .about: String(localized: "About")
         }
     }
 

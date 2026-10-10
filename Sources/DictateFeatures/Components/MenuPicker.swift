@@ -3,11 +3,11 @@ import SwiftUI
 struct MenuPicker<Value: Hashable, Options: View>: View {
     @Binding private var selection: Value
 
-    private let title: String
+    private let title: LocalizedStringKey
     private let current: String
     private let options: Options
 
-    init(_ title: String, selection: Binding<Value>, current: String, @ViewBuilder options: () -> Options) {
+    init(_ title: LocalizedStringKey, selection: Binding<Value>, current: String, @ViewBuilder options: () -> Options) {
         self.title = title
         _selection = selection
         self.current = current
