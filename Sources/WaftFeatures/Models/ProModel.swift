@@ -37,7 +37,10 @@ package final class ProModel {
             trialStarted = started
         } else {
             trialStarted = Date()
-            try? trialStore.save(trialStarted)
+
+            if !ProAccess.isFreeDuringBeta {
+                try? trialStore.save(trialStarted)
+            }
         }
 
         license = (try? keyStore.load()).flatMap { Self.verifiedKey($0, checker: checker)?.license }

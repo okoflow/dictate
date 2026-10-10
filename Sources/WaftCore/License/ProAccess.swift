@@ -3,10 +3,12 @@ import Foundation
 package struct ProAccess: Equatable, Sendable {
     package enum Status: Equatable, Sendable {
         case licensed(License)
+        case beta
         case trial(daysLeft: Int)
         case expired
     }
 
+    package static let isFreeDuringBeta = true
     package static let trialLength = 3
 
     package let status: Status
@@ -18,6 +20,12 @@ package struct ProAccess: Equatable, Sendable {
     package init(license: License?, trialStarted: Date, now: Date, calendar: Calendar = .current) {
         if let license {
             status = .licensed(license)
+
+            return
+        }
+
+        if Self.isFreeDuringBeta {
+            status = .beta
 
             return
         }

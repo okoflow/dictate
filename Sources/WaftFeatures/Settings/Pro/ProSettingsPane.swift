@@ -17,7 +17,9 @@ struct ProSettingsPane: View {
             }
         }
 
-        LicenseSection(pro: pro)
+        if pro.license != nil || !ProAccess.isFreeDuringBeta {
+            LicenseSection(pro: pro)
+        }
     }
 }
 
@@ -28,6 +30,8 @@ private struct ProHero: View {
         switch pro.access.status {
         case let .licensed(license):
             String(localized: "Licensed to \(license.name ?? license.email). Thank you!")
+        case .beta:
+            String(localized: "Free while Waft is in beta.")
         case .trial:
             String(localized: "Free trial ends \(pro.trialEnds.formatted(.relative(presentation: .named)))")
         case .expired:
@@ -35,12 +39,11 @@ private struct ProHero: View {
         }
     }
 
-    private var isLicensed: Bool {
-        if case .licensed = pro.access.status {
-            return true
+    private var isForSale: Bool {
+        switch pro.access.status {
+        case .trial, .expired: true
+        case .licensed, .beta: false
         }
-
-        return false
     }
 
     var body: some View {
@@ -64,7 +67,7 @@ private struct ProHero: View {
 
             Spacer(minLength: 0)
 
-            if !isLicensed {
+            if isForSale {
                 Button("Buy for \(ProModel.price)", action: pro.purchase)
                     .buttonStyle(ProButtonStyle())
             }

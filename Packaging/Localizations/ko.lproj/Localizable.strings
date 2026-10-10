@@ -102,6 +102,7 @@
 "Forever" = "영구";
 "Formal" = "격식체";
 "Free trial ends %@" = "무료 체험이 %@ 종료됩니다";
+"Free while Waft is in beta." = "Waft 베타 기간에는 무료입니다.";
 "General" = "일반";
 "Get Started" = "시작하기";
 "Get an API key" = "API 키 받기";

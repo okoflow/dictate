@@ -102,6 +102,7 @@
 "Forever" = "Завжди";
 "Formal" = "Діловий";
 "Free trial ends %@" = "Безкоштовний пробний період закінчиться %@";
+"Free while Waft is in beta." = "Безкоштовно, поки Waft у бета-версії.";
 "General" = "Загальні";
 "Get Started" = "Почати";
 "Get an API key" = "Отримати ключ API";

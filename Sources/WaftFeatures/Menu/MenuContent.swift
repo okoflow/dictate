@@ -175,7 +175,7 @@ private struct ProMenuItem: View {
         case .expired:
             Button("Unlock Waft Pro…", action: showPro)
 
-        case .licensed:
+        case .licensed, .beta:
             EmptyView()
         }
     }

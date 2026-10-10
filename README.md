@@ -144,7 +144,8 @@ file Waft keeps and how to remove it.
 Dictation, Raw and Light, voice commands, the dictionary, and history are
 free. Waft Pro adds the AI modes with any model, translation both ways,
 your own instructions, editing by voice, and file transcription, for a single
-payment of $13.99. Every Pro feature works for 3 days from the first launch.
+payment of $13.99. While Waft is in beta, every Pro feature is free and needs
+no license.
 
 ## Documentation
 

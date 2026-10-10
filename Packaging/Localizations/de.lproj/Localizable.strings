@@ -102,6 +102,7 @@
 "Forever" = "Unbegrenzt";
 "Formal" = "Formell";
 "Free trial ends %@" = "Die kostenlose Testphase endet %@";
+"Free while Waft is in beta." = "Kostenlos, solange Waft in der Beta ist.";
 "General" = "Allgemein";
 "Get Started" = "Los geht’s";
 "Get an API key" = "API-Schlüssel erhalten";

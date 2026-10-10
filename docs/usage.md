@@ -243,8 +243,9 @@ dictionary, and history are free. Waft Pro adds Clean, Formal and
 Translate with any AI model, translation both ways, your own instructions,
 editing by voice, and file transcription, for a single payment of $13.99.
 
-Every Pro feature works for 3 days after the first launch. After that,
-Pro modes fall back to Light and the HUD says so, until you buy a license
-from Settings › Waft Pro. The license key arrives with your receipt: paste
-it under **License**, or open the activation link from the email. Waft
-checks the key on the Mac, without contacting a server.
+While Waft is in beta, every Pro feature is free and needs no license.
+Once Pro goes on sale, every Pro feature works for 3 days after the first
+launch. After that, Pro modes fall back to Light and the HUD says so, until
+you buy a license from Settings › Waft Pro. The license key arrives with
+your receipt: paste it under **License**, or open the activation link from
+the email. Waft checks the key on the Mac, without contacting a server.

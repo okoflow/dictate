@@ -102,6 +102,7 @@
 "Forever" = "永久";
 "Formal" = "正式";
 "Free trial ends %@" = "免费试用将于%@结束";
+"Free while Waft is in beta." = "Waft测试版期间免费。";
 "General" = "通用";
 "Get Started" = "开始使用";
 "Get an API key" = "获取API密钥";
