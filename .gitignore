@@ -5,7 +5,10 @@ build/
 
 # Editors
 
+.idea/
 .swiftpm/
+.vscode/
+.zed/
 
 # System
 
