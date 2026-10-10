@@ -15,6 +15,7 @@ struct SettingsCard<Content: View>: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Palette.card, in: shape)
+        .clipShape(shape)
         .overlay {
             shape.strokeBorder(Palette.cardBorder, lineWidth: 1)
         }

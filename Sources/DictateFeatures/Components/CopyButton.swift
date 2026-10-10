@@ -11,7 +11,7 @@ struct CopyButton: View {
                     Image(systemName: "checkmark")
                         .font(.glyph)
                         .foregroundStyle(Palette.success)
-                        .transition(.scale.combined(with: .opacity))
+                        .modifier(CheckmarkAppear())
                 }
 
                 Text(isCopied ? "Copied" : "Copy")
@@ -19,7 +19,7 @@ struct CopyButton: View {
             }
             .frame(minWidth: 52)
         }
-        .animation(.snappy(duration: 0.2), value: isCopied)
+        .animation(Motion.feedback, value: isCopied)
         .accessibilityLabel(isCopied ? "Copied" : "Copy")
     }
 }

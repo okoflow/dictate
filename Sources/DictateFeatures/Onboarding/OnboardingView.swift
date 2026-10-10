@@ -2,8 +2,6 @@ import DictateCore
 import SwiftUI
 
 package struct OnboardingView: View {
-    @Environment(\.accessibilityReduceMotion) private var reducesMotion
-
     private let model: AppModel
 
     package init(model: AppModel) {
@@ -14,15 +12,16 @@ package struct OnboardingView: View {
         VStack(spacing: 0) {
             step
                 .id(model.onboarding.step)
-                .transition(reducesMotion ? .opacity : .opacity.combined(with: .offset(y: 10)))
+                .transition(StepTransition())
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.top, 56)
                 .padding(.horizontal, 72)
 
             OnboardingFooter(model: model)
         }
-        .animation(.smooth(duration: 0.35), value: model.onboarding.step)
+        .animation(Motion.page, value: model.onboarding.step)
         .buttonStyle(PushButtonStyle())
+        .reducedMotionPolicy()
         .frame(width: 640, height: 540)
         .background(Palette.window)
         .ignoresSafeArea()

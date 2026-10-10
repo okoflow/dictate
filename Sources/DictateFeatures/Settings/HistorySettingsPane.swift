@@ -42,20 +42,24 @@ struct HistorySettingsPane: View {
 
             if settings.settings.keepsHistory {
                 RowDivider()
+                    .rowTransition()
                 PickerRow("Keep dictations for", selection: retention, current: retention.wrappedValue.title) {
                     ForEach(HistoryRetention.allCases, id: \.self) { retention in
                         Text(retention.title).tag(retention)
                     }
                 }
+                .rowTransition()
                 RowDivider()
+                    .rowTransition()
                 PickerRow("Keep at most", selection: limit, current: Self.limitTitle(limit.wrappedValue)) {
                     ForEach(DictationHistory.limits, id: \.self) { limit in
                         Text(Self.limitTitle(limit)).tag(limit)
                     }
                 }
+                .rowTransition()
             }
         }
-        .animation(.snappy(duration: 0.2), value: settings.settings.keepsHistory)
+        .animation(Motion.layout, value: settings.settings.keepsHistory)
 
         SettingsSection("Recent", subtitle: nil) {
             if history.matchingEntries.isEmpty {

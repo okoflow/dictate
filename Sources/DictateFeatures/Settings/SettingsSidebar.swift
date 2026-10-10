@@ -73,12 +73,17 @@ private struct SidebarRow: View {
             .padding(.horizontal, 6)
             .frame(height: Metrics.sidebarRowHeight)
             .background {
-                if isSelected {
-                    RoundedRectangle(cornerRadius: Metrics.rowRadius, style: .continuous)
-                        .fill(Palette.selection)
-                } else if state.hoveredPane == pane {
+                ZStack {
                     RoundedRectangle(cornerRadius: Metrics.rowRadius, style: .continuous)
                         .fill(Palette.hover)
+                        .animation(Motion.fade) { fill in
+                            fill.opacity(state.hoveredPane == pane && !isSelected ? 1 : 0)
+                        }
+
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: Metrics.rowRadius, style: .continuous)
+                            .fill(Palette.selection)
+                    }
                 }
             }
             .contentShape(RoundedRectangle(cornerRadius: Metrics.rowRadius, style: .continuous))

@@ -12,24 +12,31 @@ struct PermissionRow: View {
 
     var body: some View {
         SettingsRow(permission.title, description: permission.purpose) {
-            if isGranted {
-                Label {
-                    Text("Allowed")
-                        .foregroundStyle(.secondary)
-                } icon: {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Palette.success)
-                }
-                .font(.rowTitle)
-            } else if offersRequest {
-                Button("Allow…") {
-                    Task { await monitor.request(permission) }
-                }
-            } else {
-                Text("Not allowed yet")
+            Group {
+                if isGranted {
+                    HStack(spacing: 5) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Palette.success)
+                            .modifier(CheckmarkAppear())
+
+                        Text("Allowed")
+                            .foregroundStyle(.secondary)
+                            .transition(.opacity)
+                    }
                     .font(.rowTitle)
-                    .foregroundStyle(.secondary)
+                } else if offersRequest {
+                    Button("Allow…") {
+                        Task { await monitor.request(permission) }
+                    }
+                    .transition(.opacity)
+                } else {
+                    Text("Not allowed yet")
+                        .font(.rowTitle)
+                        .foregroundStyle(.secondary)
+                        .transition(.opacity)
+                }
             }
+            .animation(Motion.feedback, value: isGranted)
         }
     }
 }

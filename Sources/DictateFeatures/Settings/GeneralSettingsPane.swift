@@ -20,7 +20,7 @@ struct GeneralSettingsPane: View {
             RowDivider()
             ToggleRow("Show in menu bar", isOn: $settings.settings.showsMenuBarIcon, description: menuBarNote)
         }
-        .animation(.snappy(duration: 0.2), value: settings.settings.showsMenuBarIcon)
+        .animation(Motion.layout, value: settings.settings.showsMenuBarIcon)
 
         SettingsSection("Sounds") {
             ToggleRow(

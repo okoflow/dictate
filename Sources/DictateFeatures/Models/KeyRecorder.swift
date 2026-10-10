@@ -8,6 +8,7 @@ package final class KeyRecorder {
 
     package private(set) var isRecording = false
     package private(set) var rejectedKey = false
+    package private(set) var rejections = 0
 
     @ObservationIgnored private var monitor: Any?
     @ObservationIgnored private var record: ((PushToTalkKey) -> Void)?
@@ -45,7 +46,10 @@ package final class KeyRecorder {
         }
 
         guard let key = PushToTalkKey(keyCode: Int64(event.keyCode)) else {
-            rejectedKey = event.type == .keyDown
+            if event.type == .keyDown {
+                rejectedKey = true
+                rejections += 1
+            }
 
             return
         }

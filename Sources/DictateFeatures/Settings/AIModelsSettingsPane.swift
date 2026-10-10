@@ -31,6 +31,13 @@ private struct SpeechModelRow: View {
             if let progress = controller.state.progress {
                 ProgressView(value: progress)
                     .frame(width: 100)
+
+                Text(progress, format: .percent.precision(.fractionLength(0)))
+                    .font(.rowDetail)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(value: progress))
+                    .animation(Motion.layout, value: progress)
             }
 
             if controller.state.canRetry {

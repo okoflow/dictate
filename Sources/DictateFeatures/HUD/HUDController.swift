@@ -133,7 +133,10 @@ package final class HUDController {
     }
 
     private func pushLevel(_ level: Float) {
+        let previous = levels.last ?? 0
+        let rate: Float = level > previous ? 0.7 : 0.3
+
         levels.removeFirst()
-        levels.append(level)
+        levels.append(previous + (level - previous) * rate)
     }
 }

@@ -29,7 +29,7 @@ struct CloudProviderSection: View {
                 settings.settings.modelProvider = .cloud(provider)
             }
         }
-        .animation(.snappy(duration: 0.2), value: apiKey.isSet)
+        .animation(Motion.layout, value: apiKey.isSet)
     }
 }
 
@@ -54,7 +54,9 @@ private struct APIKeyRows: View {
             SettingsRow("Key saved", description: "Kept in the Keychain.") {
                 Button("Remove", role: .destructive) { apiKey.remove() }
             }
+            .rowTransition()
             RowDivider()
+                .rowTransition()
         }
 
         HStack(spacing: Metrics.controlSpacing) {

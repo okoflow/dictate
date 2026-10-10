@@ -88,7 +88,9 @@ struct DictationSettingsPane: View {
                 LanguageRow(language: language, canRemove: selection.languages.count > 1) {
                     settings.settings.languages = selection.including(language, false)
                 }
+                .rowTransition()
                 RowDivider()
+                    .rowTransition()
             }
 
             PickerRow(
@@ -126,7 +128,7 @@ struct DictationSettingsPane: View {
             .fixedSize()
             .disabled(addableLanguages.isEmpty)
         }
-        .animation(.snappy(duration: 0.2), value: selection.languages)
+        .animation(Motion.layout, value: selection.languages)
         .onDisappear { keyRecorder.stop() }
     }
 }

@@ -17,11 +17,12 @@ struct DictionarySettingsPane: View {
                 EntryRow(first: $term.term, firstPrompt: "Term", second: $term.spokenForms, secondPrompt: "Heard as") {
                     vocabulary.removeTerm(term.id)
                 }
+                .rowTransition()
             }
         } footer: {
             Button("Add Term") { vocabulary.addTerm() }
         }
-        .animation(.snappy(duration: 0.2), value: vocabulary.terms.count)
+        .animation(Motion.layout, value: vocabulary.terms.count)
 
         SettingsSection("Snippets", subtitle: "Say the phrase on its own to paste the text.") {
             if vocabulary.snippets.isEmpty {
@@ -41,11 +42,12 @@ struct DictionarySettingsPane: View {
                 ) {
                     vocabulary.removeSnippet(snippet.id)
                 }
+                .rowTransition()
             }
         } footer: {
             Button("Add Snippet") { vocabulary.addSnippet() }
         }
-        .animation(.snappy(duration: 0.2), value: vocabulary.snippets.count)
+        .animation(Motion.layout, value: vocabulary.snippets.count)
 
         SettingsSection("File", subtitle: "Both lists are saved as a JSON file you can edit.") {
             SettingsRow("Dictionary file") {

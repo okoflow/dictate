@@ -114,14 +114,16 @@ struct WritingSettingsPane: View {
             ForEach(appIdentifiers, id: \.self) { bundleIdentifier in
                 if bundleIdentifier != appIdentifiers.first {
                     RowDivider()
+                        .rowTransition()
                 }
 
                 AppModeRow(bundleIdentifier: bundleIdentifier, settings: settings)
+                    .rowTransition()
             }
         } footer: {
             Button("Add App…", action: addApp)
         }
-        .animation(.snappy(duration: 0.2), value: appIdentifiers)
+        .animation(Motion.layout, value: appIdentifiers)
 
         SettingsSection("Output") {
             ToggleRow(
@@ -180,11 +182,17 @@ private struct ModeRow: View {
                 InstructionsButton(mode: mode, provider: provider, settings: settings, state: state)
             }
 
-            Image(systemName: "checkmark")
-                .font(.sectionTitle)
-                .foregroundStyle(.tint)
-                .opacity(isSelected ? 1 : 0)
-                .accessibilityHidden(true)
+            ZStack {
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.sectionTitle)
+                        .foregroundStyle(.tint)
+                        .transition(.pop)
+                }
+            }
+            .frame(width: 14)
+            .animation(Motion.feedback, value: isSelected)
+            .accessibilityHidden(true)
         }
         .settingsRowPadding()
     }
@@ -212,6 +220,7 @@ private struct ModeLabel: View {
 
                 if isCustomized {
                     Badge("Edited")
+                        .transition(.pop)
                 }
             }
 
@@ -219,6 +228,7 @@ private struct ModeLabel: View {
                 .font(.rowDetail)
                 .foregroundStyle(.secondary)
         }
+        .animation(Motion.feedback, value: isCustomized)
     }
 }
 

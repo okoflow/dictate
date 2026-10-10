@@ -50,6 +50,7 @@ private struct PushButton: View {
             .background(fill, in: shape)
             .opacity(isEnabled ? 1 : 0.4)
             .contentShape(shape)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .animation(configuration.isPressed ? nil : Motion.fade, value: configuration.isPressed)
+            .animation(Motion.fade, value: isEnabled)
     }
 }
