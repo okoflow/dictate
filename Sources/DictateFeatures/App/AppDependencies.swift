@@ -24,6 +24,9 @@ package struct AppDependencies {
     package let historyStore: any ValueStore<DictationHistory>
     package let statsStore: any ValueStore<DictationStats>
     package let apiKeyStores: PerProvider<any ValueStore<String>>
+    package let licenseStore: any ValueStore<String>
+    package let trialStore: any ValueStore<Date>
+    package let licenseChecker: any LicenseSignatureChecking
 
     package init(
         recorder: any AudioRecorder,
@@ -48,6 +51,9 @@ package struct AppDependencies {
         historyStore: any ValueStore<DictationHistory>,
         statsStore: any ValueStore<DictationStats>,
         apiKeyStores: PerProvider<any ValueStore<String>>,
+        licenseStore: any ValueStore<String>,
+        trialStore: any ValueStore<Date>,
+        licenseChecker: any LicenseSignatureChecking,
     ) {
         self.recorder = recorder
         self.audioInputs = audioInputs
@@ -71,5 +77,8 @@ package struct AppDependencies {
         self.historyStore = historyStore
         self.statsStore = statsStore
         self.apiKeyStores = apiKeyStores
+        self.licenseStore = licenseStore
+        self.trialStore = trialStore
+        self.licenseChecker = licenseChecker
     }
 }

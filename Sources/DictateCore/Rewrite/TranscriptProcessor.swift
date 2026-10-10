@@ -11,6 +11,7 @@ package struct TranscriptProcessor: Sendable {
         mode: Mode,
         setup: RewriteSetup,
         vocabulary: Vocabulary,
+        allowsAI: Bool = true,
     ) async -> ProcessedText {
         let corrected = vocabulary.correcting(transcript)
 
@@ -23,7 +24,11 @@ package struct TranscriptProcessor: Sendable {
             deadline: setup.provider.deadline,
             contactsCloud: setup.provider.isCloud,
         )
-        let processed = await modeProcessor.process(corrected, mode: mode, language: language, setup: setup)
+        let processed = if mode.isCloud, !allowsAI {
+            modeProcessor.light(corrected, language: language, requestedMode: mode, fallback: .needsPro)
+        } else {
+            await modeProcessor.process(corrected, mode: mode, language: language, setup: setup)
+        }
         let finished = vocabulary.expandingSnippets(in: vocabulary.correcting(processed.text))
 
         return processed.replacingText(with: finished)

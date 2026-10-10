@@ -110,7 +110,7 @@ final class DictationQueue {
                 return await edit(selection, following: transcript, for: job)
             }
 
-            if job.mode.isCloud {
+            if job.mode.isCloud, job.allowsAI {
                 hud.setWorking(Self.workingLabel(for: job, spoken: transcript.language))
             }
 
@@ -120,6 +120,7 @@ final class DictationQueue {
                 mode: job.mode,
                 setup: job.setup,
                 vocabulary: job.vocabulary,
+                allowsAI: job.allowsAI,
             )
             log(transcript, processed)
 

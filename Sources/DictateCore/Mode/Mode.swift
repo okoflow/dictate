@@ -16,13 +16,6 @@ package enum Mode: String, CaseIterable, Codable, Sendable {
         }
     }
 
-    package var next: Mode {
-        let modes = Mode.allCases
-        let index = modes.firstIndex(of: self) ?? modes.startIndex
-
-        return modes[(index + 1) % modes.count]
-    }
-
     package var title: String {
         switch self {
         case .raw: String(localized: "Raw")
@@ -41,5 +34,12 @@ package enum Mode: String, CaseIterable, Codable, Sendable {
         case .formal: String(localized: "Like Clean, in a polite business tone.")
         case .translate: String(localized: "Translates what you said into another language.")
         }
+    }
+
+    package func next(includingAI: Bool) -> Mode {
+        let modes = Mode.allCases.filter { includingAI || !$0.isCloud }
+        let index = modes.firstIndex(of: self) ?? modes.startIndex
+
+        return modes[(index + 1) % modes.count]
     }
 }

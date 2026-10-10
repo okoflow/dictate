@@ -127,7 +127,9 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
     }
 
     private func makeTranscriptionWindow(model: AppModel) -> NSWindow {
-        let view = TranscriptionView(model: model.transcription, settings: model.settings)
+        let view = TranscriptionView(model: model.transcription, settings: model.settings, pro: model.pro) { [weak self] in
+            self?.showSettings(.pro)
+        }
         let content = NSHostingController(rootView: view)
         content.sizingOptions = []
 

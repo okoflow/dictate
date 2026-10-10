@@ -7,6 +7,7 @@ package enum SettingsPane: CaseIterable {
     case aiModels
     case dictionary
     case history
+    case pro
     case about
 
     static let sidebarPanes: [SettingsPane] = [.general, .dictation, .writing, .aiModels, .dictionary, .history]
@@ -19,6 +20,7 @@ package enum SettingsPane: CaseIterable {
         case .aiModels: String(localized: "AI Models")
         case .dictionary: String(localized: "Dictionary")
         case .history: String(localized: "History")
+        case .pro: String(localized: "Dictate Pro")
         case .about: String(localized: "About")
         }
     }
@@ -31,6 +33,7 @@ package enum SettingsPane: CaseIterable {
         case .aiModels: "cpu.fill"
         case .dictionary: "book.closed.fill"
         case .history: "clock.fill"
+        case .pro: "sparkles"
         case .about: "info.circle.fill"
         }
     }
@@ -43,6 +46,7 @@ package enum SettingsPane: CaseIterable {
         case .aiModels: .blue
         case .dictionary: .orange
         case .history: .indigo
+        case .pro: .purple
         }
     }
 }

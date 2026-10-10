@@ -6,6 +6,8 @@ struct DictationSettingsPane: View {
     @Bindable var settings: SettingsModel
 
     let keyRecorder: KeyRecorder
+    let pro: ProModel
+    let state: SettingsWindowState
 
     private var selection: LanguageSelection {
         settings.settings.languages
@@ -84,7 +86,9 @@ struct DictationSettingsPane: View {
             }
         }
 
-        EditKeySection(settings: settings, keyRecorder: keyRecorder)
+        EditKeySection(settings: settings, keyRecorder: keyRecorder, isLocked: !pro.allows(.editing)) {
+            state.selection = .pro
+        }
 
         SettingsSection("Languages", subtitle: "Dictate listens for these languages.") {
             ForEach(selection.languages, id: \.self) { language in

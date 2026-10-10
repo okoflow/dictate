@@ -12,7 +12,7 @@ extension DictationController {
             self?.pollKey()
         }
 
-        if let problem = reasonNotToRecord() {
+        if let problem = reasonNotToRecord(for: trigger.purpose) {
             started.isRejected = true
             recording = started
 
@@ -75,7 +75,11 @@ extension DictationController {
         Task { _ = await recorder.stop(id, releasedAt: nil) }
     }
 
-    private func reasonNotToRecord() -> String? {
+    private func reasonNotToRecord(for purpose: RecordingPurpose) -> String? {
+        if purpose == .edit, !pro.allows(.editing) {
+            return String(localized: "Editing by voice is part of Dictate Pro.")
+        }
+
         if !speechModel.state.isReady {
             return speechModel.state.notReadyMessage
         }
@@ -161,6 +165,7 @@ extension DictationController {
             selection: selection,
             settings: current,
             vocabulary: vocabulary.reloadFromDisk(),
+            allowsAI: pro.allows(.aiModes),
         ))
     }
 

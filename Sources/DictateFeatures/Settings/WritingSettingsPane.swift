@@ -13,6 +13,7 @@ struct WritingSettingsPane: View {
     let apiKeys: PerProvider<APIKeyModel>
     let localModels: LocalModelsModel
     let shortcutTitle: String
+    let pro: ProModel
     let state: SettingsWindowState
 
     private var provider: ModelProvider {
@@ -74,7 +75,13 @@ struct WritingSettingsPane: View {
                     RowDivider()
                 }
 
-                ModeRow(mode: mode, provider: provider, settings: settings, state: state)
+                ModeRow(
+                    mode: mode,
+                    provider: provider,
+                    isLocked: mode.isCloud && !pro.allows(.aiModes),
+                    settings: settings,
+                    state: state,
+                )
             }
         } footer: {
             if let setupNote {
@@ -150,6 +157,7 @@ struct WritingSettingsPane: View {
 private struct ModeRow: View {
     let mode: Mode
     let provider: ModelProvider
+    let isLocked: Bool
 
     @Bindable var settings: SettingsModel
 
@@ -166,7 +174,11 @@ private struct ModeRow: View {
     var body: some View {
         HStack(spacing: Metrics.controlSpacing + 4) {
             Button {
-                settings.settings.mode = mode
+                if isLocked {
+                    state.selection = .pro
+                } else {
+                    settings.settings.mode = mode
+                }
             } label: {
                 HStack(spacing: 0) {
                     ModeLabel(mode: mode, provider: provider, isCustomized: isCustomized)
@@ -178,7 +190,9 @@ private struct ModeRow: View {
             .buttonStyle(.plain)
             .accessibilityAddTraits(isSelected ? .isSelected : [])
 
-            if mode.isCloud {
+            if isLocked {
+                Badge("Pro", tint: .purple)
+            } else if mode.isCloud {
                 InstructionsButton(mode: mode, provider: provider, settings: settings, state: state)
             }
 

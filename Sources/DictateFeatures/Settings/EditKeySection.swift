@@ -5,6 +5,8 @@ struct EditKeySection: View {
     @Bindable var settings: SettingsModel
 
     let keyRecorder: KeyRecorder
+    let isLocked: Bool
+    let showPro: () -> Void
 
     var body: some View {
         SettingsSection(
@@ -12,23 +14,34 @@ struct EditKeySection: View {
             subtitle: "Select text, hold the key and say what to change, like “make it shorter” or “translate into German”.",
         ) {
             SettingsRow("Hold to edit", description: keyRecorder.note(for: .edit)) {
-                KeyRecorderField(
-                    field: .edit,
-                    key: settings.settings.editKey,
-                    takenKey: settings.settings.pushToTalkKey,
-                    recorder: keyRecorder,
-                ) { key in
-                    settings.settings.editKey = key
-                }
+                if isLocked {
+                    Badge("Pro", tint: .purple)
 
-                if settings.settings.editKey != nil {
-                    RemoveButton(help: "Turn off editing by voice") {
-                        settings.settings.editKey = nil
-                    }
-                    .transition(.pop)
+                    Button("Unlock…", action: showPro)
+                } else {
+                    recorder
                 }
             }
             .animation(Motion.feedback, value: settings.settings.editKey)
+        }
+    }
+
+    @ViewBuilder
+    private var recorder: some View {
+        KeyRecorderField(
+            field: .edit,
+            key: settings.settings.editKey,
+            takenKey: settings.settings.pushToTalkKey,
+            recorder: keyRecorder,
+        ) { key in
+            settings.settings.editKey = key
+        }
+
+        if settings.settings.editKey != nil {
+            RemoveButton(help: "Turn off editing by voice") {
+                settings.settings.editKey = nil
+            }
+            .transition(.pop)
         }
     }
 }

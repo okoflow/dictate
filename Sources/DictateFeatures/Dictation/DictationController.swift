@@ -26,6 +26,7 @@ package final class DictationController {
     @ObservationIgnored let vocabulary: VocabularyModel
     @ObservationIgnored let hud: HUDController
     @ObservationIgnored let keyRecorder: KeyRecorder
+    @ObservationIgnored let pro: ProModel
     @ObservationIgnored let queue: DictationQueue
     @ObservationIgnored var triggers = RecordingTriggers()
     @ObservationIgnored var watchdog = ReleaseWatchdog()
@@ -49,6 +50,7 @@ package final class DictationController {
         vocabulary = models.vocabulary
         hud = models.hud
         keyRecorder = models.keyRecorder
+        pro = models.pro
         self.queue = queue
     }
 

@@ -9,6 +9,7 @@ struct FeatureModels {
     let stats: StatsModel
     let hud: HUDController
     let keyRecorder: KeyRecorder
+    let pro: ProModel
 
     init(dependencies: AppDependencies) {
         settings = SettingsModel(
@@ -26,6 +27,11 @@ struct FeatureModels {
         stats = StatsModel(store: dependencies.statsStore)
         hud = HUDController()
         keyRecorder = KeyRecorder()
+        pro = ProModel(
+            keyStore: dependencies.licenseStore,
+            trialStore: dependencies.trialStore,
+            checker: dependencies.licenseChecker,
+        )
     }
 
     func makeQueue(dependencies: AppDependencies) -> DictationQueue {

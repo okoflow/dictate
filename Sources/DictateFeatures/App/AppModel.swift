@@ -21,6 +21,7 @@ package final class AppModel {
     package let keyRecorder: KeyRecorder
     package let onboarding: OnboardingModel
     package let transcription: FileTranscriptionModel
+    package let pro: ProModel
 
     @ObservationIgnored package let windows: WindowPresenter
 
@@ -59,7 +60,12 @@ package final class AppModel {
             models: models,
             queue: models.makeQueue(dependencies: dependencies),
         )
-        modeSwitcher = ModeSwitcher(shortcut: dependencies.modeShortcut, settings: models.settings, hud: models.hud)
+        modeSwitcher = ModeSwitcher(
+            shortcut: dependencies.modeShortcut,
+            settings: models.settings,
+            hud: models.hud,
+            pro: models.pro,
+        )
         history = models.history
         stats = models.stats
         vocabulary = models.vocabulary
@@ -72,6 +78,7 @@ package final class AppModel {
         hud = models.hud
         keyRecorder = models.keyRecorder
         onboarding = OnboardingModel()
+        pro = models.pro
         transcription = FileTranscriptionModel(
             transcriber: dependencies.transcriber,
             decoder: dependencies.mediaDecoder,

@@ -18,6 +18,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return .terminateLater
     }
 
+    func application(_: NSApplication, open urls: [URL]) {
+        for url in urls where url.scheme == "dictate" && url.host() == "activate" {
+            let key = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "key" }?.value
+
+            model.pro.draft = key ?? ""
+
+            if let key {
+                model.pro.activate(key)
+            }
+
+            model.windows.showSettings(.pro)
+        }
+    }
+
     func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
         model.windows.showSettings()
 

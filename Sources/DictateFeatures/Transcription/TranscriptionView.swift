@@ -5,10 +5,14 @@ package struct TranscriptionView: View {
     @Bindable private var model: FileTranscriptionModel
 
     private let settings: SettingsModel
+    private let pro: ProModel
+    private let showPro: () -> Void
 
-    package init(model: FileTranscriptionModel, settings: SettingsModel) {
+    package init(model: FileTranscriptionModel, settings: SettingsModel, pro: ProModel, showPro: @escaping () -> Void) {
         self.model = model
         self.settings = settings
+        self.pro = pro
+        self.showPro = showPro
     }
 
     package var body: some View {
@@ -16,6 +20,9 @@ package struct TranscriptionView: View {
             TranscriptionHeader()
 
             switch model.phase {
+            case .idle where !pro.allows(.fileTranscription):
+                ProGateCard(showPro: showPro)
+
             case .idle, .failed:
                 VStack(spacing: 12) {
                     if case let .failed(message) = model.phase {
@@ -47,7 +54,7 @@ package struct TranscriptionView: View {
         .animation(Motion.layout, value: model.phase)
         .reducedMotionPolicy()
         .dropDestination(for: URL.self) { urls, _ in
-            guard let url = urls.first, !model.isWorking else { return false }
+            guard let url = urls.first, !model.isWorking, pro.allows(.fileTranscription) else { return false }
 
             model.transcribe(url)
 
@@ -155,5 +162,35 @@ private struct FailureCard: View {
             }
             .settingsRowPadding()
         }
+    }
+}
+
+private struct ProGateCard: View {
+    let showPro: () -> Void
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous)
+
+        VStack(spacing: 8) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 24))
+                .padding(.bottom, 4)
+
+            Text("File transcription is part of Dictate Pro")
+                .font(.sectionTitle)
+
+            Text("Recordings and videos become text and subtitles, right on your Mac.")
+                .font(.rowDetail)
+                .opacity(0.9)
+
+            Button("See Dictate Pro", action: showPro)
+                .buttonStyle(ProButtonStyle())
+                .padding(.top, 10)
+        }
+        .foregroundStyle(.white)
+        .multilineTextAlignment(.center)
+        .padding(24)
+        .frame(maxWidth: .infinity, minHeight: 220)
+        .background(LinearGradient.pro, in: shape)
     }
 }

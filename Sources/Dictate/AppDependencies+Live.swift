@@ -41,6 +41,9 @@ extension AppDependencies {
             historyStore: JSONFileStore<DictationHistory>(url: historyFile, isPrivate: true),
             statsStore: JSONFileStore<DictationStats>(url: statsFile),
             apiKeyStores: apiKeyStores,
+            licenseStore: KeychainStore.license(),
+            trialStore: UserDefaultsStore<Date>(key: "trialStarted"),
+            licenseChecker: Ed25519SignatureChecker(),
         )
     }
 

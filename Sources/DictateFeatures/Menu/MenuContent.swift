@@ -19,6 +19,8 @@ package struct MenuContent: View {
             Button("Retry Speech Model") { model.speechModel.retry() }
         }
 
+        ProMenuItem(pro: model.pro) { model.windows.showSettings(.pro) }
+
         Divider()
 
         ModeMenu(settings: model.settings, shortcutTitle: model.modeSwitcher.shortcutTitle)
@@ -154,6 +156,27 @@ private struct RecentMenu: View {
             Divider()
 
             Button("Show History…", action: showHistory)
+        }
+    }
+}
+
+private struct ProMenuItem: View {
+    let pro: ProModel
+    let showPro: () -> Void
+
+    var body: some View {
+        switch pro.access.status {
+        case .trial:
+            Button(
+                String(localized: "Pro trial ends \(pro.trialEnds.formatted(.relative(presentation: .named)))"),
+                action: showPro,
+            )
+
+        case .expired:
+            Button("Unlock Dictate Pro…", action: showPro)
+
+        case .licensed:
+            EmptyView()
         }
     }
 }

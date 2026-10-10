@@ -28,6 +28,22 @@ package struct ModeProcessor: Sendable {
         }
     }
 
+    package func light(
+        _ text: String,
+        language: Language,
+        requestedMode: Mode,
+        fallback: RewriteFallback? = nil,
+        contactedCloud: Bool = false,
+    ) -> ProcessedText {
+        ProcessedText(
+            text: VoiceCommands.apply(LightModeRules.apply(text, language: language), language: language),
+            requestedMode: requestedMode,
+            appliedMode: .light,
+            fallback: fallback,
+            contactedCloud: contactedCloud,
+        )
+    }
+
     private func rewrite(_ request: RewriteRequest, mode: Mode) async -> ProcessedText {
         let text = request.text
         let language = request.language
@@ -59,21 +75,5 @@ package struct ModeProcessor: Sendable {
                 contactedCloud: contactsCloud && rewriteError != .missingKey,
             )
         }
-    }
-
-    private func light(
-        _ text: String,
-        language: Language,
-        requestedMode: Mode,
-        fallback: RewriteFallback? = nil,
-        contactedCloud: Bool = false,
-    ) -> ProcessedText {
-        ProcessedText(
-            text: VoiceCommands.apply(LightModeRules.apply(text, language: language), language: language),
-            requestedMode: requestedMode,
-            appliedMode: .light,
-            fallback: fallback,
-            contactedCloud: contactedCloud,
-        )
     }
 }

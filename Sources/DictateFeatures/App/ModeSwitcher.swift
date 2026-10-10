@@ -1,4 +1,5 @@
 import DictateCore
+import Foundation
 import Observation
 
 @Observable
@@ -8,15 +9,17 @@ package final class ModeSwitcher {
     @ObservationIgnored private let shortcut: any GlobalShortcut
     @ObservationIgnored private let settings: SettingsModel
     @ObservationIgnored private let hud: HUDController
+    @ObservationIgnored private let pro: ProModel
 
     package var shortcutTitle: String {
         shortcut.title
     }
 
-    init(shortcut: any GlobalShortcut, settings: SettingsModel, hud: HUDController) {
+    init(shortcut: any GlobalShortcut, settings: SettingsModel, hud: HUDController, pro: ProModel) {
         self.shortcut = shortcut
         self.settings = settings
         self.hud = hud
+        self.pro = pro
     }
 
     func start() {
@@ -26,8 +29,8 @@ package final class ModeSwitcher {
     }
 
     private func switchToNextMode() {
-        settings.settings.mode = settings.settings.mode.next
+        settings.settings.mode = settings.settings.mode.next(includingAI: pro.allows(.aiModes))
 
-        hud.show(HUDMessage(kind: .info, title: "Mode: \(settings.settings.mode.title)"))
+        hud.show(HUDMessage(kind: .info, title: String(localized: "Mode: \(settings.settings.mode.title)")))
     }
 }

@@ -226,12 +226,26 @@ a password field is never saved.
 | Pane | What you set there |
 | --- | --- |
 | General | Opening at login, the menu bar icon, sounds, permissions |
-| Dictation | The dictation key, the microphone, languages, the spoken language |
-| Writing | The mode and its instructions, per-app modes, pasting |
-| AI Models | The speech model, and Claude or OpenAI with their API keys for the cloud modes |
+| Dictation | The dictation key, hands-free, the microphone, the editing key, languages |
+| Writing | The mode and its instructions, translation, per-app modes, pasting |
+| AI Models | The speech model, Apple Intelligence, a local server, and Claude or OpenAI with your API keys |
 | Dictionary | Terms and snippets |
-| History | How long and how much to keep, searching, copying, and clearing |
+| History | This week's stats, how long and how much to keep, searching, copying, and clearing |
+| Dictate Pro | The free trial, what Pro adds, and your license |
 | About | The version, the source code, and the license |
 
 With **Paste into the focused field** off, Dictate only puts the text on the
 clipboard for you to paste with ⌘V.
+
+## Dictate Pro
+
+Dictation with Whisper, the Raw and Light modes, voice commands, the
+dictionary, and history are free. Dictate Pro adds Clean, Formal and
+Translate with any AI model, translation both ways, your own instructions,
+editing by voice, and file transcription, for a single payment of $13.99.
+
+Every Pro feature works for 3 days after the first launch. After that,
+Pro modes fall back to Light and the HUD says so, until you buy a license
+from Settings › Dictate Pro. The license key arrives with your receipt: paste
+it under **License**, or open the activation link from the email. Dictate
+checks the key on the Mac, without contacting a server.

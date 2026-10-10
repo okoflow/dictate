@@ -23,6 +23,10 @@ package struct KeychainStore: ValueStore {
         self.account = account
     }
 
+    package static func license() -> KeychainStore {
+        KeychainStore(service: AppIdentity.bundleIdentifier, account: "license-key")
+    }
+
     package static func apiKey(for provider: CloudProvider) -> KeychainStore {
         switch provider {
         case .claude: KeychainStore(service: AppIdentity.bundleIdentifier, account: "anthropic-api-key")

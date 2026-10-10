@@ -45,11 +45,21 @@ enum TileTint {
 }
 
 extension Color {
-    fileprivate init(hex: UInt32) {
+    fileprivate nonisolated init(hex: UInt32) {
         self.init(
             red: Double(hex >> 16 & 0xFF) / 255,
             green: Double(hex >> 8 & 0xFF) / 255,
             blue: Double(hex & 0xFF) / 255,
+        )
+    }
+}
+
+extension LinearGradient {
+    static var pro: LinearGradient {
+        LinearGradient(
+            colors: [Color(hex: 0x7B45F0), Color(hex: 0xC34BC4), Color(hex: 0xF0588A)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing,
         )
     }
 }

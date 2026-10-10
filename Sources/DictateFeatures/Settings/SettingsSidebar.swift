@@ -11,6 +11,7 @@ struct SettingsSidebar: View {
 
             Spacer(minLength: 0)
 
+            SidebarRow(pane: .pro, state: state)
             SidebarRow(pane: .about, state: state)
         }
         .padding(.horizontal, Metrics.rowPadding)

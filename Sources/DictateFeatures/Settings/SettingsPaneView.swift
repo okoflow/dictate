@@ -23,7 +23,7 @@ struct SettingsPaneView: View {
             GeneralSettingsPane(settings: model.settings, permissions: model.permissions)
 
         case .dictation:
-            DictationSettingsPane(settings: model.settings, keyRecorder: model.keyRecorder)
+            DictationSettingsPane(settings: model.settings, keyRecorder: model.keyRecorder, pro: model.pro, state: state)
 
         case .writing:
             WritingSettingsPane(
@@ -31,6 +31,7 @@ struct SettingsPaneView: View {
                 apiKeys: model.apiKeys,
                 localModels: model.localModels,
                 shortcutTitle: model.modeSwitcher.shortcutTitle,
+                pro: model.pro,
                 state: state,
             )
 
@@ -53,6 +54,9 @@ struct SettingsPaneView: View {
                 state: state,
                 copy: model.copy,
             )
+
+        case .pro:
+            ProSettingsPane(pro: model.pro)
 
         case .about:
             AboutSettingsPane()
