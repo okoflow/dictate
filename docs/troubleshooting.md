@@ -12,7 +12,7 @@ sections below cover what they point to.
   or Device Control and Data Access on macOS 27.
 - **The menu shows the speech model.** Dictate records nothing until the
   model is ready. The first load takes about a minute.
-- **Another key is set.** Settings › General › Hold to dictate shows which key
+- **Another key is set.** Settings › Dictation › Hold to dictate shows which key
   Dictate listens for.
 - **Permissions were lost after a rebuild.** An app signed ad hoc gets a new
   identity with every build, and macOS forgets what you allowed. Run
@@ -34,7 +34,7 @@ opening Dictate again while it runs shows Settings.
 | Didn't catch that | The recording held no speech, or Whisper's result looked made up |
 | Recording failed | The microphone stopped or delivered no audio |
 
-With **Paste into the focused field** off in Settings › General, Dictate only
+With **Paste into the focused field** off in Settings › Writing, Dictate only
 ever copies the text.
 
 ## The first word is cut off
@@ -45,7 +45,7 @@ the key.
 ## Recognition is poor or picks the wrong language
 
 - Enable only the languages you speak, or pin one, in Settings › Dictation.
-- Choose the microphone you speak into in Settings › Dictation › Record from.
+- Choose the microphone you speak into in Settings › Dictation › Microphone.
 - Add names and terms that come out wrong to the dictionary, with the
   spellings Whisper writes under **Heard as**.
 
@@ -54,7 +54,7 @@ the key.
 The second line of the HUD says why and names the provider you chose,
 Claude or OpenAI:
 
-- **Add your API key**: add it in Settings › Modes › Cloud.
+- **Add your API key**: add it in Settings › Cloud.
 - **Rejected the API key**: check the key in the
   [Anthropic Console](https://console.anthropic.com/settings/keys) or the
   [OpenAI dashboard](https://platform.openai.com/settings/organization/api-keys) and paste it again.

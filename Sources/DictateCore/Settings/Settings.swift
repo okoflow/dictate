@@ -7,6 +7,7 @@ package struct Settings: Codable, Equatable, Sendable {
     package var pushToTalkKey = PushToTalkKey.rightOption
     package var pastesIntoFocusedField = true
     package var keepsHistory = true
+    package var historyRetention = HistoryRetention.month
     package var playsSounds = true
     package var showsMenuBarIcon = true
     package var microphoneID: String?
@@ -29,6 +30,8 @@ package struct Settings: Codable, Equatable, Sendable {
         pastesIntoFocusedField = try container.decodeIfPresent(Bool.self, forKey: .pastesIntoFocusedField)
             ?? defaults.pastesIntoFocusedField
         keepsHistory = try container.decodeIfPresent(Bool.self, forKey: .keepsHistory) ?? defaults.keepsHistory
+        historyRetention = try container.decodeIfPresent(HistoryRetention.self, forKey: .historyRetention)
+            ?? defaults.historyRetention
         playsSounds = try container.decodeIfPresent(Bool.self, forKey: .playsSounds) ?? defaults.playsSounds
         showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? defaults.showsMenuBarIcon
         microphoneID = try container.decodeIfPresent(String.self, forKey: .microphoneID)

@@ -8,10 +8,15 @@ struct SettingsCard<Content: View>: View {
     }
 
     var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
+
         VStack(alignment: .leading, spacing: 0) {
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Palette.card, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Palette.card, in: shape)
+        .overlay {
+            shape.strokeBorder(Palette.cardBorder, lineWidth: 1)
+        }
     }
 }

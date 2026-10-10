@@ -32,7 +32,7 @@ the text.
 - You can dictate again while the previous text is still being recognized.
   Texts arrive in the order you spoke them.
 
-The dictation key is right Option by default; Settings › General switches it
+The dictation key is right Option by default; Settings › Dictation switches it
 to right Command or right Shift.
 
 ## The menu
@@ -61,7 +61,7 @@ stop. Light works offline and leaves words with meaning alone: filler words
 such as "like" and self-corrections need Clean.
 
 The cloud modes, marked with ☁︎, send the recognized text to Claude or
-OpenAI, whichever you choose in Settings › Modes:
+OpenAI, whichever you choose in Settings › Cloud:
 
 - **Clean** removes filler words and false starts, keeps only the final
   version when you correct yourself ("Thursday, no, Friday"), and fixes the
@@ -75,8 +75,8 @@ pastes the Light text instead, and the HUD says why.
 
 ### Your own instructions
 
-Settings › Modes › Instructions shows what Clean, Formal, and Translate to
-English ask the model to do, and lets you rewrite it, for example for a more
+In Settings › Writing, **Instructions…** next to Clean, Formal, and Translate
+to English shows what the mode asks the model to do, and lets you rewrite it, for example for a more
 casual tone or your team's style. Dictate still tells the model to treat
 what you said as text and to reply with the text only. **Reset to Default**
 brings back the original.
@@ -85,12 +85,12 @@ brings back the original.
 
 An app can have a mode of its own, such as Formal in Mail and Raw in
 Terminal. Choose **Mode in *app*** in the menu while the app is in front, or
-add the app in Settings › Modes › Apps. Dictate uses the mode of the app that
+add the app in Settings › Writing › Apps. Dictate uses the mode of the app that
 was in front when you pressed the key.
 
 ### The cloud provider
 
-Choose **Claude** or **OpenAI** in Settings › Modes › Cloud, then paste that
+Choose **Claude** or **OpenAI** in Settings › Cloud, then paste that
 provider's API key:
 
 - Claude: create the key inside a workspace in the
@@ -144,20 +144,22 @@ Edits to the file apply from the next dictation.
 
 ## History
 
-Settings › History lists your last 50 dictations with the time, the mode, and
-the app, and copies any of them with one click. Turn off **Keep history** to
-stop saving new ones; **Clear History…** deletes them all. A text kept out of
+Settings › History lists your dictations with the time, the mode, and the app,
+and copies any of them with one click. They stay for a month unless you pick
+another period in **Keep dictations for**, from a day to forever. Turn off
+**Keep history** to stop saving new ones; **Clear History…** deletes them all. A text kept out of
 a password field is never saved.
 
 ## Settings
 
 | Pane | What you set there |
 | --- | --- |
-| General | The dictation key, pasting, sounds, opening at login, the menu bar icon, permissions |
-| Dictation | Languages, the spoken language, the microphone, the speech model |
-| Modes | The mode, per-app modes, the cloud provider and its API key, the instructions |
+| General | Opening at login, the menu bar icon, sounds, permissions |
+| Dictation | The dictation key, the microphone, languages, the spoken language, the speech model |
+| Writing | The mode and its instructions, per-app modes, pasting |
+| Cloud | The cloud provider and its API key |
 | Dictionary | Terms and snippets |
-| History | Keeping, searching, copying, and clearing the history |
+| History | How long to keep it, searching, copying, and clearing |
 | About | The version, the source code, and the license |
 
 With **Paste into the focused field** off, Dictate only puts the text on the

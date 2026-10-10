@@ -1,41 +1,42 @@
-import AppKit
 import SwiftUI
 
-struct SearchField: NSViewRepresentable {
-    final class Coordinator: NSObject, NSSearchFieldDelegate {
-        private let text: Binding<String>
+struct SearchField: View {
+    @Binding private var text: String
+    @FocusState private var isFocused: Bool
 
-        init(text: Binding<String>) {
-            self.text = text
-        }
+    private let prompt: String
 
-        func controlTextDidChange(_ notification: Notification) {
-            guard let field = notification.object as? NSSearchField else { return }
-
-            text.wrappedValue = field.stringValue
-        }
+    init(_ prompt: String, text: Binding<String>) {
+        self.prompt = prompt
+        _text = text
     }
 
-    @Binding var text: String
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
 
-    let prompt: String
+            TextField(prompt, text: $text, prompt: Text(prompt))
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .focused($isFocused)
 
-    func makeNSView(context: Context) -> NSSearchField {
-        let field = NSSearchField()
-        field.placeholderString = prompt
-        field.sendsSearchStringImmediately = true
-        field.delegate = context.coordinator
-
-        return field
-    }
-
-    func updateNSView(_ field: NSSearchField, context _: Context) {
-        if field.stringValue != text {
-            field.stringValue = text
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+                .help("Clear")
+                .accessibilityLabel("Clear the search")
+            }
         }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(text: $text)
+        .padding(.horizontal, 8)
+        .frame(height: 26)
+        .modifier(FieldChrome(isFocused: isFocused))
     }
 }

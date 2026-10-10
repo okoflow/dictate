@@ -1,24 +1,20 @@
-import AppKit
 import SwiftUI
 
 struct SettingsSidebar: View {
-    let navigation: SettingsNavigation
+    let state: SettingsWindowState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            SidebarHeader()
-                .padding(.top, 54)
-                .padding(.bottom, 18)
-
             ForEach(SettingsPane.sidebarPanes, id: \.self) { pane in
-                SidebarRow(pane: pane, navigation: navigation)
+                SidebarRow(pane: pane, state: state)
             }
 
             Spacer(minLength: 0)
 
-            SidebarRow(pane: .about, navigation: navigation)
+            SidebarRow(pane: .about, state: state)
         }
         .padding(.horizontal, 10)
+        .padding(.top, 48)
         .padding(.bottom, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background {
@@ -28,8 +24,8 @@ struct SettingsSidebar: View {
         .focusEffectDisabled()
         .onMoveCommand { direction in
             switch direction {
-            case .up: navigation.move(by: -1)
-            case .down: navigation.move(by: 1)
+            case .up: state.move(by: -1)
+            case .down: state.move(by: 1)
             default: break
             }
         }
@@ -38,56 +34,34 @@ struct SettingsSidebar: View {
 
 private struct SidebarBackground: View {
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+        if #available(macOS 26, *) {
+            surface(ConcentricRectangle(corners: .concentric(minimum: .fixed(8)), isUniform: true))
+        } else {
+            surface(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        }
+    }
 
+    private func surface(_ shape: some Shape) -> some View {
         shape
             .fill(Palette.sidebar)
             .overlay {
-                shape.strokeBorder(Palette.sidebarBorder, lineWidth: 0.5)
+                shape.stroke(Palette.sidebarBorder, lineWidth: 1)
             }
-            .shadow(color: Palette.sidebarShadow, radius: 19, y: 3)
-    }
-}
-
-private struct SidebarHeader: View {
-    private var detail: String {
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-
-        return version.map { "Version \($0)" } ?? "Development build"
-    }
-
-    var body: some View {
-        HStack(spacing: 7) {
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 44, height: 44)
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 1) {
-                Text("Dictate")
-                    .font(.system(size: 13, weight: .semibold))
-
-                Text(detail)
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.leading, 2)
-        .accessibilityElement(children: .combine)
+            .shadow(color: Palette.sidebarShadow, radius: 14, y: 2)
     }
 }
 
 private struct SidebarRow: View {
     let pane: SettingsPane
-    let navigation: SettingsNavigation
+    let state: SettingsWindowState
 
     private var isSelected: Bool {
-        navigation.selection == pane
+        state.selection == pane
     }
 
     var body: some View {
         Button {
-            navigation.selection = pane
+            state.selection = pane
         } label: {
             HStack(spacing: 10) {
                 IconTile(symbolName: pane.symbolName, tint: pane.tint)
@@ -99,10 +73,19 @@ private struct SidebarRow: View {
             }
             .padding(.horizontal, 6)
             .frame(height: 36)
-            .background(isSelected ? Palette.selection : .clear, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background {
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(Palette.selection)
+                } else if state.hoveredPane == pane {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(Palette.hover)
+                }
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
         }
         .buttonStyle(.plain)
+        .onHover { state.hover(pane, $0) }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

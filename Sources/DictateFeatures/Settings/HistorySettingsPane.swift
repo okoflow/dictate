@@ -6,7 +6,18 @@ struct HistorySettingsPane: View {
     @Bindable var settings: SettingsModel
     @Bindable var history: HistoryModel
 
+    let state: SettingsWindowState
     let copy: (DictationHistory.Entry) -> Void
+
+    private var retention: Binding<HistoryRetention> {
+        Binding(
+            get: { settings.settings.historyRetention },
+            set: { retention in
+                settings.settings.historyRetention = retention
+                history.keep(for: retention)
+            },
+        )
+    }
 
     private var emptyText: String {
         history.searchText.isEmpty ? "Nothing yet" : "No matches"
@@ -14,28 +25,39 @@ struct HistorySettingsPane: View {
 
     var body: some View {
         SettingsSection("Saving") {
-            ToggleRow(
-                "Keep history",
-                isOn: $settings.settings.keepsHistory,
-                description: "The last \(DictationHistory.capacity) dictations stay on this Mac.",
-            )
+            ToggleRow("Keep history", isOn: $settings.settings.keepsHistory, description: "Saved only on this Mac.")
+
+            if settings.settings.keepsHistory {
+                RowDivider()
+                PickerRow("Keep dictations for", selection: retention) {
+                    ForEach(HistoryRetention.allCases, id: \.self) { retention in
+                        Text(retention.title).tag(retention)
+                    }
+                }
+            }
         }
+        .animation(.snappy(duration: 0.2), value: settings.settings.keepsHistory)
 
         SettingsSection("Recent", subtitle: nil) {
             if history.matchingEntries.isEmpty {
                 EmptyRow(emptyText)
             }
 
-            ForEach(history.matchingEntries.indices, id: \.self) { index in
-                if index > 0 {
-                    RowDivider()
-                }
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(history.matchingEntries, id: \.date) { entry in
+                    if entry.date != history.matchingEntries.first?.date {
+                        RowDivider()
+                    }
 
-                HistoryRow(entry: history.matchingEntries[index], copy: copy)
+                    HistoryRow(entry: entry, isCopied: state.copiedEntry == entry.date) {
+                        copy(entry)
+                        state.showCopied(entry.date)
+                    }
+                }
             }
         } accessory: {
-            SearchField(text: $history.searchText, prompt: "Search")
-                .frame(width: 180)
+            SearchField("Search", text: $history.searchText)
+                .frame(width: 200)
         } footer: {
             Button("Clear History…", role: .destructive, action: confirmClear)
                 .disabled(history.history.entries.isEmpty)
@@ -58,7 +80,8 @@ struct HistorySettingsPane: View {
 
 private struct HistoryRow: View {
     let entry: DictationHistory.Entry
-    let copy: (DictationHistory.Entry) -> Void
+    let isCopied: Bool
+    let copy: () -> Void
 
     private var details: String {
         let time = entry.date.formatted(date: .abbreviated, time: .shortened)
@@ -73,6 +96,7 @@ private struct HistoryRow: View {
                 Text(entry.text)
                     .font(.system(size: 13))
                     .lineLimit(3)
+                    .textSelection(.enabled)
 
                 Text(details)
                     .font(.system(size: 11))
@@ -81,7 +105,7 @@ private struct HistoryRow: View {
 
             Spacer(minLength: 0)
 
-            Button("Copy") { copy(entry) }
+            CopyButton(isCopied: isCopied, action: copy)
         }
         .settingsRowPadding()
     }

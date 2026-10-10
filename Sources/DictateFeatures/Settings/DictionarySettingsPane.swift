@@ -21,6 +21,7 @@ struct DictionarySettingsPane: View {
         } footer: {
             Button("Add Term") { vocabulary.addTerm() }
         }
+        .animation(.snappy(duration: 0.2), value: vocabulary.terms.count)
 
         SettingsSection("Snippets", subtitle: "Say the phrase on its own to paste the text.") {
             if vocabulary.snippets.isEmpty {
@@ -44,8 +45,9 @@ struct DictionarySettingsPane: View {
         } footer: {
             Button("Add Snippet") { vocabulary.addSnippet() }
         }
+        .animation(.snappy(duration: 0.2), value: vocabulary.snippets.count)
 
-        SettingsSection("File") {
+        SettingsSection("File", subtitle: "Both lists are saved as a JSON file you can edit.") {
             SettingsRow("Dictionary file") {
                 Button("Open in Editor") { vocabulary.openInEditor() }
                 Button("Show in Finder") { vocabulary.revealInFinder() }
@@ -66,19 +68,17 @@ private struct EntryRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            TextField(firstPrompt, text: $first, prompt: Text(firstPrompt))
+            InputField(firstPrompt, text: $first)
 
             Image(systemName: "arrow.right")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
 
-            TextField(secondPrompt, text: $second, prompt: Text(secondPrompt))
+            InputField(secondPrompt, text: $second)
 
             RemoveButton(help: "Remove", action: remove)
         }
-        .textFieldStyle(.roundedBorder)
-        .labelsHidden()
         .settingsRowPadding()
     }
 }

@@ -20,22 +20,17 @@ struct GeneralSettingsPane: View {
             RowDivider()
             ToggleRow("Show in menu bar", isOn: $settings.settings.showsMenuBarIcon, description: menuBarNote)
         }
-
-        SettingsSection("Dictation") {
-            PickerRow("Hold to dictate", selection: $settings.settings.pushToTalkKey) {
-                ForEach(PushToTalkKey.allCases, id: \.self) { key in
-                    Text(key.title).tag(key)
-                }
-            }
-            RowDivider()
-            ToggleRow("Paste into the focused field", isOn: $settings.settings.pastesIntoFocusedField)
-        }
+        .animation(.snappy(duration: 0.2), value: settings.settings.showsMenuBarIcon)
 
         SettingsSection("Sounds") {
-            ToggleRow("Play sounds", isOn: $settings.settings.playsSounds)
+            ToggleRow(
+                "Play sounds",
+                isOn: $settings.settings.playsSounds,
+                description: "A soft click when recording starts and stops.",
+            )
         }
 
-        SettingsSection("Permissions") {
+        SettingsSection("Permissions", subtitle: "Dictate needs both to type for you.") {
             ForEach(Permission.allCases, id: \.self) { permission in
                 if permission != Permission.allCases.first {
                     RowDivider()

@@ -22,6 +22,7 @@ package struct OnboardingView: View {
             OnboardingFooter(model: model)
         }
         .animation(.smooth(duration: 0.35), value: model.onboarding.step)
+        .buttonStyle(PushButtonStyle())
         .frame(width: 640, height: 540)
         .background(Palette.window)
         .ignoresSafeArea()
@@ -85,7 +86,7 @@ private struct OnboardingFooter: View {
                 Spacer()
 
                 Button(primaryTitle, action: primaryAction)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PushButtonStyle(isProminent: true))
                     .keyboardShortcut(.defaultAction)
             }
         }

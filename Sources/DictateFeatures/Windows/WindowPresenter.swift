@@ -5,9 +5,10 @@ import SwiftUI
 package final class WindowPresenter: NSObject, NSWindowDelegate {
     weak var model: AppModel?
 
-    private let settingsNavigation = SettingsNavigation()
+    private let settingsState = SettingsWindowState()
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
+    private var clickMonitor: Any?
 
     package func showSettings(_ pane: SettingsPane? = nil) {
         guard let model else { return }
@@ -15,7 +16,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         let window = settingsWindow ?? makeSettingsWindow(model: model)
 
         if let pane {
-            settingsNavigation.selection = pane
+            settingsState.selection = pane
         }
 
         model.settings.refreshMicrophones()
@@ -37,6 +38,10 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
             model?.onboarding.reset()
         }
 
+        if closing == settingsWindow {
+            settingsState.editedInstructions = nil
+        }
+
         let othersVisible = [settingsWindow, onboardingWindow].contains { $0 != nil && $0 != closing && $0?.isVisible == true }
 
         if !othersVisible {
@@ -49,14 +54,35 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
     }
 
     private func present(_ window: NSWindow) {
+        releaseFocusOnOutsideClicks()
         NSApp.setActivationPolicy(.regular)
         NSApp.activate()
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
     }
 
+    private func releaseFocusOnOutsideClicks() {
+        guard clickMonitor == nil else { return }
+
+        clickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [weak self] event in
+            MainActor.assumeIsolated {
+                self?.releaseFocus(for: event)
+            }
+
+            return event
+        }
+    }
+
+    private func releaseFocus(for event: NSEvent) {
+        guard let window = event.window, window == settingsWindow || window == onboardingWindow,
+              window.firstResponder is NSText,
+              let hit = window.contentView?.hitTest(event.locationInWindow), !hit.isTextInput else { return }
+
+        window.makeFirstResponder(nil)
+    }
+
     private func makeSettingsWindow(model: AppModel) -> NSWindow {
-        let content = NSHostingController(rootView: SettingsWindowView(model: model, navigation: settingsNavigation))
+        let content = NSHostingController(rootView: SettingsWindowView(model: model, state: settingsState))
         content.sizingOptions = []
 
         let window = NSWindow(contentViewController: content)
@@ -66,7 +92,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.titlebarSeparatorStyle = .none
-        window.backgroundColor = .textBackgroundColor
+        window.backgroundColor = Palette.windowColor
         window.setContentSize(NSSize(width: 820, height: 660))
         window.contentMinSize = NSSize(width: 760, height: 520)
         window.isReleasedWhenClosed = false
@@ -81,7 +107,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
 
     private func followSelectedPaneTitle() {
         withObservationTracking {
-            settingsWindow?.title = settingsNavigation.selection.title
+            settingsWindow?.title = settingsState.selection.title
         } onChange: { [weak self] in
             Task { @MainActor in
                 self?.followSelectedPaneTitle()
@@ -98,7 +124,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         window.titlebarSeparatorStyle = .none
-        window.backgroundColor = .textBackgroundColor
+        window.backgroundColor = Palette.windowColor
         window.isMovableByWindowBackground = true
         window.isReleasedWhenClosed = false
         window.delegate = self
@@ -107,5 +133,13 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         onboardingWindow = window
 
         return window
+    }
+}
+
+extension NSView {
+    fileprivate var isTextInput: Bool {
+        sequence(first: self, next: \.superview).contains { view in
+            view is NSTextView || view is NSTextField || (view as? NSScrollView)?.documentView is NSTextView
+        }
     }
 }

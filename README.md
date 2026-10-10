@@ -37,8 +37,8 @@ a cloud mode rewrites the text with Claude or OpenAI.
 - **Learns your words.** The dictionary fixes names and terms that come out
   wrong, and snippets turn a spoken phrase into text such as your email
   address.
-- **Remembers when you want it to.** The last 50 dictations stay on your Mac,
-  searchable and one click away from the clipboard.
+- **Remembers when you want it to.** Your dictations stay on your Mac for as
+  long as you choose, searchable and one click away from the clipboard.
 
 ![The HUD while listening, transcribing, and after pasting](.github/screenshots/hud.jpg)
 
@@ -94,7 +94,7 @@ the languages Dictate listens for.
 Light is the default. Clean, Formal, and Translate to English need an API
 key from [Anthropic](https://console.anthropic.com/settings/keys) or
 [OpenAI](https://platform.openai.com/settings/organization/api-keys), which you add in Settings ›
-Modes and which stays in your Keychain. Without a key, offline, or when the
+Cloud and which stays in your Keychain. Without a key, offline, or when the
 provider does not answer within 3 seconds, Dictate uses Light and says why, so
 you always get your text.
 

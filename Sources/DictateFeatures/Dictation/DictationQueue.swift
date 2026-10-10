@@ -132,12 +132,14 @@ final class DictationQueue {
     private func remember(_ processed: ProcessedText, for job: DictationJob) {
         guard settings.settings.keepsHistory else { return }
 
-        history.add(DictationHistory.Entry(
+        let entry = DictationHistory.Entry(
             date: Date(),
             text: processed.text,
             mode: processed.appliedMode,
             app: job.target.bundleIdentifier,
-        ))
+        )
+
+        history.add(entry, keepingFor: settings.settings.historyRetention)
     }
 
     private func log(_ transcript: Transcript, _ processed: ProcessedText) {

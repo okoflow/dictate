@@ -33,7 +33,7 @@ describe how each API handles it.
 | --- | --- |
 | Settings | The `dev.dictate.app` preferences domain |
 | Dictionary and snippets | `~/Library/Application Support/Dictate/dictionary.json` |
-| History, the last 50 texts | `~/Library/Application Support/Dictate/history.json`, readable only by you |
+| History, kept for a month unless you choose otherwise | `~/Library/Application Support/Dictate/history.json`, readable only by you |
 | Speech model | `~/Library/Application Support/Dictate/Models` |
 | The model compiled for your chip | `~/Library/Caches/dev.dictate.app` |
 | Claude and OpenAI API keys | The login Keychain, service `dev.dictate.app`, on this Mac only |

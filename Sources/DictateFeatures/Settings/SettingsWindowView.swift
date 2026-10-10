@@ -2,21 +2,22 @@ import SwiftUI
 
 package struct SettingsWindowView: View {
     private let model: AppModel
-    private let navigation: SettingsNavigation
+    private let state: SettingsWindowState
 
-    package init(model: AppModel, navigation: SettingsNavigation) {
+    package init(model: AppModel, state: SettingsWindowState) {
         self.model = model
-        self.navigation = navigation
+        self.state = state
     }
 
     package var body: some View {
         HStack(spacing: 0) {
-            SettingsSidebar(navigation: navigation)
+            SettingsSidebar(state: state)
                 .frame(width: 222)
                 .padding([.leading, .vertical], 8)
 
-            SettingsPaneView(model: model, navigation: navigation)
+            SettingsPaneView(model: model, state: state)
         }
+        .buttonStyle(PushButtonStyle())
         .background(Palette.window)
         .ignoresSafeArea()
     }

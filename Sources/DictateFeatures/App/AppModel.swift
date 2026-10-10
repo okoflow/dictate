@@ -78,6 +78,7 @@ package final class AppModel {
         keyMonitor.start()
         dictation.start()
         modeSwitcher.start()
+        history.keep(for: settings.settings.historyRetention)
         hud.makePanel()
 
         if needsSetup {

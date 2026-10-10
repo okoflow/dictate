@@ -87,6 +87,7 @@ struct PermissionStep: View {
 
 struct PracticeStep: View {
     @Bindable private var onboarding: OnboardingModel
+    @FocusState private var isTyping: Bool
 
     let model: AppModel
 
@@ -114,13 +115,13 @@ struct PracticeStep: View {
             IconTile(symbolName: "text.cursor", tint: .purple, size: 72)
         } content: {
             VStack(spacing: 10) {
-                SettingsCard {
-                    TextField("Your words appear here", text: $onboarding.practiceText, axis: .vertical)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 15))
-                        .lineLimit(4, reservesSpace: true)
-                        .padding(14)
-                }
+                TextField("Your words appear here", text: $onboarding.practiceText, axis: .vertical)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 15))
+                    .lineLimit(4, reservesSpace: true)
+                    .focused($isTyping)
+                    .padding(14)
+                    .modifier(FieldChrome(isFocused: isTyping, cornerRadius: 12))
 
                 Text(modelStatus)
                     .font(.system(size: 11))
@@ -150,7 +151,7 @@ struct FinishStep: View {
                 SettingsRow("Cleanup modes", description: "Clean, Formal and Translate use Claude or OpenAI.") {
                     Button("Set Up…") {
                         model.onboarding.advance()
-                        model.windows.showSettings(.modes)
+                        model.windows.showSettings(.writing)
                     }
                 }
             }

@@ -33,6 +33,21 @@ struct DictationSettingsPane: View {
     }
 
     var body: some View {
+        SettingsSection("Recording") {
+            PickerRow("Hold to dictate", selection: $settings.settings.pushToTalkKey) {
+                ForEach(PushToTalkKey.allCases, id: \.self) { key in
+                    Text(key.title).tag(key)
+                }
+            }
+            RowDivider()
+            PickerRow("Microphone", selection: $settings.settings.microphoneID) {
+                Text("System default").tag(String?.none)
+                ForEach(settings.microphones) { microphone in
+                    Text(microphone.name).tag(String?.some(microphone.id))
+                }
+            }
+        }
+
         SettingsSection("Languages", subtitle: "Dictate listens for these languages.") {
             ForEach(selection.languages, id: \.self) { language in
                 LanguageRow(language: language, canRemove: selection.languages.count > 1) {
@@ -49,27 +64,23 @@ struct DictationSettingsPane: View {
                 }
             }
         } footer: {
-            Menu("Add Language") {
+            Menu {
                 ForEach(addableLanguages, id: \.self) { language in
                     Button("\(language.name) · \(language.nativeName)") {
                         settings.settings.languages = selection.including(language, true)
                     }
                 }
+            } label: {
+                Label("Add Language", systemImage: "plus")
             }
+            .menuStyle(.button)
+            .menuIndicator(.hidden)
             .fixedSize()
             .disabled(addableLanguages.isEmpty)
         }
+        .animation(.snappy(duration: 0.2), value: selection.languages)
 
-        SettingsSection("Microphone") {
-            PickerRow("Record from", selection: $settings.settings.microphoneID) {
-                Text("System default").tag(String?.none)
-                ForEach(settings.microphones) { microphone in
-                    Text(microphone.name).tag(String?.some(microphone.id))
-                }
-            }
-        }
-
-        SettingsSection("Speech model") {
+        SettingsSection("Speech model", subtitle: "Recognition runs on this Mac.") {
             SpeechModelRow(controller: speechModel)
         }
     }

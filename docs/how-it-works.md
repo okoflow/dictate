@@ -91,8 +91,8 @@ API with `gpt-6-luna`, reasoning turned off, and `store: false`, so OpenAI
 keeps no copy of the response. The transcript is marked as text to edit, never
 instructions to follow, so dictating a question gives you the question rather
 than an answer, and the model is told to reply with the text only. You can
-rewrite a mode's instruction in Settings › Modes › Instructions; Dictate adds
-these rules after it either way.
+rewrite a mode's instruction with **Instructions…** in Settings › Writing;
+Dictate adds these rules after it either way.
 
 The answer is checked before it is used. An empty answer, one more than three
 times longer than what you said, one cut off or refused, and one in another
