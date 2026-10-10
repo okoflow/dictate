@@ -6,11 +6,14 @@ package enum AnthropicMessagesCodec {
     package static let model = "claude-haiku-5-5"
 
     package static func requestBody(text: String, mode: Mode, language: Language) throws -> Data {
-        let message = MessagesRequest.Message(role: "user", content: RewritePrompt.userMessage(text: text, language: language))
-        let request = MessagesRequest(
+        let message = AnthropicMessagesRequest.Message(
+            role: "user",
+            content: RewritePrompt.userMessage(text: text, language: language),
+        )
+        let request = AnthropicMessagesRequest(
             model: model,
             maximumTokens: maximumTokens(for: text),
-            thinking: MessagesRequest.Thinking(type: "disabled"),
+            thinking: AnthropicMessagesRequest.Thinking(type: "disabled"),
             system: RewritePrompt.system(for: mode),
             messages: [message],
         )
@@ -22,7 +25,7 @@ package enum AnthropicMessagesCodec {
     }
 
     package static func answer(from data: Data) throws -> String {
-        guard let response = try? JSONDecoder().decode(MessagesResponse.self, from: data) else {
+        guard let response = try? JSONDecoder().decode(AnthropicMessagesResponse.self, from: data) else {
             throw RewriteError.unreadableResponse
         }
 
@@ -38,7 +41,7 @@ package enum AnthropicMessagesCodec {
     }
 
     package static func errorDescription(from data: Data) -> String? {
-        guard let response = try? JSONDecoder().decode(MessagesError.self, from: data) else { return nil }
+        guard let response = try? JSONDecoder().decode(AnthropicMessagesError.self, from: data) else { return nil }
 
         return "\(response.error.type): \(response.error.message)"
     }

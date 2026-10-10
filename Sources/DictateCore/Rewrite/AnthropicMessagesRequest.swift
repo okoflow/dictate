@@ -1,4 +1,4 @@
-struct MessagesRequest: Encodable {
+struct AnthropicMessagesRequest: Encodable {
     struct Message: Encodable {
         let role: String
         let content: String

@@ -56,7 +56,8 @@ punctuation, capitalizes the first letter, and ends the text with a full
 stop. Light works offline and leaves words with meaning alone: filler words
 such as "like" and self-corrections need Clean.
 
-The cloud modes, marked with ☁︎, send the recognized text to Claude Haiku:
+The cloud modes, marked with ☁︎, send the recognized text to Claude or
+OpenAI, whichever you choose in Settings › Modes:
 
 - **Clean** removes filler words and false starts, keeps only the final
   version when you correct yourself ("Thursday, no, Friday"), and fixes the
@@ -64,9 +65,9 @@ The cloud modes, marked with ☁︎, send the recognized text to Claude Haiku:
 - **Formal** does the same in a polite, concise business tone.
 - **Translate to English** translates the text into English.
 
-Without an API key, without a network connection, when Claude does not
-answer within 3 seconds, or when its answer cannot be used, Dictate pastes
-the Light text instead, and the HUD says why.
+Without an API key, without a network connection, when the provider does
+not answer within 3 seconds, or when its answer cannot be used, Dictate
+pastes the Light text instead, and the HUD says why.
 
 ### A mode for each app
 
@@ -75,12 +76,18 @@ Terminal. Choose **Mode in *app*** in the menu while the app is in front, or
 add the app in Settings › Modes › Apps with their own mode. Dictate uses the
 mode of the app that was in front when you pressed the key.
 
-### The Claude API key
+### The cloud provider
 
-Create a key inside a workspace in the
-[Anthropic Console](https://console.anthropic.com/settings/keys) and paste it
-into Settings › Modes › Claude. Dictate keeps it in your login Keychain, on
-this Mac only, and reads it for each cloud request. **Remove** deletes it.
+Choose **Claude** or **OpenAI** in Settings › Modes › Cloud, then paste that
+provider's API key:
+
+- Claude: create the key inside a workspace in the
+  [Anthropic Console](https://console.anthropic.com/settings/keys).
+- OpenAI: create the key in the
+  [OpenAI dashboard](https://platform.openai.com/settings/organization/api-keys).
+
+Each provider keeps its own key in your login Keychain, on this Mac only, and
+Dictate reads it for each cloud request. **Remove** deletes it.
 
 ## Languages
 
@@ -136,7 +143,7 @@ a password field is never saved.
 | --- | --- |
 | General | The dictation key, pasting, sounds, opening at login, permissions |
 | Dictation | Languages, the spoken language, the microphone, the speech model |
-| Modes | The mode, per-app modes, the Claude API key |
+| Modes | The mode, per-app modes, the cloud provider and its API key |
 | Dictionary | Terms and snippets |
 | History | Keeping, searching, copying, and clearing the history |
 | About | The version, the source code, and the license |

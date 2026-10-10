@@ -2,7 +2,7 @@ import DictateCore
 import Foundation
 import os
 
-package struct AnthropicRewriter: TextRewriter {
+package struct OpenAIRewriter: TextRewriter {
     private let apiKeyStore: any ValueStore<String>
     private let transport: RewriteTransport
 
@@ -14,22 +14,21 @@ package struct AnthropicRewriter: TextRewriter {
     package func rewrite(_ text: String, mode: Mode, language: Language) async throws -> String {
         guard let apiKey = try? apiKeyStore.load(), !apiKey.isEmpty else { throw RewriteError.missingKey }
 
-        let body = try AnthropicMessagesCodec.requestBody(text: text, mode: mode, language: language)
+        let body = try OpenAIResponsesCodec.requestBody(text: text, mode: mode, language: language)
         let headers = [
-            "x-api-key": apiKey,
-            "anthropic-version": AnthropicMessagesCodec.apiVersion,
+            "authorization": "Bearer \(apiKey)",
             "content-type": "application/json",
         ]
 
-        let (data, status) = try await transport.post(body, to: AnthropicMessagesCodec.endpoint, headers: headers)
+        let (data, status) = try await transport.post(body, to: OpenAIResponsesCodec.endpoint, headers: headers)
         guard (200 ..< 300).contains(status) else {
-            let detail = AnthropicMessagesCodec.errorDescription(from: data) ?? "no details"
+            let detail = OpenAIResponsesCodec.errorDescription(from: data) ?? "no details"
 
-            Logger.network.error("Claude answered HTTP \(status): \(detail, privacy: .public)")
+            Logger.network.error("OpenAI answered HTTP \(status): \(detail, privacy: .public)")
 
-            throw AnthropicMessagesCodec.error(forStatus: status)
+            throw OpenAIResponsesCodec.error(forStatus: status)
         }
 
-        return try AnthropicMessagesCodec.answer(from: data)
+        return try OpenAIResponsesCodec.answer(from: data)
     }
 }

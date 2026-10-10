@@ -2,7 +2,7 @@
 
 Push-to-talk dictation for macOS. Holding the right Option key records the
 microphone, Whisper recognizes the speech on the Mac through WhisperKit, a
-mode cleans the text up offline or with Claude Haiku, and the result is
+mode cleans the text up offline or with Claude or OpenAI, and the result is
 pasted into the focused field through the clipboard.
 
 Swift package: `DictateCore` (domain and every interface, Foundation only),

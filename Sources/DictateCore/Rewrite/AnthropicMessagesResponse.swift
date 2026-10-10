@@ -1,4 +1,4 @@
-struct MessagesResponse: Decodable {
+struct AnthropicMessagesResponse: Decodable {
     struct Block: Decodable {
         let type: String
         let text: String?

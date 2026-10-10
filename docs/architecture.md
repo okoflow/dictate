@@ -46,7 +46,7 @@ Declarations shared between modules use `package` access; nothing is
 | `AudioRecorder` | Recording from a microphone | `AudioEngineRecorder`, on AVAudioEngine |
 | `AudioInputProvider` | The list of input devices | `CoreAudioInputs` |
 | `Transcriber` | The speech model's lifecycle and recognition | `WhisperTranscriber` |
-| `TextRewriter` | Rewriting text in a cloud mode | `AnthropicRewriter` |
+| `TextRewriter` | Rewriting text in a cloud mode | `AnthropicRewriter`, `OpenAIRewriter` |
 | `KeyEventMonitor` | Modifier key events | `ModifierKeyTap`, a listen-only event tap |
 | `KeyboardState` | Whether a key is held right now | `SystemKeyboardState` |
 | `GlobalShortcut` | The next-mode shortcut | `CarbonHotKey` |
@@ -58,9 +58,10 @@ Declarations shared between modules use `package` access; nothing is
 | `FeedbackSoundPlayer` | Start and stop sounds | `SystemSoundPlayer` |
 | `ValueStore<Value>` | Loading and saving one value | `UserDefaultsStore`, `JSONFileStore`, `KeychainStore` |
 
-`AppDependencies` collects one implementation of each, plus the stores for the
-settings, the dictionary, the history, and the API key. `AppModel` takes it in
-its initializer; there are no singletons.
+`AppDependencies` collects one implementation of each, and a `TextRewriter`
+and an API key store for each cloud provider, plus the stores for the
+settings, the dictionary, and the history. `AppModel` takes it in its
+initializer; there are no singletons.
 
 ## The dictation flow
 

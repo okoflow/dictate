@@ -13,7 +13,7 @@ package final class AppModel {
     package let modeSwitcher: ModeSwitcher
     package let history: HistoryModel
     package let vocabulary: VocabularyModel
-    package let apiKey: APIKeyModel
+    package let apiKeys: PerProvider<APIKeyModel>
     package let frontmostApp: FrontmostAppTracker
     package let hud: HUDController
     package let onboarding: OnboardingModel
@@ -58,7 +58,10 @@ package final class AppModel {
         modeSwitcher = ModeSwitcher(shortcut: dependencies.modeShortcut, settings: models.settings, hud: models.hud)
         history = models.history
         vocabulary = models.vocabulary
-        apiKey = APIKeyModel(store: dependencies.apiKeyStore)
+        apiKeys = PerProvider(
+            claude: APIKeyModel(store: dependencies.apiKeyStores.claude),
+            openAI: APIKeyModel(store: dependencies.apiKeyStores.openAI),
+        )
         frontmostApp = FrontmostAppTracker()
         hud = models.hud
         onboarding = OnboardingModel()

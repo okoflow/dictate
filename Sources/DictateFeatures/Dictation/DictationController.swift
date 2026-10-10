@@ -239,6 +239,7 @@ extension DictationController {
             samples: samples,
             language: current.languages.forcedLanguage,
             mode: mode,
+            provider: current.cloudProvider,
             vocabulary: vocabulary.reloadFromDisk(),
             target: target,
             key: current.pushToTalkKey,

@@ -1,7 +1,7 @@
 # Security Policy
 
 Dictate records your voice, reads the focused text field through
-Accessibility, writes to the clipboard, and keeps an API key in the Keychain.
+Accessibility, writes to the clipboard, and keeps API keys in the Keychain.
 Security reports are taken seriously and handled privately until a fix is
 available.
 
@@ -37,7 +37,7 @@ the build configuration. Of particular interest:
 - audio, or text outside the cloud modes, leaving the Mac
 - text pasted into a password field, or into another app than the one you
   dictated into
-- the API key leaving the Keychain for anything other than the Anthropic API
+- an API key leaving the Keychain for anything other than its provider's API
 - dictated text or clipboard contents reaching the logs, the disk, or other
   apps
 - the event tap or the Accessibility access used beyond what dictation needs

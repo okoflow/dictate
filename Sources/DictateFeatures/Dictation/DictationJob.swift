@@ -4,6 +4,7 @@ struct DictationJob {
     let samples: [Float]
     let language: Language?
     let mode: Mode
+    let provider: CloudProvider
     let vocabulary: Vocabulary
     let target: FocusTarget
     let key: PushToTalkKey

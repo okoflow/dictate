@@ -27,7 +27,7 @@ struct FeatureModels {
     func makeQueue(dependencies: AppDependencies) -> DictationQueue {
         DictationQueue(
             transcriber: dependencies.transcriber,
-            rewriter: dependencies.rewriter,
+            rewriters: dependencies.rewriters,
             inserter: dependencies.inserter,
             clipboard: dependencies.clipboard,
             history: history,

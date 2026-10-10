@@ -51,18 +51,21 @@ the key.
 
 ## The cloud modes use Light
 
-The second line of the HUD says why:
+The second line of the HUD says why and names the provider you chose,
+Claude or OpenAI:
 
-- **Add a Claude API key**: add one in Settings › Modes.
-- **Claude rejected the API key**: check the key in the
-  [Anthropic Console](https://console.anthropic.com/settings/keys) and paste it
-  again.
-- **You're offline**, **Claude didn't answer within 3 seconds**, or **Claude
-  is rate-limiting requests**: the next dictation tries again.
-- **Claude returned an error**: the `network` log category records the reason.
-  The common one is a key that isn't scoped to a workspace: create the key
-  inside a workspace in the Anthropic Console and paste it again.
-- **Claude's answer couldn't be used**: the answer was cut off, refused, or in
+- **Add your API key**: add it in Settings › Modes › Cloud.
+- **Rejected the API key**: check the key in the
+  [Anthropic Console](https://console.anthropic.com/settings/keys) or the
+  [OpenAI dashboard](https://platform.openai.com/settings/organization/api-keys) and paste it again.
+- **You're offline**, **didn't answer within 3 seconds**, or **is
+  rate-limiting requests**: the next dictation tries again. With OpenAI, the
+  last one also appears when the account is out of credit: the `network` log
+  category says `insufficient_quota`.
+- **Returned an error**: the `network` log category records the reason. With
+  Claude, the common one is a key that isn't scoped to a workspace: create
+  the key inside a workspace in the Anthropic Console and paste it again.
+- **The answer couldn't be used**: the answer was cut off, refused, or in
   another language. Dictating again usually works.
 
 ## The speech model fails

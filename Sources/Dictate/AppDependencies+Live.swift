@@ -8,7 +8,10 @@ extension AppDependencies {
     static func live() -> AppDependencies {
         let focusTracker = AccessibilityFocusTracker()
         let keyboardState = SystemKeyboardState()
-        let apiKeyStore = KeychainStore.anthropicAPIKey()
+        let apiKeyStores = PerProvider<any ValueStore<String>>(
+            claude: KeychainStore.apiKey(for: .claude),
+            openAI: KeychainStore.apiKey(for: .openAI),
+        )
         let vocabularyFile = AppIdentity.supportDirectory.appending(path: "dictionary.json")
         let historyFile = AppIdentity.supportDirectory.appending(path: "history.json")
 
@@ -16,7 +19,10 @@ extension AppDependencies {
             recorder: AudioEngineRecorder(),
             audioInputs: CoreAudioInputs(),
             transcriber: WhisperTranscriber(),
-            rewriter: AnthropicRewriter(apiKeyStore: apiKeyStore),
+            rewriters: PerProvider<any TextRewriter>(
+                claude: AnthropicRewriter(apiKeyStore: apiKeyStores.claude),
+                openAI: OpenAIRewriter(apiKeyStore: apiKeyStores.openAI),
+            ),
             keyEventMonitor: ModifierKeyTap(),
             keyboardState: keyboardState,
             modeShortcut: CarbonHotKey.modeCycle(),
@@ -30,7 +36,7 @@ extension AppDependencies {
             vocabularyStore: JSONFileStore<Vocabulary>(url: vocabularyFile),
             vocabularyFile: vocabularyFile,
             historyStore: JSONFileStore<DictationHistory>(url: historyFile, isPrivate: true),
-            apiKeyStore: apiKeyStore,
+            apiKeyStores: apiKeyStores,
         )
     }
 }
