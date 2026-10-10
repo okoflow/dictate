@@ -154,6 +154,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
     private func makeOnboardingWindow(model: AppModel) -> NSWindow {
         let content = NSHostingController(rootView: OnboardingView(model: model))
         content.sizingOptions = .preferredContentSize
+        content.safeAreaRegions = []
 
         let window = NSWindow(contentViewController: content)
         window.styleMask = [.titled, .closable, .fullSizeContentView]
