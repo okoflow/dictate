@@ -139,7 +139,7 @@ final class DictationQueue {
             app: job.target.bundleIdentifier,
         )
 
-        history.add(entry, keepingFor: settings.settings.historyRetention)
+        history.add(entry, keepingFor: settings.settings.historyRetention, limit: settings.settings.historyLimit)
     }
 
     private func log(_ transcript: Transcript, _ processed: ProcessedText) {

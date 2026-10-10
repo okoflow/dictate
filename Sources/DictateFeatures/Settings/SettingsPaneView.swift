@@ -23,7 +23,7 @@ struct SettingsPaneView: View {
             GeneralSettingsPane(settings: model.settings, permissions: model.permissions)
 
         case .dictation:
-            DictationSettingsPane(settings: model.settings, speechModel: model.speechModel, keyRecorder: model.keyRecorder)
+            DictationSettingsPane(settings: model.settings, keyRecorder: model.keyRecorder)
 
         case .writing:
             WritingSettingsPane(
@@ -34,7 +34,7 @@ struct SettingsPaneView: View {
             )
 
         case .aiModels:
-            AIModelsSettingsPane(settings: model.settings, apiKeys: model.apiKeys)
+            AIModelsSettingsPane(settings: model.settings, speechModel: model.speechModel, apiKeys: model.apiKeys)
 
         case .dictionary:
             DictionarySettingsPane(vocabulary: model.vocabulary)

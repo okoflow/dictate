@@ -14,7 +14,17 @@ struct HistorySettingsPane: View {
             get: { settings.settings.historyRetention },
             set: { retention in
                 settings.settings.historyRetention = retention
-                history.keep(for: retention)
+                history.keep(for: retention, limit: settings.settings.historyLimit)
+            },
+        )
+    }
+
+    private var limit: Binding<Int> {
+        Binding(
+            get: { settings.settings.historyLimit },
+            set: { limit in
+                settings.settings.historyLimit = limit
+                history.keep(for: settings.settings.historyRetention, limit: limit)
             },
         )
     }
@@ -32,6 +42,12 @@ struct HistorySettingsPane: View {
                 PickerRow("Keep dictations for", selection: retention, current: retention.wrappedValue.title) {
                     ForEach(HistoryRetention.allCases, id: \.self) { retention in
                         Text(retention.title).tag(retention)
+                    }
+                }
+                RowDivider()
+                PickerRow("Keep at most", selection: limit, current: Self.limitTitle(limit.wrappedValue)) {
+                    ForEach(DictationHistory.limits, id: \.self) { limit in
+                        Text(Self.limitTitle(limit)).tag(limit)
                     }
                 }
             }
@@ -62,6 +78,10 @@ struct HistorySettingsPane: View {
             Button("Clear History…", role: .destructive, action: confirmClear)
                 .disabled(history.history.entries.isEmpty)
         }
+    }
+
+    private static func limitTitle(_ limit: Int) -> String {
+        "\(limit.formatted()) dictations"
     }
 
     private func confirmClear() {

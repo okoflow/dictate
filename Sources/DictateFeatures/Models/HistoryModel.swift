@@ -43,18 +43,18 @@ package final class HistoryModel {
         }
     }
 
-    package func keep(for retention: HistoryRetention) {
+    package func keep(for retention: HistoryRetention, limit: Int) {
         let previous = history
-        history.prune(keeping: retention, now: Date())
+        history.prune(keeping: retention, limit: limit, now: Date())
 
         if history != previous {
             save()
         }
     }
 
-    func add(_ entry: DictationHistory.Entry, keepingFor retention: HistoryRetention) {
+    func add(_ entry: DictationHistory.Entry, keepingFor retention: HistoryRetention, limit: Int) {
         history.add(entry)
-        history.prune(keeping: retention, now: entry.date)
+        history.prune(keeping: retention, limit: limit, now: entry.date)
         save()
     }
 

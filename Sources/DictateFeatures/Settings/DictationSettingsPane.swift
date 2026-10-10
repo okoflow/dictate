@@ -5,7 +5,6 @@ import SwiftUI
 struct DictationSettingsPane: View {
     @Bindable var settings: SettingsModel
 
-    let speechModel: SpeechModelController
     let keyRecorder: KeyRecorder
 
     private var selection: LanguageSelection {
@@ -103,10 +102,6 @@ struct DictationSettingsPane: View {
             .disabled(addableLanguages.isEmpty)
         }
         .animation(.snappy(duration: 0.2), value: selection.languages)
-
-        SettingsSection("Speech model", subtitle: "Recognition runs on this Mac.") {
-            SpeechModelRow(controller: speechModel)
-        }
         .onDisappear { keyRecorder.stop() }
     }
 }
@@ -120,27 +115,6 @@ private struct LanguageRow: View {
         SettingsRow(language.nativeName, description: language.nativeName == language.name ? nil : language.name) {
             RemoveButton(help: "Remove \(language.name)", action: remove)
                 .disabled(!canRemove)
-        }
-    }
-}
-
-private struct SpeechModelRow: View {
-    let controller: SpeechModelController
-
-    var body: some View {
-        SettingsRow(controller.state.statusText, description: "Whisper large-v3 turbo · 630 MB") {
-            if let progress = controller.state.progress {
-                ProgressView(value: progress)
-                    .frame(width: 100)
-            }
-
-            if controller.state.canRetry {
-                Button("Retry") { controller.retry() }
-            }
-
-            Button("Show in Finder") {
-                NSWorkspace.shared.activateFileViewerSelecting([controller.modelDirectory])
-            }
         }
     }
 }

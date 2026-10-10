@@ -21,7 +21,8 @@ package struct DictationHistory: Codable, Equatable, Sendable {
         }
     }
 
-    package static let capacity = 2000
+    package static let limits = [100, 500, 1000, 5000, 10000]
+    package static let defaultLimit = 1000
 
     package private(set) var entries: [Entry] = []
 
@@ -35,18 +36,17 @@ package struct DictationHistory: Codable, Equatable, Sendable {
         guard !entry.text.isEmpty else { return }
 
         entries.append(entry)
-        entries.removeFirst(max(0, entries.count - Self.capacity))
     }
 
     package mutating func removeAll() {
         entries.removeAll()
     }
 
-    package mutating func prune(keeping retention: HistoryRetention, now: Date) {
+    package mutating func prune(keeping retention: HistoryRetention, limit: Int, now: Date) {
         if let cutoff = retention.cutoff(before: now) {
             entries.removeAll { $0.date < cutoff }
         }
 
-        entries.removeFirst(max(0, entries.count - Self.capacity))
+        entries.removeFirst(max(0, entries.count - limit))
     }
 }

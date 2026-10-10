@@ -147,8 +147,9 @@ Edits to the file apply from the next dictation.
 ## History
 
 Settings › History lists your dictations with the time, the mode, and the app,
-and copies any of them with one click. They stay for a month unless you pick
-another period in **Keep dictations for**, from a day to forever. Turn off
+and copies any of them with one click. They stay for a month and up to 1,000
+dictations unless you change **Keep dictations for** (a day to forever) or
+**Keep at most** (100 to 10,000). Turn off
 **Keep history** to stop saving new ones; **Clear History…** deletes them all. A text kept out of
 a password field is never saved.
 
@@ -157,11 +158,11 @@ a password field is never saved.
 | Pane | What you set there |
 | --- | --- |
 | General | Opening at login, the menu bar icon, sounds, permissions |
-| Dictation | The dictation key, the microphone, languages, the spoken language, the speech model |
+| Dictation | The dictation key, the microphone, languages, the spoken language |
 | Writing | The mode and its instructions, per-app modes, pasting |
-| AI Models | Claude or OpenAI for the cloud modes, and its API key |
+| AI Models | The speech model, and Claude or OpenAI with their API keys for the cloud modes |
 | Dictionary | Terms and snippets |
-| History | How long to keep it, searching, copying, and clearing |
+| History | How long and how much to keep, searching, copying, and clearing |
 | About | The version, the source code, and the license |
 
 With **Paste into the focused field** off, Dictate only puts the text on the

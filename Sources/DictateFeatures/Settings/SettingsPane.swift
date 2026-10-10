@@ -26,7 +26,7 @@ package enum SettingsPane: CaseIterable {
         case .general: "gearshape.fill"
         case .dictation: "mic.fill"
         case .writing: "slider.horizontal.3"
-        case .aiModels: "sparkles"
+        case .aiModels: "cpu.fill"
         case .dictionary: "book.closed.fill"
         case .history: "clock.fill"
         case .about: "info.circle.fill"

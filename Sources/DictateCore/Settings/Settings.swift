@@ -8,6 +8,7 @@ package struct Settings: Codable, Equatable, Sendable {
     package var pastesIntoFocusedField = true
     package var keepsHistory = true
     package var historyRetention = HistoryRetention.month
+    package var historyLimit = DictationHistory.defaultLimit
     package var playsSounds = true
     package var showsMenuBarIcon = true
     package var microphoneID: String?
@@ -32,6 +33,8 @@ package struct Settings: Codable, Equatable, Sendable {
         keepsHistory = try container.decodeIfPresent(Bool.self, forKey: .keepsHistory) ?? defaults.keepsHistory
         historyRetention = try container.decodeIfPresent(HistoryRetention.self, forKey: .historyRetention)
             ?? defaults.historyRetention
+        historyLimit = try container.decodeIfPresent(Int.self, forKey: .historyLimit)
+            .flatMap { DictationHistory.limits.contains($0) ? $0 : nil } ?? defaults.historyLimit
         playsSounds = try container.decodeIfPresent(Bool.self, forKey: .playsSounds) ?? defaults.playsSounds
         showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? defaults.showsMenuBarIcon
         microphoneID = try container.decodeIfPresent(String.self, forKey: .microphoneID)
