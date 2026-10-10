@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 
 struct AboutSettingsPane: View {
+    private static let website = URL(literal: "https://dictate.okoflow.com")
     private static let repository = URL(literal: "https://github.com/okoflow/dictate")
     private static let license = URL(literal: "https://github.com/okoflow/dictate/blob/main/LICENSE")
 
@@ -28,6 +29,7 @@ struct AboutSettingsPane: View {
                 .padding(.top, 4)
 
             HStack(spacing: 16) {
+                Link("Website", destination: Self.website)
                 Link("Source code", destination: Self.repository)
                 Link("License", destination: Self.license)
             }
