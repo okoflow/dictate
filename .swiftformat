@@ -1,4 +1,38 @@
---swiftversion 6.0
---indent 4
---exclude .build,build
+--swift-version 6.2
+--language-mode 6
+--min-version   0.63.1
+
+--max-width              130
+--wrap-arguments         before-first
+--wrap-collections       before-first
+--wrap-conditions        after-first
+--wrap-return-type       never
+--wrap-effects           never
+--allow-partial-wrapping false
+
+--header                  strip
+--extension-acl           on-declarations
+--type-attributes         prev-line
+--func-attributes         prev-line
+--computed-var-attributes prev-line
+--stored-var-attributes   same-line
+--preserve-acronyms       convertTokenToId,convertIdToToken,tokenIds
+
+--organization-mode       type
+--organize-types          class,actor,struct,enum,extension,protocol
+--mark-categories         false
+--type-body-marks         remove
+--sort-swiftui-properties first-appearance-sort
+
+--enable acronyms
+--enable blankLineAfterSwitchCase
+--enable blankLinesAfterGuardStatements
+--enable organizeDeclarations
+--enable preferCountWhere
+--enable preferFinalClasses
+--enable privateStateVariables
+--enable singlePropertyPerLine
+--enable wrapEnumCases
+
+--disable environmentEntry
 --disable wrapMultilineStatementBraces

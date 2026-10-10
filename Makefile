@@ -1,44 +1,51 @@
-SHELL := /bin/bash
-.DEFAULT_GOAL := help
+CONFIG        ?= debug
+INDEX_STORE    = $(if $(wildcard .build/out/v5),.build/out,.build/debug/index/store)
+TOOLCHAIN_DIR  = $(shell xcrun --find swift | sed 's|/usr/bin/swift$$||')
 
-.PHONY: help build bundle format format-check lint periphery secrets shellcheck check hooks signing clean
+.PHONY: help build bundle run format check format-check lint periphery secrets shellcheck hooks signing clean
 
 help: ## List targets
-	@grep -E '^[a-z0-9-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-14s %s\n", $$1, $$2}'
+	@awk 'BEGIN { FS = ":.*## " } /^[a-z0-9-]+:.*## / { printf "  %-14s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-build: ## Build everything (warnings are errors in our own targets, see Package.swift)
-	swift build
+build: ## Build every target
+	swift build --configuration $(CONFIG)
 
 bundle: ## Build and sign build/Dictate.app
-	scripts/bundle.sh Dictate
+	scripts/bundle.sh $(CONFIG)
 
-format: ## Auto-format Swift sources
-	swiftformat Sources Package.swift
+run: bundle ## Build, sign, and open Dictate
+	open build/Dictate.app
 
-format-check: ## Fail if formatting differs (no changes made)
-	swiftformat Sources Package.swift --lint
+format: ## Format Swift, shell, and the property list
+	swiftformat .
+	shfmt -w scripts
+	plutil -convert xml1 Packaging/Dictate-Info.plist
 
-lint: ## SwiftLint in strict mode (warnings fail)
-	scripts/swiftlint.sh
+check: format-check lint build periphery secrets shellcheck ## Run every check that CI runs
+	@echo "make check: OK"
 
-periphery: ## Find unused code
-	periphery scan --strict --quiet
+format-check: ## Fail on any formatting difference
+	swiftformat . --lint
+	shfmt -d scripts
+	plutil -convert xml1 -o - Packaging/Dictate-Info.plist | diff -u Packaging/Dictate-Info.plist -
 
-secrets: ## Scan history and working tree for secrets
+lint: ## Lint Swift sources in strict mode
+	TOOLCHAIN_DIR=$(TOOLCHAIN_DIR) swiftlint lint --quiet
+
+periphery: build ## Fail on unused code
+	periphery scan --strict --quiet --retain-codable-properties --index-store-path $(INDEX_STORE)
+
+secrets: ## Scan the git history for secrets
 	gitleaks git --no-banner --redact
-	gitleaks dir . --no-banner --redact
 
 shellcheck: ## Lint shell scripts
 	shellcheck scripts/*.sh
 
-check: format-check lint build periphery secrets shellcheck ## Everything that must be green before a change is done
-	@echo "make check: OK"
-
-hooks: ## Install git pre-commit hooks
+hooks: ## Install the git pre-commit hooks
 	lefthook install
 
-signing: ## One-time: create the stable code-signing identity
+signing: ## Create the stable code-signing identity once
 	scripts/setup-signing.sh
 
-clean: ## Remove build output
+clean: ## Remove the build output
 	rm -rf .build build

@@ -1,45 +1,70 @@
-#!/usr/bin/env bash
-# Builds a product and wraps it into build/<Product>.app, then code-signs it.
-# Usage: scripts/bundle.sh <Product> [debug|release]
-#
-# Signing matters: macOS ties privacy permissions (microphone, Accessibility, Input Monitoring)
-# to the app's code signature. An ad-hoc signature changes on every build, so permissions
-# would reset each time. Run scripts/setup-signing.sh once to get a stable identity.
+#!/bin/bash
 set -euo pipefail
-cd "$(dirname "$0")/.."
 
-product=${1:?usage: bundle.sh <Product> [debug|release]}
-config=${2:-debug}
-identity=${DICTATE_SIGN_IDENTITY:-Dictate Dev}
-keychain=${DICTATE_KEYCHAIN:-}
+readonly PRODUCT='Dictate'
+readonly APP="build/${PRODUCT}.app"
+readonly IDENTITY='Dictate Dev'
+readonly USAGE='usage: scripts/bundle.sh [debug|release]'
 
-swift build -c "$config" --product "$product" >&2
-bin_dir=$(swift build -c "$config" --show-bin-path)
+usage() {
+  echo "${USAGE}" >&2
 
-app="build/$product.app"
-rm -rf "$app"
-mkdir -p "$app/Contents/MacOS"
-cp "$bin_dir/$product" "$app/Contents/MacOS/$product"
-cp "Packaging/$product-Info.plist" "$app/Contents/Info.plist"
+  exit 2
+}
 
-if [[ "$product" == "Dictate" ]]; then
-    mkdir -p "$app/Contents/Resources"
-    cp Packaging/Dictate.icns "$app/Contents/Resources/Dictate.icns"
-fi
+build_binary() {
+  local configuration=$1
 
-find_args=(-p codesigning)
-sign_args=(--force)
-if [[ -n "$keychain" ]]; then
-    find_args+=("$keychain")
-    sign_args+=(--keychain "$keychain")
-fi
+  swift build --configuration "${configuration}" --product "${PRODUCT}" >&2
 
-if security find-identity -v "${find_args[@]}" | grep -q "\"$identity\""; then
-    codesign "${sign_args[@]}" --sign "$identity" "$app"
-    echo "signed $app with \"$identity\"" >&2
-else
-    codesign --force --sign - "$app"
-    echo "WARNING: identity \"$identity\" not found; signed $app ad-hoc." >&2
-    echo "         Permissions will reset on every rebuild. Run scripts/setup-signing.sh" >&2
-fi
-echo "$app"
+  swift build --configuration "${configuration}" --show-bin-path
+}
+
+assemble_app() {
+  local binary_dir=$1
+
+  rm -rf "${APP}"
+  mkdir -p "${APP}/Contents/MacOS" "${APP}/Contents/Resources"
+
+  cp "${binary_dir}/${PRODUCT}" "${APP}/Contents/MacOS/${PRODUCT}"
+  cp "Packaging/${PRODUCT}-Info.plist" "${APP}/Contents/Info.plist"
+  cp "Packaging/${PRODUCT}.icns" "${APP}/Contents/Resources/${PRODUCT}.icns"
+}
+
+has_identity() {
+  security find-identity -v -p codesigning | grep -q "\"${IDENTITY}\""
+}
+
+sign_app() {
+  if has_identity; then
+    codesign --force --sign "${IDENTITY}" "${APP}"
+
+    echo "signed ${APP} with \"${IDENTITY}\"" >&2
+
+    return
+  fi
+
+  codesign --force --sign - "${APP}"
+
+  echo "warning: ${APP} is signed ad hoc, so rebuilds lose its permissions" >&2
+  echo "warning: run make signing once to keep them" >&2
+}
+
+main() {
+  [[ $# -le 1 ]] || usage
+
+  local configuration=${1:-debug}
+  [[ ${configuration} == debug || ${configuration} == release ]] || usage
+
+  cd "$(dirname "$0")/.."
+
+  local binary_dir
+  binary_dir=$(build_binary "${configuration}")
+
+  assemble_app "${binary_dir}"
+  sign_app
+
+  echo "${APP}"
+}
+
+main "$@"

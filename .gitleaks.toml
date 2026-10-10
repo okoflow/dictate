@@ -1,9 +1,0 @@
-[extend]
-useDefault = true
-
-[allowlist]
-description = "build output"
-paths = [
-  '''^\.build/''',
-  '''^build/''',
-]

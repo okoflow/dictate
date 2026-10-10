@@ -1,13 +1,17 @@
-# SwiftPM / build
+# Build
+
 .build/
 build/
-*.xcodeproj
-.swiftpm/
-DerivedData/
 
-# macOS
+# Editors
+
+.swiftpm/
+
+# System
+
 .DS_Store
 
 # Secrets
+
 .env
 .env.*
