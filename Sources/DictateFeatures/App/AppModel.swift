@@ -12,6 +12,7 @@ package final class AppModel {
     package let dictation: DictationController
     package let modeSwitcher: ModeSwitcher
     package let history: HistoryModel
+    package let stats: StatsModel
     package let vocabulary: VocabularyModel
     package let apiKeys: PerProvider<APIKeyModel>
     package let localModels: LocalModelsModel
@@ -59,6 +60,7 @@ package final class AppModel {
         )
         modeSwitcher = ModeSwitcher(shortcut: dependencies.modeShortcut, settings: models.settings, hud: models.hud)
         history = models.history
+        stats = models.stats
         vocabulary = models.vocabulary
         apiKeys = PerProvider(
             claude: APIKeyModel(store: dependencies.apiKeyStores.claude),

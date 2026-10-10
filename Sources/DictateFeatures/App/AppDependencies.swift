@@ -21,6 +21,7 @@ package struct AppDependencies {
     package let vocabularyStore: any ValueStore<Vocabulary>
     package let vocabularyFile: URL
     package let historyStore: any ValueStore<DictationHistory>
+    package let statsStore: any ValueStore<DictationStats>
     package let apiKeyStores: PerProvider<any ValueStore<String>>
 
     package init(
@@ -43,6 +44,7 @@ package struct AppDependencies {
         vocabularyStore: any ValueStore<Vocabulary>,
         vocabularyFile: URL,
         historyStore: any ValueStore<DictationHistory>,
+        statsStore: any ValueStore<DictationStats>,
         apiKeyStores: PerProvider<any ValueStore<String>>,
     ) {
         self.recorder = recorder
@@ -64,6 +66,7 @@ package struct AppDependencies {
         self.vocabularyStore = vocabularyStore
         self.vocabularyFile = vocabularyFile
         self.historyStore = historyStore
+        self.statsStore = statsStore
         self.apiKeyStores = apiKeyStores
     }
 }

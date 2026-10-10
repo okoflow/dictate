@@ -179,7 +179,12 @@ Edits to the file apply from the next dictation.
 
 ## History
 
-Settings › History lists your dictations with the time, the mode, and the app,
+Settings › History starts with this week: how many words you dictated, the
+time that saved over typing at 40 words a minute, and your speaking speed,
+with a chart of the last two weeks. Only these counts are kept, never the
+text, and **Reset Stats…** sets them back to zero.
+
+Below that, Settings › History lists your dictations with the time, the mode, and the app,
 and copies any of them with one click. They stay for a month and up to 1,000
 dictations unless you change **Keep dictations for** (a day to forever) or
 **Keep at most** (100 to 10,000). Turn off

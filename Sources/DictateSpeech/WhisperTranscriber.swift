@@ -3,8 +3,7 @@ import DictateCore
 import Foundation
 
 package actor WhisperTranscriber: Transcriber {
-    private static let sampleRate = 16000.0
-    private static let windowSampleCount = 30 * 16000
+    private static let windowSampleCount = 30 * Int(SpeechAudio.sampleRate)
     private static let maximumPromptTokens = 200
 
     package nonisolated let modelDirectory: URL
@@ -78,7 +77,7 @@ package actor WhisperTranscriber: Transcriber {
     }
 
     package func transcribe(_ samples: [Float], in language: Language?, vocabulary: [String]) async throws -> Transcript? {
-        guard SpeechGate.containsSpeech(samples, sampleRate: Self.sampleRate) else { return nil }
+        guard SpeechGate.containsSpeech(samples, sampleRate: SpeechAudio.sampleRate) else { return nil }
         guard let whisper else { throw TranscriberError.notLoaded }
 
         await waitForTurn()

@@ -11,5 +11,6 @@ extension Font {
     static let editor = Font.system(size: 12)
     static let practice = Font.system(size: 15)
     static let badge = Font.system(size: 10, weight: .medium)
+    static let metric = Font.system(size: 22, weight: .semibold, design: .rounded)
     static let glyph = Font.system(size: 11, weight: .semibold)
 }

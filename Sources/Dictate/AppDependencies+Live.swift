@@ -16,19 +16,13 @@ extension AppDependencies {
         let appleIntelligence = AppleIntelligence()
         let vocabularyFile = AppIdentity.supportDirectory.appending(path: "dictionary.json")
         let historyFile = AppIdentity.supportDirectory.appending(path: "history.json")
+        let statsFile = AppIdentity.supportDirectory.appending(path: "stats.json")
 
         return AppDependencies(
             recorder: AudioEngineRecorder(),
             audioInputs: CoreAudioInputs(),
             transcriber: WhisperTranscriber(),
-            rewriters: Rewriters(
-                cloud: PerProvider(
-                    claude: AnthropicRewriter(apiKeyStore: apiKeyStores.claude),
-                    openAI: OpenAIRewriter(apiKeyStore: apiKeyStores.openAI),
-                ),
-                localServer: localServer,
-                apple: appleIntelligence,
-            ),
+            rewriters: rewriters(keys: apiKeyStores, localServer: localServer, apple: appleIntelligence),
             localServers: localServer,
             onDeviceModel: appleIntelligence,
             keyEventMonitor: KeyEventTap(),
@@ -44,7 +38,23 @@ extension AppDependencies {
             vocabularyStore: JSONFileStore<Vocabulary>(url: vocabularyFile),
             vocabularyFile: vocabularyFile,
             historyStore: JSONFileStore<DictationHistory>(url: historyFile, isPrivate: true),
+            statsStore: JSONFileStore<DictationStats>(url: statsFile),
             apiKeyStores: apiKeyStores,
+        )
+    }
+
+    private static func rewriters(
+        keys: PerProvider<any ValueStore<String>>,
+        localServer: LocalServerRewriter,
+        apple: AppleIntelligence,
+    ) -> Rewriters {
+        Rewriters(
+            cloud: PerProvider(
+                claude: AnthropicRewriter(apiKeyStore: keys.claude),
+                openAI: OpenAIRewriter(apiKeyStore: keys.openAI),
+            ),
+            localServer: localServer,
+            apple: apple,
         )
     }
 }

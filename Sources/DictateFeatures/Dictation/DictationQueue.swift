@@ -10,6 +10,7 @@ final class DictationQueue {
     @ObservationIgnored private let inserter: any TextInserter
     @ObservationIgnored private let clipboard: any Clipboard
     @ObservationIgnored private let history: HistoryModel
+    @ObservationIgnored private let stats: StatsModel
     @ObservationIgnored private let settings: SettingsModel
     @ObservationIgnored private let hud: HUDController
     @ObservationIgnored private let continuation: AsyncStream<DictationJob>.Continuation
@@ -26,6 +27,7 @@ final class DictationQueue {
         inserter: any TextInserter,
         clipboard: any Clipboard,
         history: HistoryModel,
+        stats: StatsModel,
         settings: SettingsModel,
         hud: HUDController,
     ) {
@@ -34,6 +36,7 @@ final class DictationQueue {
         self.inserter = inserter
         self.clipboard = clipboard
         self.history = history
+        self.stats = stats
         self.settings = settings
         self.hud = hud
 
@@ -138,6 +141,8 @@ final class DictationQueue {
     }
 
     private func remember(_ processed: ProcessedText, for job: DictationJob) {
+        stats.record(processed.text, seconds: SpeechAudio.duration(of: job.samples))
+
         guard settings.settings.keepsHistory else { return }
 
         let entry = DictationHistory.Entry(

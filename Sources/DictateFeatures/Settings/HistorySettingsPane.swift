@@ -6,6 +6,7 @@ struct HistorySettingsPane: View {
     @Bindable var settings: SettingsModel
     @Bindable var history: HistoryModel
 
+    let stats: StatsModel
     let state: SettingsWindowState
     let copy: (DictationHistory.Entry) -> Void
 
@@ -34,6 +35,8 @@ struct HistorySettingsPane: View {
     }
 
     var body: some View {
+        StatsSection(stats: stats)
+
         SettingsSection("Saving") {
             ToggleRow("Keep history", isOn: $settings.settings.keepsHistory, description: "Saved only on this Mac.")
 

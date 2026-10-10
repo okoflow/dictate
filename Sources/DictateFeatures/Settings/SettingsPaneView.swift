@@ -46,7 +46,13 @@ struct SettingsPaneView: View {
             DictionarySettingsPane(vocabulary: model.vocabulary)
 
         case .history:
-            HistorySettingsPane(settings: model.settings, history: model.history, state: state, copy: model.copy)
+            HistorySettingsPane(
+                settings: model.settings,
+                history: model.history,
+                stats: model.stats,
+                state: state,
+                copy: model.copy,
+            )
 
         case .about:
             AboutSettingsPane()
