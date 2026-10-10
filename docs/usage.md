@@ -77,7 +77,7 @@ mode of the app that was in front when you pressed the key.
 
 ### The Claude API key
 
-Create a key in the
+Create a key inside a workspace in the
 [Anthropic Console](https://console.anthropic.com/settings/keys) and paste it
 into Settings › Modes › Claude. Dictate keeps it in your login Keychain, on
 this Mac only, and reads it for each cloud request. **Remove** deletes it.

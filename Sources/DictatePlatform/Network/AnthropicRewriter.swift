@@ -1,5 +1,6 @@
 import DictateCore
 import Foundation
+import os
 
 package struct AnthropicRewriter: TextRewriter {
     private let apiKeyStore: any ValueStore<String>
@@ -23,7 +24,13 @@ package struct AnthropicRewriter: TextRewriter {
 
         let (data, response) = try await send(request)
         guard let status = (response as? HTTPURLResponse)?.statusCode else { throw RewriteError.unreadableResponse }
-        guard (200 ..< 300).contains(status) else { throw AnthropicMessagesCodec.error(forStatus: status) }
+        guard (200 ..< 300).contains(status) else {
+            let detail = AnthropicMessagesCodec.errorDescription(from: data) ?? "no details"
+
+            Logger.network.error("Claude answered HTTP \(status): \(detail, privacy: .public)")
+
+            throw AnthropicMessagesCodec.error(forStatus: status)
+        }
 
         return try AnthropicMessagesCodec.answer(from: data)
     }

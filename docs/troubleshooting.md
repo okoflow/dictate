@@ -57,9 +57,11 @@ The second line of the HUD says why:
 - **Claude rejected the API key**: check the key in the
   [Anthropic Console](https://console.anthropic.com/settings/keys) and paste it
   again.
-- **You're offline**, **Claude didn't answer within 3 seconds**, **Claude is
-  rate-limiting requests**, or **Claude returned an error**: the next dictation
-  tries again.
+- **You're offline**, **Claude didn't answer within 3 seconds**, or **Claude
+  is rate-limiting requests**: the next dictation tries again.
+- **Claude returned an error**: the `network` log category records the reason.
+  The common one is a key that isn't scoped to a workspace: create the key
+  inside a workspace in the Anthropic Console and paste it again.
 - **Claude's answer couldn't be used**: the answer was cut off, refused, or in
   another language. Dictating again usually works.
 

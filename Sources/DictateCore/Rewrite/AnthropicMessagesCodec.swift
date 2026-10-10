@@ -37,6 +37,12 @@ package enum AnthropicMessagesCodec {
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    package static func errorDescription(from data: Data) -> String? {
+        guard let response = try? JSONDecoder().decode(MessagesError.self, from: data) else { return nil }
+
+        return "\(response.error.type): \(response.error.message)"
+    }
+
     package static func error(forStatus status: Int) -> RewriteError {
         switch status {
         case 401, 403: .rejectedKey
