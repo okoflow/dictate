@@ -1,25 +1,46 @@
 import Foundation
 
 package enum LightModeRules {
-    static let framingMarks: Set<Character> = [",", "，", "、", "…", "-", "–", "—"]
-    static let sentenceEnds: Set<Character> = [".", "!", "?", "。", "！", "？"]
+    static let framingMarks: Set<Character> = [",", "，", "、", "،", "…", "-", "–", "—"]
+    static let sentenceEnds: Set<Character> = [".", "!", "?", "。", "！", "？", "؟", "۔", "।", "॥"]
 
-    private static let closingMarks: Set<Character> = [",", ".", "…", "，", "。", "、", "！", "？", "：", "；"]
+    private static let closingMarks: Set<Character> = [
+        ",",
+        ".",
+        "…",
+        "，",
+        "。",
+        "、",
+        "！",
+        "？",
+        "：",
+        "；",
+        "،",
+        "؛",
+        "؟",
+        "۔",
+        "।",
+        "॥",
+    ]
     private static let highMarks: Set<Character> = ["!", "?", ";", ":"]
 
     package static func apply(_ text: String, language: Language) -> String {
         var remover = HesitationRemover(language: language, text: text)
         let tidy = tidiedSpacing(remover.run(), language: language)
-        let cased = language.hasLetterCase ? tidy.capitalizingFirstLetter() : tidy
+        let cased = language.hasLetterCase ? tidy.capitalizingFirstLetter(in: language) : tidy
 
         return withFullStop(cased, language: language)
     }
 
     package static func isHesitation(_ word: String, in language: Language) -> Bool {
-        let letters = word.lowercased().filter { $0 != "-" && $0 != "‐" }
+        let letters = word.folded(in: language).filter { $0 != "-" && $0 != "‐" }
         let runs = HesitationPattern.runs(of: letters)
 
         return HesitationPattern.patterns(for: language).contains { $0.matches(runs) }
+    }
+
+    static func endsSentence(_ mark: Character, in language: Language) -> Bool {
+        sentenceEnds.contains(mark) || mark == language.questionMark
     }
 
     private static func tidiedSpacing(_ text: String, language: Language) -> String {
@@ -93,7 +114,7 @@ private struct HesitationRemover {
     private mutating func keep(_ word: TextSegment) {
         let capitalizes = capitalizesNextWord && language.hasLetterCase
 
-        kept.append(capitalizes ? TextSegment(text: word.text.capitalizingFirstLetter(), isWord: true) : word)
+        kept.append(capitalizes ? TextSegment(text: word.text.capitalizingFirstLetter(in: language), isWord: true) : word)
 
         capitalizesNextWord = false
         previousWord = word.text
@@ -110,7 +131,7 @@ private struct HesitationRemover {
             kept.append(TextSegment(text: separator, isWord: false))
         }
 
-        if isAtStart || separator.contains(where: LightModeRules.sentenceEnds.contains) {
+        if isAtStart || separator.contains(where: { LightModeRules.endsSentence($0, in: language) }) {
             capitalizesNextWord = true
         }
     }

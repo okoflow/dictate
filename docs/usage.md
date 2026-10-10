@@ -120,6 +120,17 @@ or the **Language** menu.
 On first launch, Dictate adds up to three of your macOS preferred languages
 and English.
 
+Dictate understands 45 languages: Arabic, Azerbaijani, Bosnian, Bulgarian,
+Catalan, Chinese, Croatian, Czech, Danish, Dutch, English, Estonian, Filipino,
+Finnish, French, Galician, German, Greek, Hebrew, Hindi, Hungarian, Indonesian,
+Italian, Japanese, Korean, Latvian, Lithuanian, Macedonian, Malay, Norwegian,
+Polish, Portuguese, Romanian, Russian, Serbian, Slovak, Slovenian, Spanish,
+Swedish, Tamil, Thai, Turkish, Ukrainian, Urdu, and Vietnamese. They are the
+languages in which Whisper gets no more than 30% of the words wrong in OpenAI's
+published tests and that the model Dictate ships also handles well. Spanish,
+Italian, Korean, Portuguese, and English come out best; Tamil and Hebrew come
+out worst.
+
 ## Dictionary and snippets
 
 Settings › Dictionary holds two lists.

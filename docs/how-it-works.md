@@ -78,9 +78,11 @@ Light works word by word. It removes hesitation sounds, such as "um", "uh",
 forms, together with the commas around them, but keeps one that follows a
 number, as in "5 мм". It tidies the spaces around punctuation, following
 French spacing before `!`, `?`, `;`, and `:`, capitalizes the first letter in
-languages with letter case, and ends text that ends in a letter or digit with
-a full stop, "。" in Chinese and Japanese. Filler words with meaning, such as
-"like", "ну", or "그러니까", stay: telling them apart needs Clean.
+languages with letter case, with a dotted "İ" in Turkish and Azerbaijani, and
+ends text that ends in a letter or digit with a full stop: "。" in Chinese and
+Japanese, "।" in Hindi, "۔" in Urdu, and none in Thai. Filler words with
+meaning, such as "like", "ну", or "그러니까", stay: telling them apart needs
+Clean.
 
 ### Cloud modes
 

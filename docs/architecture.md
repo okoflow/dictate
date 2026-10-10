@@ -123,10 +123,14 @@ checking, and treats every warning as an error.
 
 ## Extending
 
-- **A language.** Add a case to `Language` with its Whisper code and names,
-  then its data: hesitation sounds in `HesitationPattern`, stock phrases in
-  `StockPhrase`, the example sentence in `WhisperPrompt`, and the writing
-  system and typography in `Language+Typography`.
+- **A language.** Add a case to `Language` with its Whisper code, its names
+  in `Language+Names`, and its writing systems in `Language+Typography`.
+  Letter case and word spacing follow from the `WritingScript`; a full stop
+  or question mark of its own goes next to them, and marks that comparisons
+  ignore go in `Language+Folding`. Then add its rows: the shortest spellings
+  of hesitation sounds in `HesitationPattern`, stock phrases in
+  `StockPhrase`, and the example sentence in `WhisperPrompt`. A language
+  without a row has none.
 - **A mode.** Add a case to `Mode` with its title and summary. A cloud mode
   needs its instruction in `RewritePrompt`.
 - **An adapter.** Implement the interface in `DictatePlatform` and pass it in

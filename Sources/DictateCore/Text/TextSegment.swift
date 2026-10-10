@@ -1,4 +1,6 @@
 struct TextSegment: Equatable {
+    private static let innerJoiners: Set<Character> = ["-", "'", "’", "‐", "\"", "׳", "״"]
+
     var text: String
     let isWord: Bool
 
@@ -27,7 +29,7 @@ struct TextSegment: Equatable {
     }
 
     private static func isInnerJoiner(at index: Int, in characters: [Character]) -> Bool {
-        guard ["-", "'", "’", "‐"].contains(characters[index]), index > 0, index + 1 < characters.count else { return false }
+        guard innerJoiners.contains(characters[index]), index > 0, index + 1 < characters.count else { return false }
 
         let before = characters[index - 1]
         let after = characters[index + 1]

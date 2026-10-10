@@ -53,6 +53,9 @@ the key.
 - Choose the microphone you speak into in Settings › Dictation › Microphone.
 - Add names and terms that come out wrong to the dictionary, with the
   spellings Whisper writes under **Heard as**.
+- Languages that sound alike, such as Russian and Ukrainian, Danish and
+  Norwegian, Indonesian and Malay, or Serbian, Croatian, and Bosnian, get
+  mixed up when you enable them together. Pin the one you speak.
 
 ## The cloud modes use Light
 

@@ -15,10 +15,14 @@ extension String {
         .otherSymbol,
     ]
 
+    func folded(in language: Language) -> String {
+        let lowered = precomposedStringWithCanonicalMapping.lowercased(with: language.locale)
+
+        return String(String.UnicodeScalarView(lowered.unicodeScalars.compactMap(language.foldedScalar)))
+    }
+
     func normalizedForComparison(in language: Language) -> String {
-        let lowered = precomposedStringWithCanonicalMapping
-            .lowercased(with: Locale(identifier: language.code))
-            .replacingOccurrences(of: "ё", with: "е")
+        let lowered = folded(in: language).replacingOccurrences(of: "ё", with: "е")
         let kept = String(String.UnicodeScalarView(lowered.unicodeScalars.filter {
             !Self.ignoredCategories.contains($0.properties.generalCategory)
         }))

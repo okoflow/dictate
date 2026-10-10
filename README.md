@@ -27,9 +27,14 @@ a cloud mode rewrites the text with Claude or OpenAI.
   clipboard is put back afterward. Password fields are left alone.
 - **Recognizes speech on your Mac.** Whisper large-v3 turbo runs on Core ML
   through WhisperKit. Audio stays in memory and is never saved.
-- **Understands thirteen languages.** Chinese, Dutch, English, French, German,
-  Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, and
-  Ukrainian. Dictate detects which one you speak among those you choose.
+- **Understands 45 languages.** Arabic, Azerbaijani, Bosnian, Bulgarian,
+  Catalan, Chinese, Croatian, Czech, Danish, Dutch, English, Estonian,
+  Filipino, Finnish, French, Galician, German, Greek, Hebrew, Hindi,
+  Hungarian, Indonesian, Italian, Japanese, Korean, Latvian, Lithuanian,
+  Macedonian, Malay, Norwegian, Polish, Portuguese, Romanian, Russian,
+  Serbian, Slovak, Slovenian, Spanish, Swedish, Tamil, Thai, Turkish,
+  Ukrainian, Urdu, and Vietnamese. Dictate detects which one you speak among
+  those you choose.
 - **Cleans up as much as you like.** Light removes hesitations such as "um",
   capitalizes the first letter, and adds a full stop, offline. Clean, Formal,
   and Translate to English rewrite the text with Claude or OpenAI, whichever
