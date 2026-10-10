@@ -51,6 +51,7 @@ Settings › Dictation if you don't want it.
 | Mode in *app* | Gives the app in front a mode of its own |
 | Language | Detects the language automatically, or pins one |
 | Copy Last Transcript | Copies the latest text again for 10 minutes, even one that was not pasted |
+| Transcribe File… | Turns a recording or a video into text or subtitles; see [Transcribing files](#transcribing-files) |
 | Recent | Copies one of your last five dictations |
 | Settings… | Opens Settings |
 
