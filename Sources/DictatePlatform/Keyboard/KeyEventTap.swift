@@ -4,7 +4,7 @@ import DictateCore
 import os
 
 @MainActor
-package final class ModifierKeyTap: KeyEventMonitor {
+package final class KeyEventTap: KeyEventMonitor {
     package let events: AsyncStream<KeyEvent>
 
     private let continuation: AsyncStream<KeyEvent>.Continuation
@@ -69,20 +69,20 @@ package final class ModifierKeyTap: KeyEventMonitor {
     }
 
     private func makeTap() -> CFMachPort? {
-        let mask = CGEventMask(1 << CGEventType.flagsChanged.rawValue) | CGEventMask(1 << CGEventType.keyDown.rawValue)
+        let mask = [CGEventType.flagsChanged, .keyDown, .keyUp].reduce(CGEventMask(0)) { $0 | CGEventMask(1 << $1.rawValue) }
 
         return CGEvent.tapCreate(
             tap: .cgSessionEventTap,
             place: .headInsertEventTap,
             options: .listenOnly,
             eventsOfInterest: mask,
-            callback: modifierKeyTapCallback,
+            callback: keyEventTapCallback,
             userInfo: Unmanaged.passUnretained(self).toOpaque(),
         )
     }
 }
 
-private let modifierKeyTapCallback: CGEventTapCallBack = { _, type, event, context in
+private let keyEventTapCallback: CGEventTapCallBack = { _, type, event, context in
     guard let context, let kind = KeyEvent.Kind(type) else { return Unmanaged.passUnretained(event) }
 
     let timestamp = event.timestamp > 0 ? Double(event.timestamp) / 1_000_000_000 : Uptime.now
@@ -92,7 +92,7 @@ private let modifierKeyTapCallback: CGEventTapCallBack = { _, type, event, conte
         flags: event.flags.rawValue,
         timestamp: timestamp,
     )
-    let tap = Unmanaged<ModifierKeyTap>.fromOpaque(context).takeUnretainedValue()
+    let tap = Unmanaged<KeyEventTap>.fromOpaque(context).takeUnretainedValue()
 
     MainActor.assumeIsolated { tap.receive(keyEvent) }
 
@@ -104,6 +104,7 @@ extension KeyEvent.Kind {
         switch type {
         case .flagsChanged: self = .modifiersChanged
         case .keyDown: self = .keyDown
+        case .keyUp: self = .keyUp
         case .tapDisabledByTimeout, .tapDisabledByUserInput: self = .monitorDisabled
         default: return nil
         }

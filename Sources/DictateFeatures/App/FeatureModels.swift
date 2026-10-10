@@ -7,6 +7,7 @@ struct FeatureModels {
     let vocabulary: VocabularyModel
     let history: HistoryModel
     let hud: HUDController
+    let keyRecorder: KeyRecorder
 
     init(dependencies: AppDependencies) {
         settings = SettingsModel(
@@ -22,6 +23,7 @@ struct FeatureModels {
         vocabulary = VocabularyModel(store: dependencies.vocabularyStore, fileURL: dependencies.vocabularyFile)
         history = HistoryModel(store: dependencies.historyStore)
         hud = HUDController()
+        keyRecorder = KeyRecorder()
     }
 
     func makeQueue(dependencies: AppDependencies) -> DictationQueue {

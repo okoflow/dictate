@@ -47,7 +47,6 @@ private struct SidebarBackground: View {
             .overlay {
                 shape.stroke(Palette.sidebarBorder, lineWidth: 1)
             }
-            .shadow(color: Palette.sidebarShadow, radius: 14, y: 2)
     }
 }
 

@@ -32,8 +32,9 @@ the text.
 - You can dictate again while the previous text is still being recognized.
   Texts arrive in the order you spoke them.
 
-The dictation key is right Option by default; Settings › Dictation switches it
-to right Command or right Shift.
+The dictation key is right Option by default. To change it, click the key in
+Settings › Dictation and press another: Option, Command, Shift, or Control on
+either side, fn (🌐), or an F-key. Keys that type text can't be used.
 
 ## The menu
 
@@ -61,7 +62,7 @@ stop. Light works offline and leaves words with meaning alone: filler words
 such as "like" and self-corrections need Clean.
 
 The cloud modes, marked with ☁︎, send the recognized text to Claude or
-OpenAI, whichever you choose in Settings › Cloud:
+OpenAI, whichever you choose in Settings › AI Models:
 
 - **Clean** removes filler words and false starts, keeps only the final
   version when you correct yourself ("Thursday, no, Friday"), and fixes the
@@ -90,7 +91,7 @@ was in front when you pressed the key.
 
 ### The cloud provider
 
-Choose **Claude** or **OpenAI** in Settings › Cloud, then paste that
+Choose **Claude** or **OpenAI** in Settings › AI Models, then paste that
 provider's API key:
 
 - Claude: create the key inside a workspace in the
@@ -157,7 +158,7 @@ a password field is never saved.
 | General | Opening at login, the menu bar icon, sounds, permissions |
 | Dictation | The dictation key, the microphone, languages, the spoken language, the speech model |
 | Writing | The mode and its instructions, per-app modes, pasting |
-| Cloud | The cloud provider and its API key |
+| AI Models | Claude or OpenAI for the cloud modes, and its API key |
 | Dictionary | Terms and snippets |
 | History | How long to keep it, searching, copying, and clearing |
 | About | The version, the source code, and the license |

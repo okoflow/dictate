@@ -94,7 +94,7 @@ the languages Dictate listens for.
 Light is the default. Clean, Formal, and Translate to English need an API
 key from [Anthropic](https://console.anthropic.com/settings/keys) or
 [OpenAI](https://platform.openai.com/settings/organization/api-keys), which you add in Settings ›
-Cloud and which stays in your Keychain. Without a key, offline, or when the
+AI Models and which stays in your Keychain. Without a key, offline, or when the
 provider does not answer within 3 seconds, Dictate uses Light and says why, so
 you always get your text.
 

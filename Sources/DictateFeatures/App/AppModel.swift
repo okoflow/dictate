@@ -16,6 +16,7 @@ package final class AppModel {
     package let apiKeys: PerProvider<APIKeyModel>
     package let frontmostApp: FrontmostAppTracker
     package let hud: HUDController
+    package let keyRecorder: KeyRecorder
     package let onboarding: OnboardingModel
 
     @ObservationIgnored package let windows: WindowPresenter
@@ -64,6 +65,7 @@ package final class AppModel {
         )
         frontmostApp = FrontmostAppTracker()
         hud = models.hud
+        keyRecorder = models.keyRecorder
         onboarding = OnboardingModel()
         windows = WindowPresenter()
         clipboard = dependencies.clipboard

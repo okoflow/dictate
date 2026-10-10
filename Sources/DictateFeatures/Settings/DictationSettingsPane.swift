@@ -6,6 +6,7 @@ struct DictationSettingsPane: View {
     @Bindable var settings: SettingsModel
 
     let speechModel: SpeechModelController
+    let keyRecorder: KeyRecorder
 
     private var selection: LanguageSelection {
         settings.settings.languages
@@ -26,6 +27,20 @@ struct DictationSettingsPane: View {
         return "Russian and Ukrainian sound alike: pin one if Dictate mixes them up."
     }
 
+    private var keyNote: String? {
+        if keyRecorder.rejectedKey {
+            return "That key types text. Press a modifier, fn, or an F-key."
+        }
+
+        if keyRecorder.isRecording {
+            return "Press Option, Command, Shift or Control on either side, fn, or an F-key. Esc cancels."
+        }
+
+        return settings.settings.pushToTalkKey == .function
+            ? "Set “Press 🌐 key to” to Do Nothing in System Settings › Keyboard."
+            : nil
+    }
+
     private var microphoneName: String {
         settings.microphones.first { $0.id == settings.settings.microphoneID }?.name ?? "System default"
     }
@@ -38,13 +53,9 @@ struct DictationSettingsPane: View {
 
     var body: some View {
         SettingsSection("Recording") {
-            PickerRow(
-                "Hold to dictate",
-                selection: $settings.settings.pushToTalkKey,
-                current: settings.settings.pushToTalkKey.title,
-            ) {
-                ForEach(PushToTalkKey.allCases, id: \.self) { key in
-                    Text(key.title).tag(key)
+            SettingsRow("Hold to dictate", description: keyNote) {
+                KeyRecorderField(key: settings.settings.pushToTalkKey, recorder: keyRecorder) { key in
+                    settings.settings.pushToTalkKey = key
                 }
             }
             RowDivider()
@@ -96,6 +107,7 @@ struct DictationSettingsPane: View {
         SettingsSection("Speech model", subtitle: "Recognition runs on this Mac.") {
             SpeechModelRow(controller: speechModel)
         }
+        .onDisappear { keyRecorder.stop() }
     }
 }
 

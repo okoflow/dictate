@@ -23,7 +23,7 @@ package enum RewriteFallback: String, Sendable {
         let name = provider.title
 
         return switch self {
-        case .missingKey: "Used Light: add your \(name) API key in Settings › Modes"
+        case .missingKey: "Used Light: add your \(name) API key in Settings › AI Models"
         case .rejectedKey: "Used Light: \(name) rejected the API key"
         case .offline: "Used Light: you're offline"
         case .timeout: "Used Light: \(name) didn't answer within 3 seconds"

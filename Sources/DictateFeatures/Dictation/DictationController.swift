@@ -25,6 +25,7 @@ package final class DictationController {
     @ObservationIgnored private let speechModel: SpeechModelController
     @ObservationIgnored private let vocabulary: VocabularyModel
     @ObservationIgnored private let hud: HUDController
+    @ObservationIgnored private let keyRecorder: KeyRecorder
     @ObservationIgnored private let queue: DictationQueue
     @ObservationIgnored private var pushToTalk = PushToTalk()
     @ObservationIgnored private var watchdog = ReleaseWatchdog()
@@ -46,6 +47,7 @@ package final class DictationController {
         speechModel = models.speechModel
         vocabulary = models.vocabulary
         hud = models.hud
+        keyRecorder = models.keyRecorder
         self.queue = queue
     }
 
@@ -77,9 +79,11 @@ extension DictationController {
     }
 
     private func handle(_ keyEvent: KeyEvent) {
+        guard !keyRecorder.isRecording else { return }
+
         let key = settings.settings.pushToTalkKey
 
-        if key.isMarked(in: keyEvent.flags) {
+        if key.isPressed(by: keyEvent) {
             watchdog.keyWasSeen()
         }
 

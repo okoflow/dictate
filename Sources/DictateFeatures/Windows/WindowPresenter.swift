@@ -40,6 +40,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
 
         if closing == settingsWindow {
             settingsState.editedInstructions = nil
+            model?.keyRecorder.stop()
         }
 
         let othersVisible = [settingsWindow, onboardingWindow].contains { $0 != nil && $0 != closing && $0?.isVisible == true }

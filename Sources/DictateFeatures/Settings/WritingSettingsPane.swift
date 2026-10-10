@@ -37,7 +37,7 @@ struct WritingSettingsPane: View {
                     .font(.rowDetail)
                     .foregroundStyle(.secondary)
 
-                Button("Set Up…") { state.selection = .cloud }
+                Button("Set Up…") { state.selection = .aiModels }
             }
         }
 

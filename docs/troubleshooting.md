@@ -14,6 +14,11 @@ sections below cover what they point to.
   model is ready. The first load takes about a minute.
 - **Another key is set.** Settings › Dictation › Hold to dictate shows which key
   Dictate listens for.
+- **fn opens emoji or dictation.** With fn (🌐) as the key, set **Press 🌐 key
+  to** to **Do Nothing** in System Settings › Keyboard.
+- **An F-key does nothing.** F1–F12 act as media keys unless **Use F1, F2, etc.
+  keys as standard function keys** is on in System Settings › Keyboard ›
+  Keyboard Shortcuts › Function Keys.
 - **Permissions were lost after a rebuild.** An app signed ad hoc gets a new
   identity with every build, and macOS forgets what you allowed. Run
   `make signing` once, rebuild, remove the old Dictate entries in Privacy &
@@ -54,7 +59,7 @@ the key.
 The second line of the HUD says why and names the provider you chose,
 Claude or OpenAI:
 
-- **Add your API key**: add it in Settings › Cloud.
+- **Add your API key**: add it in Settings › AI Models.
 - **Rejected the API key**: check the key in the
   [Anthropic Console](https://console.anthropic.com/settings/keys) or the
   [OpenAI dashboard](https://platform.openai.com/settings/organization/api-keys) and paste it again.

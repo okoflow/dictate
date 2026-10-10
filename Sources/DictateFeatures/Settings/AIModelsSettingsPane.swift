@@ -1,7 +1,7 @@
 import DictateCore
 import SwiftUI
 
-struct CloudSettingsPane: View {
+struct AIModelsSettingsPane: View {
     private static let consoles: PerProvider<URL> = PerProvider(
         claude: URL(literal: "https://console.anthropic.com/settings/keys"),
         openAI: URL(literal: "https://platform.openai.com/settings/organization/api-keys"),
@@ -16,7 +16,7 @@ struct CloudSettingsPane: View {
     }
 
     var body: some View {
-        SettingsSection("Provider", subtitle: "Clean, Formal and Translate send the text, never audio.") {
+        SettingsSection("Model", subtitle: "Clean, Formal and Translate send the text, never audio.") {
             SettingsRow("Rewrite with") {
                 SegmentedPicker(
                     "Rewrite with",

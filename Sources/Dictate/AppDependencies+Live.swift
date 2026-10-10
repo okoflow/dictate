@@ -23,7 +23,7 @@ extension AppDependencies {
                 claude: AnthropicRewriter(apiKeyStore: apiKeyStores.claude),
                 openAI: OpenAIRewriter(apiKeyStore: apiKeyStores.openAI),
             ),
-            keyEventMonitor: ModifierKeyTap(),
+            keyEventMonitor: KeyEventTap(),
             keyboardState: keyboardState,
             modeShortcut: CarbonHotKey.modeCycle(),
             focusTracker: focusTracker,

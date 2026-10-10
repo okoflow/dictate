@@ -4,6 +4,7 @@ package struct KeyEvent: Sendable {
     package enum Kind: Sendable {
         case modifiersChanged
         case keyDown
+        case keyUp
         case monitorDisabled
     }
 

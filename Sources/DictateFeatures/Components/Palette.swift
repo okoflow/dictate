@@ -6,7 +6,6 @@ enum Palette {
     static let window = Color(nsColor: windowColor)
     static let sidebar = Color(nsColor: dynamic(light: (1, 1), dark: (0.165, 1)))
     static let sidebarBorder = Color(nsColor: dynamic(light: (0, 0.055), dark: (1, 0.07)))
-    static let sidebarShadow = Color(nsColor: dynamic(light: (0, 0.06), dark: (0, 0.35)))
     static let selection = Color(nsColor: dynamic(light: (0, 0.06), dark: (1, 0.1)))
     static let hover = Color(nsColor: dynamic(light: (0, 0.03), dark: (1, 0.05)))
     static let card = Color(nsColor: dynamic(light: (1, 1), dark: (1, 0.055)))
