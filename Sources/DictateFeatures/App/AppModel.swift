@@ -155,7 +155,7 @@ package final class AppModel {
     private func speechModelDidBecomeReady() {
         let key = settings.settings.pushToTalkKey.shortTitle
 
-        hud.show(HUDMessage(kind: .info, title: "Ready: hold \(key) and speak"))
+        hud.show(HUDMessage(kind: .info, title: String(localized: "Ready: hold \(key) and speak")))
     }
 
     private func finishOnboarding() {

@@ -47,6 +47,11 @@ model on your own Mac.
   change: "make it shorter", "turn this into a list", "translate into German".
 - **Transcribes files.** Drop a recording or a video on Transcribe File… and
   get the text or SRT subtitles, recognized on your Mac.
+- **Speaks your language.** Menus, Settings, and messages are in English,
+  Russian, Ukrainian, German, French, Italian, Spanish, Brazilian Portuguese,
+  Japanese, Korean, and Simplified Chinese, following the language of your Mac
+  or the one you pick for Dictate in System Settings › General › Language &
+  Region.
 - **Learns your words.** The dictionary fixes names and terms that come out
   wrong, and snippets turn a spoken phrase into text such as your email
   address.

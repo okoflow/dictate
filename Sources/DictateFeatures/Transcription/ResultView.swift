@@ -40,16 +40,39 @@ struct ResultView: View {
                 .frame(minHeight: 160, maxHeight: .infinity)
             }
 
-            HStack(spacing: Metrics.controlSpacing) {
-                Button("Transcribe Another File", action: model.reset)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Metrics.controlSpacing) {
+                    anotherFileButton
 
-                Spacer(minLength: 0)
+                    Spacer(minLength: Metrics.controlSpacing)
 
-                Button("Save Text…") { model.save(.text) }
+                    saveButtons
+                }
 
-                Button("Save Subtitles…") { model.save(.subtitles) }
-                    .buttonStyle(PushButtonStyle(isProminent: true))
+                VStack(alignment: .trailing, spacing: Metrics.controlSpacing) {
+                    HStack(spacing: Metrics.controlSpacing) {
+                        saveButtons
+                    }
+
+                    anotherFileButton
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
         }
+    }
+
+    private var anotherFileButton: some View {
+        Button("Transcribe Another File", action: model.reset)
+            .fixedSize()
+    }
+
+    @ViewBuilder
+    private var saveButtons: some View {
+        Button("Save Text…") { model.save(.text) }
+            .fixedSize()
+
+        Button("Save Subtitles…") { model.save(.subtitles) }
+            .buttonStyle(PushButtonStyle(isProminent: true))
+            .fixedSize()
     }
 }

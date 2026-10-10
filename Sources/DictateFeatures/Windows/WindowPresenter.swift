@@ -140,7 +140,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         window.titleVisibility = .hidden
         window.titlebarSeparatorStyle = .none
         window.backgroundColor = Palette.windowColor
-        window.setContentSize(NSSize(width: 560, height: 560))
+        window.setContentSize(NSSize(width: 600, height: 580))
         window.contentMinSize = NSSize(width: 520, height: 480)
         window.isReleasedWhenClosed = false
         window.delegate = self
