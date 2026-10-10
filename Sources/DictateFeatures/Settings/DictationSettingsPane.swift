@@ -19,11 +19,22 @@ struct DictationSettingsPane: View {
     }
 
     private var spokenLanguageNote: String? {
-        let languages = selection.languages
+        guard let alike = Language.soundAlike(among: selection.languages) else { return nil }
 
-        guard languages.contains(.russian), languages.contains(.ukrainian) else { return nil }
+        let names = ListFormatter.localizedString(byJoining: alike.map(\.name))
 
-        return "Russian and Ukrainian sound alike: pin one if Dictate mixes them up."
+        return "\(names) sound alike: pin one if Dictate mixes them up."
+    }
+
+    private var suggestedLanguages: [Language] {
+        var suggested: [Language] = []
+
+        for language in Locale.preferredLanguages.compactMap(Language.init(localeIdentifier:))
+            where !selection.languages.contains(language) && !suggested.contains(language) {
+            suggested.append(language)
+        }
+
+        return suggested
     }
 
     private var keyNote: String? {
@@ -94,9 +105,17 @@ struct DictationSettingsPane: View {
             }
         } footer: {
             Menu {
-                ForEach(addableLanguages, id: \.self) { language in
-                    Button("\(language.name) · \(language.nativeName)") {
-                        settings.settings.languages = selection.including(language, true)
+                if !suggestedLanguages.isEmpty {
+                    Section("Suggested") {
+                        ForEach(suggestedLanguages, id: \.self) { language in
+                            AddLanguageButton(language: language, settings: settings)
+                        }
+                    }
+                }
+
+                Section("All Languages") {
+                    ForEach(addableLanguages, id: \.self) { language in
+                        AddLanguageButton(language: language, settings: settings)
                     }
                 }
             } label: {
@@ -109,6 +128,22 @@ struct DictationSettingsPane: View {
         }
         .animation(.snappy(duration: 0.2), value: selection.languages)
         .onDisappear { keyRecorder.stop() }
+    }
+}
+
+private struct AddLanguageButton: View {
+    let language: Language
+
+    @Bindable var settings: SettingsModel
+
+    private var title: String {
+        language.name == language.nativeName ? language.name : "\(language.name) · \(language.nativeName)"
+    }
+
+    var body: some View {
+        Button(title) {
+            settings.settings.languages = settings.settings.languages.including(language, true)
+        }
     }
 }
 
