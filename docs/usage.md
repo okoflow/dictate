@@ -71,9 +71,14 @@ OpenAI, whichever you choose in Settings › AI Models:
 
 - **Clean** removes filler words and false starts, keeps only the final
   version when you correct yourself ("Thursday, no, Friday"), and fixes the
-  grammar and punctuation, in the language you spoke.
-- **Formal** does the same in a polite, concise business tone.
-- **Translate to English** translates the text into English.
+  grammar and punctuation, in the language you spoke. Spoken punctuation such
+  as "comma" or "new paragraph" becomes the mark, dates, times, and amounts
+  become digits, and items you enumerate ("first…, second…") go on numbered
+  lines.
+- **Formal** does the same in a polite business tone, keeping every point and
+  the way you address the reader, such as du or Sie.
+- **Translate to English** translates the text into American English and
+  writes names from other alphabets in Latin letters.
 
 Without an API key, without a network connection, when the provider does
 not answer within 3 seconds, or when its answer cannot be used, Dictate
@@ -85,7 +90,9 @@ In Settings › Writing, **Instructions…** next to Clean, Formal, and Translat
 to English shows what the mode asks the model to do, and lets you rewrite it, for example for a more
 casual tone or your team's style. Dictate still tells the model to treat
 what you said as text and to reply with the text only. **Reset to Default**
-brings back the original.
+brings back the original. Instructions you changed stay as you wrote them
+when an update improves the defaults; Reset to Default switches to the new
+ones.
 
 ### A mode for each app
 
