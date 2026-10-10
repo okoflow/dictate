@@ -14,6 +14,8 @@
   <img src="https://img.shields.io/badge/macOS-14%2B-informational" alt="macOS 14 or later">
 </p>
 
+https://github.com/user-attachments/assets/789262cb-d13e-4813-bd99-8e650cd78881
+
 Hold the right Option key, speak, and let go: the text appears wherever you
 are typing, in any app. Whisper turns your voice into text on your Mac, so the
 audio never leaves it. When you want polished prose rather than a transcript,
