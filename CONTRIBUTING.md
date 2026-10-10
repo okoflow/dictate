@@ -157,7 +157,7 @@ Commits follow
 
 ## Licensing of contributions
 
-Waft is licensed under the [MIT license](LICENSE). By submitting a
-contribution, you agree that it is licensed under the same terms. Add your
-name to [AUTHORS](AUTHORS) in your first pull request to be listed among The
-Waft Authors.
+Waft is licensed under the [GNU General Public License v3.0](LICENSE). By
+submitting a contribution, you agree that it is licensed under the same terms.
+Add your name to [AUTHORS](AUTHORS) in your first pull request to be listed
+among The Waft Authors.

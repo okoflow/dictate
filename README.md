@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/okoflow/waft/actions/workflows/ci.yml"><img src="https://github.com/okoflow/waft/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-informational" alt="macOS 14 or later">
 </p>
 
@@ -166,4 +166,7 @@ Report vulnerabilities privately through
 
 Copyright The Waft Authors, listed in [AUTHORS](AUTHORS).
 
-MIT. See [LICENSE](LICENSE).
+GPL-3.0. See [LICENSE](LICENSE). Releases up to 0.3.0 were published under
+the MIT License; [NOTICE](NOTICE) keeps its terms for that code.
+The license covers the code, not the Waft name and logo: a fork needs a name
+and an icon of its own.

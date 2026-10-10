@@ -38,7 +38,7 @@ struct AboutSettingsPane: View {
             RowDivider()
             LinkRow(title: "Source code", detail: "github.com/okoflow/waft", url: Self.repository)
             RowDivider()
-            LinkRow(title: "License", detail: "MIT", url: Self.license)
+            LinkRow(title: "License", detail: "GPL-3.0", url: Self.license)
         }
 
         Text("Copyright 2026 The Waft Authors")
