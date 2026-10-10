@@ -19,10 +19,7 @@ struct DictionarySettingsPane: View {
             } header: {
                 Text("Terms")
             } footer: {
-                SectionNote(
-                    "Names and words that come out wrong. "
-                        + "Dictate hints them to Whisper and replaces what it hears instead, as whole words.",
-                )
+                SectionNote("Names and words that come out wrong.")
             }
 
             Section {
@@ -39,9 +36,7 @@ struct DictionarySettingsPane: View {
             } header: {
                 Text("Snippets")
             } footer: {
-                SectionNote(
-                    "Say the phrase on its own and Dictate pastes the text as it is, without sending anything to the cloud.",
-                )
+                SectionNote("Say the phrase on its own to paste the text.")
             }
 
             Section {

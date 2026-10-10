@@ -5,16 +5,27 @@ import UniformTypeIdentifiers
 
 struct ModesSettingsPane: View {
     @Bindable var settings: SettingsModel
-    @Bindable var apiKey: APIKeyModel
 
+    let apiKeys: PerProvider<APIKeyModel>
     let shortcutTitle: String
+
+    private var provider: CloudProvider {
+        settings.settings.cloudProvider
+    }
+
+    private var keyPrompt: String {
+        switch provider {
+        case .claude: "sk-ant-…"
+        case .openAI: "sk-proj-…"
+        }
+    }
 
     var body: some View {
         Form {
             Section {
                 Picker("Mode", selection: $settings.settings.mode) {
                     ForEach(Mode.allCases, id: \.self) { mode in
-                        ModeLabel(mode: mode).tag(mode)
+                        ModeLabel(mode: mode, provider: provider).tag(mode)
                     }
                 }
                 .pickerStyle(.radioGroup)
@@ -22,7 +33,7 @@ struct ModesSettingsPane: View {
             } header: {
                 Text("Mode")
             } footer: {
-                SectionNote("Press \(shortcutTitle) anywhere to switch to the next mode.")
+                SectionNote("\(shortcutTitle) switches to the next mode.")
             }
 
             Section {
@@ -33,19 +44,21 @@ struct ModesSettingsPane: View {
                 Button("Add App…", action: addApp)
             } header: {
                 Text("Apps with their own mode")
-            } footer: {
-                SectionNote("Dictating into one of these apps uses its mode instead of the one above.")
             }
 
             Section {
-                ClaudeKeyRow(apiKey: apiKey)
+                Picker("Provider", selection: $settings.settings.cloudProvider) {
+                    ForEach(CloudProvider.allCases, id: \.self) { provider in
+                        Text(provider.title).tag(provider)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                APIKeyRow(apiKey: apiKeys[provider], prompt: keyPrompt)
             } header: {
-                Text("Claude")
+                Text("Cloud")
             } footer: {
-                SectionNote(
-                    "Modes with a cloud send the recognized text, never audio, to Claude Haiku. "
-                        + "Without a key, offline, or with no answer within 3 seconds, Dictate uses Light.",
-                )
+                SectionNote("Cloud modes send the text, never audio, to \(provider.title).")
             }
         }
     }
@@ -65,6 +78,7 @@ struct ModesSettingsPane: View {
 
 private struct ModeLabel: View {
     let mode: Mode
+    let provider: CloudProvider
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
@@ -74,7 +88,7 @@ private struct ModeLabel: View {
                 if mode.isCloud {
                     Image(systemName: "cloud")
                         .foregroundStyle(.secondary)
-                        .help("Sends the recognized text to Claude")
+                        .help("Sends the recognized text to \(provider.title)")
                 }
             }
             Text(mode.summary)
@@ -133,20 +147,22 @@ private struct AppModeRow: View {
     }
 }
 
-private struct ClaudeKeyRow: View {
+private struct APIKeyRow: View {
     @Bindable var apiKey: APIKeyModel
+
+    let prompt: String
 
     var body: some View {
         if apiKey.isSet {
             HStack {
-                Label("Your API key is saved in the Keychain", systemImage: "key.fill")
+                Label("Saved in the Keychain", systemImage: "key.fill")
                 Spacer()
                 Button("Remove", role: .destructive) { apiKey.remove() }
             }
         }
 
         HStack {
-            SecureField("API key", text: $apiKey.draft, prompt: Text(apiKey.isSet ? "Replace the key" : "sk-ant-…"))
+            SecureField("API key", text: $apiKey.draft, prompt: Text(apiKey.isSet ? "Replace the key" : prompt))
                 .labelsHidden()
 
             Button("Save") { apiKey.saveDraft() }

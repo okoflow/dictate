@@ -7,18 +7,6 @@ package enum RewriteFallback: String, Sendable {
     case serviceError
     case unusableAnswer
 
-    package var message: String {
-        switch self {
-        case .missingKey: "Used Light: add a Claude API key in Settings › Modes"
-        case .rejectedKey: "Used Light: Claude rejected the API key"
-        case .offline: "Used Light: you're offline"
-        case .timeout: "Used Light: Claude didn't answer within 3 seconds"
-        case .rateLimited: "Used Light: Claude is rate-limiting requests"
-        case .serviceError: "Used Light: Claude returned an error"
-        case .unusableAnswer: "Used Light: Claude's answer couldn't be used"
-        }
-    }
-
     package init(_ error: RewriteError) {
         switch error {
         case .missingKey: self = .missingKey
@@ -28,6 +16,20 @@ package enum RewriteFallback: String, Sendable {
         case .rateLimited: self = .rateLimited
         case .serviceUnavailable: self = .serviceError
         case .unreadableResponse, .truncated, .refused: self = .unusableAnswer
+        }
+    }
+
+    package func message(for provider: CloudProvider) -> String {
+        let name = provider.title
+
+        return switch self {
+        case .missingKey: "Used Light: add your \(name) API key in Settings › Modes"
+        case .rejectedKey: "Used Light: \(name) rejected the API key"
+        case .offline: "Used Light: you're offline"
+        case .timeout: "Used Light: \(name) didn't answer within 3 seconds"
+        case .rateLimited: "Used Light: \(name) is rate-limiting requests"
+        case .serviceError: "Used Light: \(name) returned an error"
+        case .unusableAnswer: "Used Light: \(name)'s answer couldn't be used"
         }
     }
 }

@@ -79,7 +79,7 @@ private struct WelcomeStep: View {
         StepLayout(
             symbol: Image(nsImage: NSApp.applicationIconImage),
             title: "Welcome to Dictate",
-            message: "Your words appear wherever you type. Speech is recognized right on your Mac.",
+            message: "Your words appear wherever you type.",
         ) {
             HStack(spacing: 32) {
                 GestureHint(symbolName: "option", title: "Hold \(keyTitle)")
@@ -131,12 +131,9 @@ private struct PermissionStep: View {
     private var message: String {
         switch permission {
         case .microphone:
-            "Dictate listens only while you hold the dictation key, and the audio never leaves your Mac."
+            "Dictate listens only while you hold the key, and the audio stays on your Mac."
         case .accessibility:
-            """
-            Dictate needs it to notice the dictation key and to paste the text where you type. \
-            On macOS 27 it is listed under Device Control and Data Access.
-            """
+            "To notice the key and paste the text. On macOS 27 it is under Device Control and Data Access."
         }
     }
 
@@ -177,10 +174,10 @@ private struct PracticeStep: View {
         let key = model.settings.settings.pushToTalkKey.shortTitle
 
         guard model.speechModel.state.isReady else {
-            return "As soon as the speech model is ready, click the box, hold \(key) and say “Hello, Dictate”."
+            return "When the speech model is ready, click the box, hold \(key) and say “Hello, Dictate”."
         }
 
-        return "Click the box, hold \(key) and say “Hello, Dictate”. Let go, and the text appears."
+        return "Click the box, hold \(key) and say “Hello, Dictate”."
     }
 
     init(model: AppModel) {
@@ -212,9 +209,9 @@ private struct FinishStep: View {
         StepLayout(
             symbol: Image(systemName: "checkmark.seal.fill"),
             title: "You're all set",
-            message: "Dictate lives in the menu bar. Switch modes there or press \(model.modeSwitcher.shortcutTitle) anywhere.",
+            message: "Dictate lives in the menu bar. \(model.modeSwitcher.shortcutTitle) switches modes.",
         ) {
-            Toggle("Open Dictate at login", isOn: launchesAtLogin)
+            Toggle("Open at login", isOn: launchesAtLogin)
                 .toggleStyle(.checkbox)
                 .padding(.top, 6)
         } actions: {

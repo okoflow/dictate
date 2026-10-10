@@ -5,7 +5,7 @@ package struct AppDependencies {
     package let recorder: any AudioRecorder
     package let audioInputs: any AudioInputProvider
     package let transcriber: any Transcriber
-    package let rewriter: any TextRewriter
+    package let rewriters: PerProvider<any TextRewriter>
     package let keyEventMonitor: any KeyEventMonitor
     package let keyboardState: any KeyboardState
     package let modeShortcut: any GlobalShortcut
@@ -19,13 +19,13 @@ package struct AppDependencies {
     package let vocabularyStore: any ValueStore<Vocabulary>
     package let vocabularyFile: URL
     package let historyStore: any ValueStore<DictationHistory>
-    package let apiKeyStore: any ValueStore<String>
+    package let apiKeyStores: PerProvider<any ValueStore<String>>
 
     package init(
         recorder: any AudioRecorder,
         audioInputs: any AudioInputProvider,
         transcriber: any Transcriber,
-        rewriter: any TextRewriter,
+        rewriters: PerProvider<any TextRewriter>,
         keyEventMonitor: any KeyEventMonitor,
         keyboardState: any KeyboardState,
         modeShortcut: any GlobalShortcut,
@@ -39,12 +39,12 @@ package struct AppDependencies {
         vocabularyStore: any ValueStore<Vocabulary>,
         vocabularyFile: URL,
         historyStore: any ValueStore<DictationHistory>,
-        apiKeyStore: any ValueStore<String>,
+        apiKeyStores: PerProvider<any ValueStore<String>>,
     ) {
         self.recorder = recorder
         self.audioInputs = audioInputs
         self.transcriber = transcriber
-        self.rewriter = rewriter
+        self.rewriters = rewriters
         self.keyEventMonitor = keyEventMonitor
         self.keyboardState = keyboardState
         self.modeShortcut = modeShortcut
@@ -58,6 +58,6 @@ package struct AppDependencies {
         self.vocabularyStore = vocabularyStore
         self.vocabularyFile = vocabularyFile
         self.historyStore = historyStore
-        self.apiKeyStore = apiKeyStore
+        self.apiKeyStores = apiKeyStores
     }
 }

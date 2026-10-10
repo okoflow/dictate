@@ -22,7 +22,7 @@ final class DictationQueue {
 
     init(
         transcriber: any Transcriber,
-        rewriter: any TextRewriter,
+        rewriters: PerProvider<any TextRewriter>,
         inserter: any TextInserter,
         clipboard: any Clipboard,
         history: HistoryModel,
@@ -30,7 +30,7 @@ final class DictationQueue {
         hud: HUDController,
     ) {
         self.transcriber = transcriber
-        processor = TranscriptProcessor(rewriter: rewriter)
+        processor = TranscriptProcessor(rewriters: rewriters)
         self.inserter = inserter
         self.clipboard = clipboard
         self.history = history
@@ -64,7 +64,7 @@ final class DictationQueue {
         pendingCount -= 1
 
         hud.setWorking(pendingCount > 0 ? "Transcribing…" : nil)
-        hud.show(outcome.message)
+        hud.show(outcome.message(for: job.provider))
     }
 
     private func outcome(of job: DictationJob) async -> DictationOutcome {
@@ -80,13 +80,14 @@ final class DictationQueue {
             }
 
             if job.mode.isCloud {
-                hud.setWorking("Polishing with Claude…")
+                hud.setWorking("Polishing with \(job.provider.title)…")
             }
 
             let processed = await processor.process(
                 transcript.text,
                 language: transcript.language,
                 mode: job.mode,
+                provider: job.provider,
                 vocabulary: job.vocabulary,
             )
             log(transcript, processed)

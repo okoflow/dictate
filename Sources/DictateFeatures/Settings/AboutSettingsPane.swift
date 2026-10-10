@@ -23,7 +23,7 @@ struct AboutSettingsPane: View {
             Text(versionText)
                 .foregroundStyle(.secondary)
 
-            Text("Push-to-talk dictation for macOS. Speech is recognized on your Mac.")
+            Text("Push-to-talk dictation for macOS with on-device Whisper.")
                 .multilineTextAlignment(.center)
                 .padding(.top, 4)
 

@@ -6,9 +6,9 @@ struct SettingsPaneView: View {
 
     private var height: CGFloat {
         switch pane {
-        case .general: 430
-        case .dictation: 460
-        case .modes: 760
+        case .general: 400
+        case .dictation: 430
+        case .modes: 770
         case .dictionary: 520
         case .history: 480
         case .about: 360
@@ -34,7 +34,7 @@ struct SettingsPaneView: View {
         case .dictation:
             DictationSettingsPane(settings: model.settings, speechModel: model.speechModel)
         case .modes:
-            ModesSettingsPane(settings: model.settings, apiKey: model.apiKey, shortcutTitle: model.modeSwitcher.shortcutTitle)
+            ModesSettingsPane(settings: model.settings, apiKeys: model.apiKeys, shortcutTitle: model.modeSwitcher.shortcutTitle)
         case .dictionary:
             DictionarySettingsPane(vocabulary: model.vocabulary)
         case .history:

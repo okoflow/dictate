@@ -15,7 +15,7 @@
 Hold the right Option key, speak, and let go: the text appears wherever you
 are typing, in any app. Whisper turns your voice into text on your Mac, so the
 audio never leaves it. When you want polished prose rather than a transcript,
-a cloud mode rewrites the text with Claude.
+a cloud mode rewrites the text with Claude or OpenAI.
 
 ![Dictating into a note](.github/screenshots/preview.jpg)
 
@@ -30,8 +30,8 @@ a cloud mode rewrites the text with Claude.
   Ukrainian. Dictate detects which one you speak among those you choose.
 - **Cleans up as much as you like.** Light removes hesitations such as "um",
   capitalizes the first letter, and adds a full stop, offline. Clean, Formal,
-  and Translate to English rewrite the text with Claude Haiku. Any app can
-  have a mode of its own.
+  and Translate to English rewrite the text with Claude or OpenAI, whichever
+  you choose. Any app can have a mode of its own.
 - **Learns your words.** The dictionary fixes names and terms that come out
   wrong, and snippets turn a spoken phrase into text such as your email
   address.
@@ -89,11 +89,12 @@ the languages Dictate listens for.
 | Formal | Like Clean, in a polite business tone | Text only |
 | Translate to English | Translated into English | Text only |
 
-Light is the default. Clean, Formal, and Translate to English need an
-[Anthropic API key](https://console.anthropic.com/settings/keys), which you
-add in Settings › Modes and which stays in your Keychain. Without a key,
-offline, or when Claude does not answer within 3 seconds, Dictate uses Light
-and says why, so you always get your text.
+Light is the default. Clean, Formal, and Translate to English need an API
+key from [Anthropic](https://console.anthropic.com/settings/keys) or
+[OpenAI](https://platform.openai.com/settings/organization/api-keys), which you add in Settings ›
+Modes and which stays in your Keychain. Without a key, offline, or when the
+provider does not answer within 3 seconds, Dictate uses Light and says why, so
+you always get your text.
 
 ![Settings with the modes and per-app modes](.github/screenshots/modes.jpg)
 
@@ -101,7 +102,8 @@ and says why, so you always get your text.
 
 Speech recognition, Raw, and Light run entirely on your Mac. Dictate uses the
 network for two things only: downloading the speech model once, and the cloud
-modes, which send the recognized text, never audio, to the Anthropic API.
+modes, which send the recognized text, never audio, to Anthropic or OpenAI,
+whichever you choose.
 Dictated text never reaches the logs. [Privacy](docs/privacy.md) lists every
 file Dictate keeps and how to remove it.
 

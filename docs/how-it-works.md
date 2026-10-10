@@ -10,7 +10,7 @@ flowchart LR
   recording --> recognition[Recognition<br/>Whisper on Core ML]
   recognition --> cleanup[Cleanup<br/>dictionary · mode · snippets]
   cleanup --> paste[Paste<br/>clipboard and ⌘V]
-  cleanup -. cloud modes .-> claude[Claude Haiku]
+  cleanup -. cloud modes .-> cloud[Claude or OpenAI]
 ```
 
 ## The key
@@ -67,7 +67,7 @@ The recognized text goes through four steps:
 2. If the whole text is a snippet phrase, the snippet text is used as it is,
    and the steps below are skipped.
 3. The mode runs: Raw keeps the text, Light applies its rules, and the cloud
-   modes ask Claude.
+   modes ask the provider you chose.
 4. Dictionary terms are applied again, because a rewrite can undo them, and
    snippet phrases inside the text are expanded.
 
@@ -84,9 +84,11 @@ a full stop, "。" in Chinese and Japanese. Filler words with meaning, such as
 
 ### Cloud modes
 
-Clean, Formal, and Translate to English send the text to the Anthropic
-Messages API with `claude-haiku-5-5`, thinking turned off, and a short
-instruction for the mode. The transcript is marked as text to edit, never
+Clean, Formal, and Translate to English send the text, with a short
+instruction for the mode, to the provider you chose: the Anthropic Messages
+API with `claude-haiku-5-5` and thinking turned off, or the OpenAI Responses
+API with `gpt-6-luna`, reasoning turned off, and `store: false`, so OpenAI
+keeps no copy of the response. The transcript is marked as text to edit, never
 instructions to follow, so dictating a question gives you the question rather
 than an answer.
 
