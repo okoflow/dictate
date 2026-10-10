@@ -10,20 +10,7 @@ package enum WhisperPrompt {
     }
 
     package static func styleSentence(for language: Language) -> String? {
-        switch language {
-        case .chinese: "你好！这是一段示例文本，包含逗号和句号。"
-        case .dutch: "Hallo! Dit is een voorbeeldtekst met hoofdletters, komma's en punten."
-        case .english: "Hello! This is a sample of text, with capital letters, commas and full stops."
-        case .french: "Bonjour ! Voici un exemple de texte avec des majuscules, des virgules et des points."
-        case .german: "Hallo! Das ist ein Beispieltext mit Großbuchstaben, Kommas und Punkten."
-        case .italian: "Ciao! Questo è un esempio di testo con lettere maiuscole, virgole e punti."
-        case .japanese, .korean: nil
-        case .polish: "Cześć! To jest przykładowy tekst z wielkimi literami, przecinkami i kropkami."
-        case .portuguese: "Olá! Este é um texto de exemplo com letras maiúsculas, vírgulas e pontos finais."
-        case .russian: "Привет! Это пример текста: с заглавными буквами, запятыми и точками."
-        case .spanish: "¡Hola! ¿Qué tal? Este es un texto de ejemplo con mayúsculas, comas y puntos."
-        case .ukrainian: "Привіт! Це приклад тексту з великими літерами, комами та крапками."
-        }
+        styleSentences[language]
     }
 
     private static func glossary(from terms: [String]) -> String? {
@@ -38,4 +25,20 @@ package enum WhisperPrompt {
 
         return glossary.isEmpty ? nil : glossary + "."
     }
+}
+
+extension WhisperPrompt {
+    fileprivate static let styleSentences: [Language: String] = [
+        .chinese: "你好！这是一段示例文本，包含逗号和句号。",
+        .dutch: "Hallo! Dit is een voorbeeldtekst met hoofdletters, komma's en punten.",
+        .english: "Hello! This is a sample of text, with capital letters, commas and full stops.",
+        .french: "Bonjour ! Voici un exemple de texte avec des majuscules, des virgules et des points.",
+        .german: "Hallo! Das ist ein Beispieltext mit Großbuchstaben, Kommas und Punkten.",
+        .italian: "Ciao! Questo è un esempio di testo con lettere maiuscole, virgole e punti.",
+        .polish: "Cześć! To jest przykładowy tekst z wielkimi literami, przecinkami i kropkami.",
+        .portuguese: "Olá! Este é um texto de exemplo com letras maiúsculas, vírgulas e pontos finais.",
+        .russian: "Привет! Это пример текста: с заглавными буквами, запятыми и точками.",
+        .spanish: "¡Hola! ¿Qué tal? Este es un texto de ejemplo con mayúsculas, comas y puntos.",
+        .ukrainian: "Привіт! Це приклад тексту з великими літерами, комами та крапками.",
+    ]
 }

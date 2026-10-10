@@ -17,23 +17,9 @@ package enum LightModeRules {
 
     package static func isHesitation(_ word: String, in language: Language) -> Bool {
         let letters = word.lowercased().filter { $0 != "-" && $0 != "‐" }
-        let runs = runs(of: letters)
+        let runs = HesitationPattern.runs(of: letters)
 
         return HesitationPattern.patterns(for: language).contains { $0.matches(runs) }
-    }
-
-    private static func runs(of text: String) -> [(letter: Character, count: Int)] {
-        var runs: [(letter: Character, count: Int)] = []
-
-        for character in text {
-            if let last = runs.last, last.letter == character {
-                runs[runs.count - 1].count += 1
-            } else {
-                runs.append((character, 1))
-            }
-        }
-
-        return runs
     }
 
     private static func tidiedSpacing(_ text: String, language: Language) -> String {
