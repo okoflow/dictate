@@ -14,8 +14,8 @@ struct HUDPill: View {
         switch content {
         case .hidden:
             EmptyView()
-        case let .listening(badge):
-            ListeningPill(levels: levels, badge: badge)
+        case let .listening(badge, isHandsFree):
+            ListeningPill(levels: levels, badge: badge, isHandsFree: isHandsFree)
         case let .working(label):
             WorkingPill(label: label)
         case let .message(message):
@@ -27,6 +27,7 @@ struct HUDPill: View {
 private struct ListeningPill: View {
     let levels: [Float]
     let badge: String?
+    let isHandsFree: Bool
 
     var body: some View {
         HStack(spacing: 10) {
@@ -41,7 +42,15 @@ private struct ListeningPill: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
+
+            if isHandsFree {
+                Label("Hands-free", systemImage: "lock.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+            }
         }
+        .animation(.snappy(duration: 0.25), value: isHandsFree)
         .font(.system(size: 15, weight: .semibold))
         .padding(.horizontal, 18)
         .frame(height: 44)

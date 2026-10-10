@@ -36,6 +36,11 @@ The dictation key is right Option by default. To change it, click the key in
 Settings › Dictation and press another: Option, Command, Shift, or Control on
 either side, fn (🌐), or an F-key. Keys that type text can't be used.
 
+For longer dictation, tap the key twice quickly: Dictate keeps listening
+without the key held, shows **Hands-free** in the pill, and finishes when you
+press the key once more. Turn off **Double-tap for hands-free** in
+Settings › Dictation if you don't want it.
+
 ## The menu
 
 ![The menu bar menu](../.github/screenshots/menu.jpg)

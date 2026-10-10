@@ -34,16 +34,22 @@ package final class HUDController {
 
     package init() {}
 
-    package func showListening(badge: String?, level: @escaping @MainActor () -> Float) {
+    package func showListening(badge: String?, isHandsFree: Bool, level: @escaping @MainActor () -> Float) {
         messageTask?.cancel()
         levels = [Float](repeating: 0, count: Self.barCount)
 
-        present(.listening(badge: badge))
+        present(.listening(badge: badge, isHandsFree: isHandsFree))
 
         levelTimer?.invalidate()
         levelTimer = .scheduledInCommonModes(every: Self.levelRefreshInterval, repeats: true) { [weak self] in
             self?.pushLevel(level())
         }
+    }
+
+    package func lockHandsFree() {
+        guard case let .listening(badge, _) = content else { return }
+
+        content = .listening(badge: badge, isHandsFree: true)
     }
 
     package func hideListening() {

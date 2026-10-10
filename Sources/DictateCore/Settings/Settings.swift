@@ -5,6 +5,7 @@ package struct Settings: Codable, Equatable, Sendable {
     package var cloudProvider = CloudProvider.claude
     package var instructions = ModeInstructions()
     package var pushToTalkKey = PushToTalkKey.rightOption
+    package var handsFreeDoubleTap = true
     package var pastesIntoFocusedField = true
     package var keepsHistory = true
     package var historyRetention = HistoryRetention.month
@@ -28,6 +29,7 @@ package struct Settings: Codable, Equatable, Sendable {
         cloudProvider = try container.decodeIfPresent(CloudProvider.self, forKey: .cloudProvider) ?? defaults.cloudProvider
         instructions = try container.decodeIfPresent(ModeInstructions.self, forKey: .instructions) ?? defaults.instructions
         pushToTalkKey = try container.decodeIfPresent(PushToTalkKey.self, forKey: .pushToTalkKey) ?? defaults.pushToTalkKey
+        handsFreeDoubleTap = try container.decodeIfPresent(Bool.self, forKey: .handsFreeDoubleTap) ?? defaults.handsFreeDoubleTap
         pastesIntoFocusedField = try container.decodeIfPresent(Bool.self, forKey: .pastesIntoFocusedField)
             ?? defaults.pastesIntoFocusedField
         keepsHistory = try container.decodeIfPresent(Bool.self, forKey: .keepsHistory) ?? defaults.keepsHistory

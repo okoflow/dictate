@@ -6,6 +6,7 @@ struct ActiveRecording {
     var target: FocusTarget?
     var hasFailed = false
     var isRejected = false
+    var isHandsFree = false
     var hudTask: Task<Void, Never>?
     var watchdogTimer: Timer?
 }

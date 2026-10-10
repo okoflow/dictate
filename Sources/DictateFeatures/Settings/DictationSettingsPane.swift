@@ -58,6 +58,12 @@ struct DictationSettingsPane: View {
                 }
             }
             RowDivider()
+            ToggleRow(
+                "Double-tap for hands-free",
+                isOn: $settings.settings.handsFreeDoubleTap,
+                description: "Tap the key twice to dictate without holding it, then press it once to finish.",
+            )
+            RowDivider()
             PickerRow("Microphone", selection: $settings.settings.microphoneID, current: microphoneName) {
                 Text("System default").tag(String?.none)
                 ForEach(settings.microphones) { microphone in

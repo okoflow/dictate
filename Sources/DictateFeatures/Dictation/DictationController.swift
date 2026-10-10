@@ -93,13 +93,22 @@ extension DictationController {
     }
 
     private func handle(_ event: PushToTalk.Event, at time: TimeInterval) {
+        pushToTalk.allowsHandsFree = settings.settings.handsFreeDoubleTap
+
         switch pushToTalk.handle(event, at: time) {
         case .startRecording:
             beginRecording()
+
+        case .lockHandsFree:
+            recording?.isHandsFree = true
+            hud.lockHandsFree()
+
         case .finishRecording:
             endRecording(.finish(releasedAt: time))
+
         case let .discardRecording(reason):
             endRecording(.discard(reason))
+
         case nil:
             break
         }
@@ -180,7 +189,7 @@ extension DictationController {
         let mode = settings.settings.mode(for: recording.target?.bundleIdentifier)
         let recorder = recorder
 
-        hud.showListening(badge: mode == .light ? nil : mode.title) { recorder.inputLevel }
+        hud.showListening(badge: mode == .light ? nil : mode.title, isHandsFree: recording.isHandsFree) { recorder.inputLevel }
     }
 
     private func captureTarget(for id: RecordingID) {
@@ -266,9 +275,16 @@ extension DictationController {
     }
 
     private func pollKey() {
-        guard recording != nil else { return }
+        guard let recording else { return }
 
         let now = Uptime.now
+
+        guard !recording.isHandsFree else {
+            handle(.tick, at: now)
+
+            return
+        }
+
         let isHeld = keyboardState.isHeld(settings.settings.pushToTalkKey)
 
         switch watchdog.poll(isHeld: isHeld, at: now) {
