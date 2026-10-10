@@ -5,9 +5,11 @@ and the two cases in which it uses the network.
 
 ## Audio
 
-Audio is recorded only while you hold the dictation key. It stays in memory
-until Whisper has recognized it and is then discarded. It is never written to
-disk and never sent anywhere, in any mode.
+Audio is recorded only while you hold the dictation or editing key. It stays
+in memory until Whisper has recognized it and is then discarded. It is never
+written to disk and never sent anywhere, in any mode. Files you transcribe
+are read from where they are, recognized on the Mac in the same way, and
+never uploaded.
 
 ## The network
 
@@ -20,7 +22,9 @@ Dictate connects to these services, and only for these reasons:
 | OpenAI API | Dictating in Clean, Formal, or Translate with OpenAI chosen and a key added | The recognized text, the mode's instruction, the spoken language, the target language when translating, your OpenAI API key |
 | A local server you run | Dictating in Clean, Formal, or Translate with Local server chosen | The same as above without a key, sent only to the address you set, usually on this Mac |
 
-Raw and Light never use the network. In the cloud modes, only the provider
+Editing by voice sends the selected text and your spoken instruction to the
+same provider, under the same conditions. With Apple Intelligence chosen,
+everything stays on the Mac. Raw and Light never use the network. In the cloud modes, only the provider
 you chose receives the text after recognition, never audio, and only when the
 mode in use is a cloud mode and you have added a key for that provider.
 Dictate asks OpenAI not to store the response. Anthropic's
@@ -39,6 +43,7 @@ describe how each API handles it.
 | Speech model | `~/Library/Application Support/Dictate/Models` |
 | The model compiled for your chip | `~/Library/Caches/dev.dictate.app` |
 | Claude and OpenAI API keys | The login Keychain, service `dev.dictate.app`, on this Mac only |
+| Dictate Pro license key | The login Keychain, service `dev.dictate.app`, checked on the Mac without a server |
 
 Copy Last Transcript keeps your last five texts in memory for 10 minutes; they
 are never written to disk. With **Keep history** off, no new texts are added to

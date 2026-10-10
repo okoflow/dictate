@@ -17,7 +17,8 @@
 Hold the right Option key, speak, and let go: the text appears wherever you
 are typing, in any app. Whisper turns your voice into text on your Mac, so the
 audio never leaves it. When you want polished prose rather than a transcript,
-a cloud mode rewrites the text with Claude or OpenAI.
+an AI mode rewrites the text with Claude, OpenAI, Apple Intelligence, or a
+model on your own Mac.
 
 ![Dictating into a note](.github/screenshots/preview.jpg)
 
@@ -36,9 +37,16 @@ a cloud mode rewrites the text with Claude or OpenAI.
   Ukrainian, Urdu, and Vietnamese. Dictate detects which one you speak among
   those you choose.
 - **Cleans up as much as you like.** Light removes hesitations such as "um",
-  capitalizes the first letter, and adds a full stop, offline. Clean, Formal,
-  and Translate rewrite the text with Claude or OpenAI, whichever you choose;
-  Translate works into any of the 45 languages, or both ways between two. Any app can have a mode of its own.
+  capitalizes the first letter, adds a full stop, and starts a new line or
+  paragraph when you say so, offline. Clean, Formal, and Translate rewrite the
+  text with Claude or OpenAI using your key, with Apple Intelligence, or with a
+  local model through Ollama, LM Studio and similar servers. Translate works
+  into any of the 45 languages, or both ways between two. Any app can have a
+  mode of its own.
+- **Edits by voice.** Select text, hold the editing key, and say what to
+  change: "make it shorter", "turn this into a list", "translate into German".
+- **Transcribes files.** Drop a recording or a video on Transcribe File… and
+  get the text or SRT subtitles, recognized on your Mac.
 - **Learns your words.** The dictionary fixes names and terms that come out
   wrong, and snippets turn a spoken phrase into text such as your email
   address.
@@ -79,12 +87,14 @@ minute; after that it takes a second.
 | Keys | What they do |
 | --- | --- |
 | Hold right ⌥ | Dictate into the focused field while held |
+| Double-tap right ⌥ | Dictate hands-free until you press it again |
+| Hold the editing key | Change the selected text by voice, once you choose a key |
 | ⌃⌥M | Switch to the next mode |
 
 Dictate lives in the menu bar. Its menu switches the mode and the language,
-copies the last transcript, and opens Settings, where you can choose right
-Command or right Shift as the dictation key, pick a microphone, and choose
-the languages Dictate listens for.
+copies the last transcript, transcribes files, and opens Settings, where you
+can choose any modifier, fn, or F-key as the dictation key, pick a
+microphone, and choose the languages Dictate listens for.
 
 ## Modes
 
@@ -92,27 +102,36 @@ the languages Dictate listens for.
 | --- | --- | --- |
 | Raw | Nothing: exactly what Whisper heard | No |
 | Light | Hesitations go, the first letter is capitalized, a full stop is added | No |
-| Clean | Fillers and false starts go, grammar is fixed, the language stays | Text only |
-| Formal | Like Clean, in a polite business tone | Text only |
-| Translate | Translated into the language you choose, or both ways between two | Text only |
+| Clean | Fillers and false starts go, grammar is fixed, the language stays | Text only, unless the model runs on your Mac |
+| Formal | Like Clean, in a polite business tone | Text only, unless the model runs on your Mac |
+| Translate | Translated into the language you choose, or both ways between two | Text only, unless the model runs on your Mac |
 
-Light is the default. Clean, Formal, and Translate need an API
-key from [Anthropic](https://console.anthropic.com/settings/keys) or
-[OpenAI](https://platform.openai.com/settings/organization/api-keys), which you add in Settings ›
-AI Models and which stays in your Keychain. Without a key, offline, or when the
-provider does not answer within 3 seconds, Dictate uses Light and says why, so
-you always get your text.
+Light is the default. Clean, Formal, and Translate need an AI model, which
+you choose in Settings › AI Models: Claude or OpenAI with an API key from
+[Anthropic](https://console.anthropic.com/settings/keys) or
+[OpenAI](https://platform.openai.com/settings/organization/api-keys) that
+stays in your Keychain, Apple Intelligence on Macs that have it, or a model
+on a local server such as Ollama or LM Studio. When the model can't answer in
+time or at all, Dictate uses Light and says why, so you always get your text.
 
 ![Settings with the modes and per-app modes](.github/screenshots/modes.jpg)
 
 ## Privacy
 
-Speech recognition, Raw, and Light run entirely on your Mac. Dictate uses the
-network for two things only: downloading the speech model once, and the cloud
-modes, which send the recognized text, never audio, to Anthropic or OpenAI,
-whichever you choose.
+Speech recognition, Raw, Light, and file transcription run entirely on your
+Mac. Dictate uses the network for two things only: downloading the speech
+model once, and the AI modes and editing by voice with Claude or OpenAI, which
+send text, never audio, to the provider you choose. With Apple Intelligence
+or a local model, that text stays on your Mac too.
 Dictated text never reaches the logs. [Privacy](docs/privacy.md) lists every
 file Dictate keeps and how to remove it.
+
+## Dictate Pro
+
+Dictation, Raw and Light, voice commands, the dictionary, and history are
+free. Dictate Pro adds the AI modes with any model, translation both ways,
+your own instructions, editing by voice, and file transcription, for a single
+payment of $13.99. Every Pro feature works for 3 days from the first launch.
 
 ## Documentation
 
