@@ -107,6 +107,16 @@ stays as it was.
 Dictate reads the selection through Accessibility. Apps that don't expose it,
 such as some web views, show "Select the text to edit" instead.
 
+### Transcribing files
+
+**Transcribe File…** in the menu opens a window for recordings you already
+have: interviews, voice memos, meetings, or videos. Drop an audio or video
+file on it or choose one; Whisper transcribes it on the Mac, in the language
+it detects or the one you pick from your dictation languages. Copy the text,
+save it as a text file, or save subtitles as an SRT file with timestamps.
+Long files are transcribed piece by piece, so dictation keeps working while a
+file is in progress.
+
 ### Your own instructions
 
 In Settings › Writing, **Instructions…** next to Clean, Formal, and Translate

@@ -20,6 +20,7 @@ package final class AppModel {
     package let hud: HUDController
     package let keyRecorder: KeyRecorder
     package let onboarding: OnboardingModel
+    package let transcription: FileTranscriptionModel
 
     @ObservationIgnored package let windows: WindowPresenter
 
@@ -71,6 +72,12 @@ package final class AppModel {
         hud = models.hud
         keyRecorder = models.keyRecorder
         onboarding = OnboardingModel()
+        transcription = FileTranscriptionModel(
+            transcriber: dependencies.transcriber,
+            decoder: dependencies.mediaDecoder,
+            speechModel: models.speechModel,
+            clipboard: dependencies.clipboard,
+        )
         windows = WindowPresenter()
         clipboard = dependencies.clipboard
 

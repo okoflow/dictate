@@ -101,6 +101,62 @@ package actor WhisperTranscriber: Transcriber {
         )
     }
 
+    package func transcribeFile(
+        _ samples: [Float],
+        in language: Language?,
+        progress: @Sendable (Double) -> Void,
+    ) async throws -> TimedTranscript? {
+        guard let whisper else { throw TranscriberError.notLoaded }
+
+        let chunks = try await VADAudioChunker().chunkAll(
+            audioArray: samples,
+            maxChunkLength: Self.windowSampleCount,
+            decodeOptions: nil,
+        )
+        var spoken = language
+        var segments: [TimedSegment] = []
+
+        for (index, chunk) in chunks.enumerated() {
+            try Task.checkCancellation()
+
+            if SpeechGate.containsSpeech(chunk.audioSamples, sampleRate: SpeechAudio.sampleRate) {
+                await waitForTurn()
+                defer { finishTurn() }
+
+                let chunkLanguage = try await resolvedLanguage(spoken, of: chunk.audioSamples, with: whisper)
+                spoken = chunkLanguage
+                segments += try await timedSegments(of: chunk, in: chunkLanguage, with: whisper)
+            }
+
+            progress(Double(index + 1) / Double(chunks.count))
+        }
+
+        guard let spoken, !segments.isEmpty else { return nil }
+
+        return TimedTranscript(language: spoken, segments: segments)
+    }
+
+    private func timedSegments(
+        of chunk: AudioChunk,
+        in language: Language,
+        with whisper: WhisperKit,
+    ) async throws -> [TimedSegment] {
+        var options = decodingOptions(for: language, samples: chunk.audioSamples, prompt: nil, tokenizer: whisper.tokenizer)
+        options.chunkingStrategy = nil
+
+        let results = try await whisper.transcribe(audioArray: chunk.audioSamples, decodeOptions: options)
+        let offset = Double(chunk.seekOffsetIndex) / SpeechAudio.sampleRate
+        let segments = results.flatMap(\.segments).filter(Self.isConfident).compactMap { segment -> TimedSegment? in
+            let text = segment.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !text.isEmpty else { return nil }
+
+            return TimedSegment(start: offset + Double(segment.start), end: offset + Double(segment.end), text: text)
+        }
+        let text = segments.map(\.text).joined(separator: " ")
+
+        return HallucinationFilter.isHallucination(text, in: language, prompt: nil) ? [] : segments
+    }
+
     private func configuration() -> WhisperKitConfig {
         WhisperKitConfig(
             model: files.model,

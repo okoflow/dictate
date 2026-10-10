@@ -34,6 +34,8 @@ package struct MenuContent: View {
         Button("Copy Last Transcript") { model.copyLastTranscript() }
             .disabled(model.dictation.latestTranscript == nil)
 
+        Button("Transcribe File…") { model.windows.showTranscription() }
+
         RecentMenu(history: model.history, copy: model.copy) { model.windows.showSettings(.history) }
 
         Divider()

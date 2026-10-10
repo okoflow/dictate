@@ -8,6 +8,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
     private let settingsState = SettingsWindowState()
     private var settingsWindow: NSWindow?
     private var onboardingWindow: NSWindow?
+    private var transcriptionWindow: NSWindow?
     private var clickMonitor: Any?
 
     package func showSettings(_ pane: SettingsPane? = nil) {
@@ -31,6 +32,14 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         present(window)
     }
 
+    package func showTranscription() {
+        guard let model else { return }
+
+        let window = transcriptionWindow ?? makeTranscriptionWindow(model: model)
+
+        present(window)
+    }
+
     package func windowWillClose(_ notification: Notification) {
         guard let closing = notification.object as? NSWindow else { return }
 
@@ -43,7 +52,8 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
             model?.keyRecorder.stop()
         }
 
-        let othersVisible = [settingsWindow, onboardingWindow].contains { $0 != nil && $0 != closing && $0?.isVisible == true }
+        let windows = [settingsWindow, onboardingWindow, transcriptionWindow]
+        let othersVisible = windows.contains { $0 != nil && $0 != closing && $0?.isVisible == true }
 
         if !othersVisible {
             NSApp.setActivationPolicy(.accessory)
@@ -114,6 +124,29 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
                 self?.followSelectedPaneTitle()
             }
         }
+    }
+
+    private func makeTranscriptionWindow(model: AppModel) -> NSWindow {
+        let view = TranscriptionView(model: model.transcription, settings: model.settings)
+        let content = NSHostingController(rootView: view)
+        content.sizingOptions = []
+
+        let window = NSWindow(contentViewController: content)
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
+        window.title = String(localized: "Transcribe a File")
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.titlebarSeparatorStyle = .none
+        window.backgroundColor = Palette.windowColor
+        window.setContentSize(NSSize(width: 560, height: 560))
+        window.contentMinSize = NSSize(width: 520, height: 480)
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+        window.center()
+
+        transcriptionWindow = window
+
+        return window
     }
 
     private func makeOnboardingWindow(model: AppModel) -> NSWindow {

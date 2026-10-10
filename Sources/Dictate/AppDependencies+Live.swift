@@ -22,6 +22,7 @@ extension AppDependencies {
             recorder: AudioEngineRecorder(),
             audioInputs: CoreAudioInputs(),
             transcriber: WhisperTranscriber(),
+            mediaDecoder: MediaAudioReader(),
             rewriters: rewriters(keys: apiKeyStores, localServer: localServer, apple: appleIntelligence),
             localServers: localServer,
             onDeviceModel: appleIntelligence,

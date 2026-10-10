@@ -8,4 +8,9 @@ package protocol Transcriber: Sendable {
     func loadModel(for languages: [Language]) async throws -> Duration
     func deleteModel() async
     func transcribe(_ samples: [Float], in language: Language?, vocabulary: [String]) async throws -> Transcript?
+    func transcribeFile(
+        _ samples: [Float],
+        in language: Language?,
+        progress: @escaping @Sendable (Double) -> Void,
+    ) async throws -> TimedTranscript?
 }

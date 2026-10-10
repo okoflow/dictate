@@ -5,6 +5,7 @@ package struct AppDependencies {
     package let recorder: any AudioRecorder
     package let audioInputs: any AudioInputProvider
     package let transcriber: any Transcriber
+    package let mediaDecoder: any MediaDecoder
     package let rewriters: Rewriters
     package let localServers: any LocalServerBrowsing
     package let onDeviceModel: any OnDeviceModel
@@ -28,6 +29,7 @@ package struct AppDependencies {
         recorder: any AudioRecorder,
         audioInputs: any AudioInputProvider,
         transcriber: any Transcriber,
+        mediaDecoder: any MediaDecoder,
         rewriters: Rewriters,
         localServers: any LocalServerBrowsing,
         onDeviceModel: any OnDeviceModel,
@@ -50,6 +52,7 @@ package struct AppDependencies {
         self.recorder = recorder
         self.audioInputs = audioInputs
         self.transcriber = transcriber
+        self.mediaDecoder = mediaDecoder
         self.rewriters = rewriters
         self.localServers = localServers
         self.onDeviceModel = onDeviceModel
