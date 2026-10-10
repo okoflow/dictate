@@ -94,6 +94,19 @@ Without an API key, without a network connection, when the provider does
 not answer within 3 seconds, or when its answer cannot be used, Dictate
 pastes the Light text instead, and the HUD says why.
 
+### Editing selected text by voice
+
+Choose a key under **Editing by voice** in Settings › Dictation. Then select
+text in any app, hold that key, say what to change, such as "make it shorter",
+"turn this into a list", or "translate into German", and let go. The model
+from Settings › AI Models rewrites the selection and Dictate pastes the result
+over it. What you say is an instruction, not text to paste, so nothing is
+added when the model can't be reached: the HUD says why and the selection
+stays as it was.
+
+Dictate reads the selection through Accessibility. Apps that don't expose it,
+such as some web views, show "Select the text to edit" instead.
+
 ### Your own instructions
 
 In Settings › Writing, **Instructions…** next to Clean, Formal, and Translate

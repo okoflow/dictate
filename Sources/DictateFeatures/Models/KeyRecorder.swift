@@ -4,21 +4,37 @@ import Observation
 
 @Observable
 package final class KeyRecorder {
+    package enum Field: Hashable {
+        case dictation
+        case edit
+    }
+
+    package struct Rejection: Equatable {
+        let field: Field
+        let isTaken: Bool
+    }
+
     private static let escapeKeyCode: UInt16 = 53
 
-    package private(set) var isRecording = false
-    package private(set) var rejectedKey = false
-    package private(set) var rejections = 0
+    package private(set) var field: Field?
+    package private(set) var rejection: Rejection?
+    package private(set) var rejections: [Field: Int] = [:]
 
     @ObservationIgnored private var monitor: Any?
+    @ObservationIgnored private var takenKey: PushToTalkKey?
     @ObservationIgnored private var record: ((PushToTalkKey) -> Void)?
 
-    func start(_ record: @escaping (PushToTalkKey) -> Void) {
-        guard !isRecording else { return }
+    package var isRecording: Bool {
+        field != nil
+    }
 
+    func start(_ field: Field, excluding takenKey: PushToTalkKey?, _ record: @escaping (PushToTalkKey) -> Void) {
+        stop()
+
+        self.field = field
+        self.takenKey = takenKey
         self.record = record
-        isRecording = true
-        rejectedKey = false
+        rejection = nil
         monitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) { [weak self] event in
             MainActor.assumeIsolated {
                 self?.handle(event)
@@ -35,7 +51,11 @@ package final class KeyRecorder {
 
         monitor = nil
         record = nil
-        isRecording = false
+        field = nil
+    }
+
+    func isRecording(_ field: Field) -> Bool {
+        self.field == field
     }
 
     private func handle(_ event: NSEvent) {
@@ -45,10 +65,9 @@ package final class KeyRecorder {
             return
         }
 
-        guard let key = PushToTalkKey(keyCode: Int64(event.keyCode)) else {
-            if event.type == .keyDown {
-                rejectedKey = true
-                rejections += 1
+        guard let field, let key = PushToTalkKey(keyCode: Int64(event.keyCode)) else {
+            if event.type == .keyDown, let field {
+                reject(in: field, isTaken: false)
             }
 
             return
@@ -58,7 +77,18 @@ package final class KeyRecorder {
             return
         }
 
+        guard key != takenKey else {
+            reject(in: field, isTaken: true)
+
+            return
+        }
+
         record?(key)
         stop()
+    }
+
+    private func reject(in field: Field, isTaken: Bool) {
+        rejection = Rejection(field: field, isTaken: isTaken)
+        rejections[field, default: 0] += 1
     }
 }

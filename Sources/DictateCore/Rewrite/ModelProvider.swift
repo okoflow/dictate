@@ -25,6 +25,10 @@ package enum ModelProvider: Hashable, Sendable {
         isCloud ? .seconds(3) : .seconds(15)
     }
 
+    package var editDeadline: Duration {
+        isCloud ? .seconds(20) : .seconds(45)
+    }
+
     private var storedName: String {
         switch self {
         case .apple: "apple"

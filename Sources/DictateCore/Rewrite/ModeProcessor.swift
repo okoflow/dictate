@@ -33,7 +33,7 @@ package struct ModeProcessor: Sendable {
         let language = request.language
 
         do {
-            let answer = try await withDeadline { [rewriter] in
+            let answer = try await RewriteDeadline.run(deadline) { [rewriter] in
                 try await rewriter.rewrite(request)
             }
             guard let accepted = RewriteValidator.validated(answer, for: request, mode: mode) else {
@@ -75,23 +75,5 @@ package struct ModeProcessor: Sendable {
             fallback: fallback,
             contactedCloud: contactedCloud,
         )
-    }
-
-    private func withDeadline(_ operation: @escaping @Sendable () async throws -> String) async throws -> String {
-        let deadline = deadline
-
-        return try await withThrowingTaskGroup(of: String.self) { group in
-            group.addTask { try await operation() }
-            group.addTask {
-                try await Task.sleep(for: deadline)
-
-                throw RewriteError.timeout
-            }
-
-            defer { group.cancelAll() }
-            guard let first = try await group.next() else { throw RewriteError.timeout }
-
-            return first
-        }
     }
 }

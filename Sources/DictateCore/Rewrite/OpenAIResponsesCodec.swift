@@ -8,9 +8,9 @@ package enum OpenAIResponsesCodec {
     package static func requestBody(for rewrite: RewriteRequest) throws -> Data {
         let request = OpenAIResponsesRequest(
             model: model,
-            instructions: RewritePrompt.system(instructions: rewrite.instructions),
+            instructions: RewritePrompt.system(for: rewrite),
             input: RewritePrompt.userMessage(for: rewrite),
-            maximumOutputTokens: maximumOutputTokens(for: rewrite.text),
+            maximumOutputTokens: rewrite.outputTokenBudget,
             reasoning: OpenAIResponsesRequest.Reasoning(effort: reasoningEffort),
             store: false,
         )
@@ -62,9 +62,5 @@ package enum OpenAIResponsesCodec {
         case 429: .rateLimited
         default: .serviceUnavailable(status: status)
         }
-    }
-
-    private static func maximumOutputTokens(for text: String) -> Int {
-        min(4096, max(512, text.count * 2))
     }
 }

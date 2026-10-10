@@ -54,6 +54,14 @@ final class DictationQueue {
         }
     }
 
+    private static func editingLabel(for provider: ModelProvider) -> String {
+        if provider.isCloud {
+            return String(localized: "Editing with \(provider.title)…")
+        }
+
+        return String(localized: "Editing on this Mac…")
+    }
+
     private static func workingLabel(for job: DictationJob, spoken: Language) -> String {
         if job.mode == .translate {
             return String(localized: "Translating into \(job.setup.translation.target(forSpoken: spoken).inlineName)…")
@@ -98,6 +106,10 @@ final class DictationQueue {
                 return .noSpeech
             }
 
+            if let selection = job.selection {
+                return await edit(selection, following: transcript, for: job)
+            }
+
             if job.mode.isCloud {
                 hud.setWorking(Self.workingLabel(for: job, spoken: transcript.language))
             }
@@ -116,6 +128,31 @@ final class DictationQueue {
             Logger.dictation.error("Transcription failed: \(error.localizedDescription, privacy: .public)")
 
             return .failed(error.localizedDescription)
+        }
+    }
+
+    private func edit(_ selection: String, following transcript: Transcript, for job: DictationJob) async -> DictationOutcome {
+        let provider = job.setup.provider
+
+        hud.setWorking(Self.editingLabel(for: provider))
+
+        do {
+            let edited = try await processor.edit(
+                selection,
+                instruction: transcript.text,
+                language: transcript.language,
+                setup: job.setup,
+            )
+            let processed = ProcessedText(
+                text: edited,
+                requestedMode: job.mode,
+                appliedMode: job.mode,
+                contactedCloud: provider.isCloud,
+            )
+
+            return await deliver(processed, for: job)
+        } catch {
+            return .editFailed(RewriteFallback(error as? RewriteError ?? .offline).reason(for: provider).sentenceCased)
         }
     }
 
@@ -149,6 +186,8 @@ final class DictationQueue {
     }
 
     private func remember(_ processed: ProcessedText, for job: DictationJob) {
+        guard job.selection == nil else { return }
+
         stats.record(processed.text, seconds: SpeechAudio.duration(of: job.samples))
 
         guard settings.settings.keepsHistory else { return }

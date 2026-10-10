@@ -7,10 +7,11 @@ struct DictationJob {
     let setup: RewriteSetup
     let vocabulary: Vocabulary
     let target: FocusTarget
+    let selection: String?
     let key: PushToTalkKey
     let pastes: Bool
 
-    init(samples: [Float], target: FocusTarget, settings: Settings, vocabulary: Vocabulary) {
+    init(samples: [Float], target: FocusTarget, selection: String?, settings: Settings, vocabulary: Vocabulary) {
         let mode = settings.mode(for: target.bundleIdentifier)
 
         self.samples = samples
@@ -24,7 +25,8 @@ struct DictationJob {
         )
         self.vocabulary = vocabulary
         self.target = target
-        key = settings.pushToTalkKey
+        self.selection = selection
+        key = selection == nil ? settings.pushToTalkKey : settings.editKey ?? settings.pushToTalkKey
         pastes = settings.pastesIntoFocusedField
     }
 }

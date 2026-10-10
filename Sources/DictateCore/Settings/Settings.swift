@@ -12,6 +12,7 @@ package struct Settings: Codable, Equatable, Sendable {
     package var translation = Translation()
     package var pushToTalkKey = PushToTalkKey.rightOption
     package var handsFreeDoubleTap = true
+    package var editKey: PushToTalkKey?
     package var pastesIntoFocusedField = true
     package var keepsHistory = true
     package var historyRetention = HistoryRetention.month
@@ -40,6 +41,7 @@ package struct Settings: Codable, Equatable, Sendable {
         translation = try container.decodeIfPresent(Translation.self, forKey: .translation) ?? defaults.translation
         pushToTalkKey = try container.decodeIfPresent(PushToTalkKey.self, forKey: .pushToTalkKey) ?? defaults.pushToTalkKey
         handsFreeDoubleTap = try container.decodeIfPresent(Bool.self, forKey: .handsFreeDoubleTap) ?? defaults.handsFreeDoubleTap
+        editKey = try container.decodeIfPresent(PushToTalkKey.self, forKey: .editKey)
         pastesIntoFocusedField = try container.decodeIfPresent(Bool.self, forKey: .pastesIntoFocusedField)
             ?? defaults.pastesIntoFocusedField
         keepsHistory = try container.decodeIfPresent(Bool.self, forKey: .keepsHistory) ?? defaults.keepsHistory

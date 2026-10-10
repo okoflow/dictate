@@ -28,4 +28,21 @@ package struct TranscriptProcessor: Sendable {
 
         return processed.replacingText(with: finished)
     }
+
+    package func edit(_ selection: String, instruction: String, language: Language, setup: RewriteSetup) async throws -> String {
+        let request = RewriteRequest(
+            text: instruction,
+            instructions: "",
+            language: language,
+            localServer: setup.provider == .localServer ? setup.localServer : nil,
+            selection: selection,
+        )
+        let rewriter = rewriters[setup.provider]
+        let answer = try await RewriteDeadline.run(setup.provider.editDeadline) {
+            try await rewriter.rewrite(request)
+        }
+        guard let edited = RewriteValidator.validatedEdit(answer, of: selection) else { throw RewriteError.unreadableResponse }
+
+        return edited
+    }
 }

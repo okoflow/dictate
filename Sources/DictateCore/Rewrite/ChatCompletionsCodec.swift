@@ -15,11 +15,11 @@ package enum ChatCompletionsCodec {
         let request = ChatCompletionsRequest(
             model: model,
             messages: [
-                ChatCompletionsRequest.Message(role: "system", content: RewritePrompt.system(instructions: rewrite.instructions)),
+                ChatCompletionsRequest.Message(role: "system", content: RewritePrompt.system(for: rewrite)),
                 ChatCompletionsRequest.Message(role: "user", content: RewritePrompt.userMessage(for: rewrite)),
             ],
             temperature: 0.2,
-            maximumTokens: min(4096, max(512, rewrite.text.count * 2)),
+            maximumTokens: rewrite.outputTokenBudget,
             stream: false,
         )
 

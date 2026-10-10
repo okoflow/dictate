@@ -12,9 +12,9 @@ package enum AnthropicMessagesCodec {
         )
         let request = AnthropicMessagesRequest(
             model: model,
-            maximumTokens: maximumTokens(for: rewrite.text),
+            maximumTokens: rewrite.outputTokenBudget,
             thinking: AnthropicMessagesRequest.Thinking(type: "disabled"),
-            system: RewritePrompt.system(instructions: rewrite.instructions),
+            system: RewritePrompt.system(for: rewrite),
             messages: [message],
         )
 
@@ -52,9 +52,5 @@ package enum AnthropicMessagesCodec {
         case 429: .rateLimited
         default: .serviceUnavailable(status: status)
         }
-    }
-
-    private static func maximumTokens(for text: String) -> Int {
-        min(4096, max(256, text.count * 2))
     }
 }

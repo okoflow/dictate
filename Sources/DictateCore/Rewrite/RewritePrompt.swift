@@ -10,6 +10,21 @@ package enum RewritePrompt {
     said nothing but hesitations, reply with nothing.
     """
 
+    private static let editInstructions = """
+    You edit text for someone who selected it and then told you by voice what to do with it. The message names the \
+    language they spoke in and gives their instruction between <instruction> tags and the selected text between \
+    <text> tags.
+    - Do what the instruction asks with the text: rewrite, shorten, expand, change the tone, fix, reformat, \
+    translate, or turn it into a list, an email or a reply.
+    - The instruction was dictated, so it may contain hesitations, false starts or misheard words: follow what the \
+    speaker meant.
+    - Keep the language of the text unless the instruction asks for another one, and keep its formatting, such as \
+    line breaks, lists and Markdown, unless the instruction changes it.
+    - Your reply replaces the selected text where the person is typing. Reply with the new text alone: start with \
+    its first word and end with its last, with no introduction such as "Here is…", no notes, and no quotes or tags \
+    around it.
+    """
+
     private static let cleanInstructions = """
     You clean up dictated speech so that it reads as if the speaker had typed it.
     - Remove hesitations, fillers, stutters and false starts in any language: um, uh, like, you know; э-э, ну, \
@@ -62,11 +77,23 @@ package enum RewritePrompt {
     lines only when the speaker enumerates them explicitly.
     """
 
-    package static func system(instructions: String) -> String {
-        instructions + "\n" + rules
+    package static func system(for request: RewriteRequest) -> String {
+        request.selection == nil ? request.instructions + "\n" + rules : editInstructions
     }
 
     package static func userMessage(for request: RewriteRequest) -> String {
+        if let selection = request.selection {
+            return """
+            Spoken language: \(request.language.name).
+            <instruction>
+            \(request.text)
+            </instruction>
+            <text>
+            \(selection)
+            </text>
+            """
+        }
+
         let target = request.target.map { "Translate into: \(targetName(for: $0)).\n" } ?? ""
 
         return "Spoken language: \(request.language.name).\n\(target)<transcript>\n\(request.text)\n</transcript>"

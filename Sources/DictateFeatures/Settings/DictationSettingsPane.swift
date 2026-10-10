@@ -38,12 +38,8 @@ struct DictationSettingsPane: View {
     }
 
     private var keyNote: LocalizedStringKey? {
-        if keyRecorder.rejectedKey {
-            return "That key types text. Press a modifier, fn, or an F-key."
-        }
-
-        if keyRecorder.isRecording {
-            return "Press Option, Command, Shift or Control on either side, fn, or an F-key. Esc cancels."
+        if let note = keyRecorder.note(for: .dictation) {
+            return note
         }
 
         return settings.settings.pushToTalkKey == .function
@@ -64,7 +60,12 @@ struct DictationSettingsPane: View {
     var body: some View {
         SettingsSection("Recording") {
             SettingsRow("Hold to dictate", description: keyNote) {
-                KeyRecorderField(key: settings.settings.pushToTalkKey, recorder: keyRecorder) { key in
+                KeyRecorderField(
+                    field: .dictation,
+                    key: settings.settings.pushToTalkKey,
+                    takenKey: settings.settings.editKey,
+                    recorder: keyRecorder,
+                ) { key in
                     settings.settings.pushToTalkKey = key
                 }
             }
@@ -82,6 +83,8 @@ struct DictationSettingsPane: View {
                 }
             }
         }
+
+        EditKeySection(settings: settings, keyRecorder: keyRecorder)
 
         SettingsSection("Languages", subtitle: "Dictate listens for these languages.") {
             ForEach(selection.languages, id: \.self) { language in

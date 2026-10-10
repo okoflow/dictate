@@ -10,6 +10,10 @@ struct AccessibilityElement: FocusedElement, @unchecked Sendable {
         string(kAXSubroleAttribute) == kAXSecureTextFieldSubrole
     }
 
+    var selectedText: String? {
+        string(kAXSelectedTextAttribute).flatMap { $0.isEmpty ? nil : $0 }
+    }
+
     var characterBeforeCaret: Character? {
         guard let selection = selectedRange(), selection.location > 0 else { return nil }
 

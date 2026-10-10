@@ -4,28 +4,39 @@ import SwiftUI
 struct KeyRecorderField: View {
     @Environment(\.accessibilityReduceMotion) private var reducesMotion
 
-    let key: PushToTalkKey
+    let field: KeyRecorder.Field
+    let key: PushToTalkKey?
+    let takenKey: PushToTalkKey?
     let recorder: KeyRecorder
     let record: (PushToTalkKey) -> Void
 
+    private var isRecording: Bool {
+        recorder.isRecording(field)
+    }
+
+    private var title: String {
+        key?.title ?? String(localized: "None")
+    }
+
     var body: some View {
         let shakes = !reducesMotion
+        let rejections = recorder.rejections[field, default: 0]
 
         Button {
-            if recorder.isRecording {
+            if isRecording {
                 recorder.stop()
             } else {
-                recorder.start(record)
+                recorder.start(field, excluding: takenKey, record)
             }
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: recorder.isRecording ? "record.circle" : "keyboard")
+                Image(systemName: isRecording ? "record.circle" : "keyboard")
                     .font(.glyph)
-                    .foregroundStyle(recorder.isRecording ? Color.accentColor : .secondary)
+                    .foregroundStyle(isRecording ? Color.accentColor : .secondary)
                     .contentTransition(.symbolEffect(.replace))
 
                 ZStack {
-                    if recorder.isRecording {
+                    if isRecording {
                         Text("Press a key…")
                             .foregroundStyle(.secondary)
                             .phaseAnimator(reducesMotion ? [1.0] : [1.0, 0.45]) { content, opacity in
@@ -35,7 +46,8 @@ struct KeyRecorderField: View {
                             }
                             .transition(.opacity)
                     } else {
-                        Text(key.title)
+                        Text(title)
+                            .foregroundStyle(key == nil ? .secondary : .primary)
                             .transition(.blurReplace)
                     }
                 }
@@ -43,9 +55,9 @@ struct KeyRecorderField: View {
             }
             .padding(.horizontal, Metrics.fieldPadding)
             .frame(minWidth: 160, minHeight: Metrics.controlHeight)
-            .modifier(FieldChrome(isFocused: recorder.isRecording))
+            .modifier(FieldChrome(isFocused: isRecording))
             .contentShape(Rectangle())
-            .keyframeAnimator(initialValue: CGFloat.zero, trigger: recorder.rejections) { content, offset in
+            .keyframeAnimator(initialValue: CGFloat.zero, trigger: rejections) { content, offset in
                 content.offset(x: shakes ? offset : 0)
             } keyframes: { _ in
                 KeyframeTrack {
@@ -57,10 +69,10 @@ struct KeyRecorderField: View {
             }
         }
         .buttonStyle(.plain)
-        .animation(Motion.feedback, value: recorder.isRecording)
+        .animation(Motion.feedback, value: isRecording)
         .animation(Motion.feedback, value: key)
-        .help(recorder.isRecording ? Text("Press the key to use, or Esc to cancel") : Text("Click, then press the key to use"))
-        .accessibilityLabel("Dictation key")
-        .accessibilityValue(key.title)
+        .help(isRecording ? Text("Press the key to use, or Esc to cancel") : Text("Click, then press the key to use"))
+        .accessibilityLabel(field == .dictation ? Text("Dictation key") : Text("Editing key"))
+        .accessibilityValue(title)
     }
 }

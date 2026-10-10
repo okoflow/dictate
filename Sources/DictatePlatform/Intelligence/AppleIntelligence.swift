@@ -32,7 +32,7 @@ private enum AppleIntelligenceSession {
     static func rewrite(_ request: RewriteRequest) async throws -> String {
         guard availability == .available else { throw RewriteError.unavailable }
 
-        let session = LanguageModelSession(instructions: RewritePrompt.system(instructions: request.instructions))
+        let session = LanguageModelSession(instructions: RewritePrompt.system(for: request))
 
         do {
             let response = try await session.respond(

@@ -7,6 +7,7 @@ enum DictationOutcome {
     case blockedInPasswordField
     case noSpeech
     case failed(String)
+    case editFailed(String)
 
     private static func copiedDetail(_ processed: ProcessedText, provider: ModelProvider) -> String {
         let fallback = processed.fallback?.message(for: provider)
@@ -34,6 +35,9 @@ enum DictationOutcome {
 
         case let .failed(reason):
             HUDMessage(kind: .warning, title: String(localized: "Transcription failed"), detail: reason)
+
+        case let .editFailed(reason):
+            HUDMessage(kind: .warning, title: String(localized: "Couldn't edit the text"), detail: reason)
         }
     }
 }

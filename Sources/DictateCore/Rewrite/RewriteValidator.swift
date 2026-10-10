@@ -19,6 +19,16 @@ package enum RewriteValidator {
         return text
     }
 
+    package static func validatedEdit(_ answer: String, of selection: String) -> String? {
+        var text = unwrapped(answer, input: selection)
+
+        if isWrapped(text, in: ("<text>", "</text>")) {
+            text = String(text.dropFirst(6).dropLast(7)).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        return text.isEmpty ? nil : text
+    }
+
     private static func maximumLength(for input: String, mode: Mode, language: Language) -> Int {
         let translatesCompactScript = mode == .translate && !language.scripts.isDisjoint(with: compactScripts)
 
