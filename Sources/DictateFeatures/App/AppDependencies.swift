@@ -5,7 +5,9 @@ package struct AppDependencies {
     package let recorder: any AudioRecorder
     package let audioInputs: any AudioInputProvider
     package let transcriber: any Transcriber
-    package let rewriters: PerProvider<any TextRewriter>
+    package let rewriters: Rewriters
+    package let localServers: any LocalServerBrowsing
+    package let onDeviceModel: any OnDeviceModel
     package let keyEventMonitor: any KeyEventMonitor
     package let keyboardState: any KeyboardState
     package let modeShortcut: any GlobalShortcut
@@ -25,7 +27,9 @@ package struct AppDependencies {
         recorder: any AudioRecorder,
         audioInputs: any AudioInputProvider,
         transcriber: any Transcriber,
-        rewriters: PerProvider<any TextRewriter>,
+        rewriters: Rewriters,
+        localServers: any LocalServerBrowsing,
+        onDeviceModel: any OnDeviceModel,
         keyEventMonitor: any KeyEventMonitor,
         keyboardState: any KeyboardState,
         modeShortcut: any GlobalShortcut,
@@ -45,6 +49,8 @@ package struct AppDependencies {
         self.audioInputs = audioInputs
         self.transcriber = transcriber
         self.rewriters = rewriters
+        self.localServers = localServers
+        self.onDeviceModel = onDeviceModel
         self.keyEventMonitor = keyEventMonitor
         self.keyboardState = keyboardState
         self.modeShortcut = modeShortcut

@@ -4,7 +4,7 @@ struct DictationJob {
     let samples: [Float]
     let language: Language?
     let mode: Mode
-    let cloud: CloudRewrite
+    let setup: RewriteSetup
     let vocabulary: Vocabulary
     let target: FocusTarget
     let key: PushToTalkKey
@@ -16,10 +16,11 @@ struct DictationJob {
         self.samples = samples
         language = settings.languages.forcedLanguage
         self.mode = mode
-        cloud = CloudRewrite(
-            provider: settings.cloudProvider,
+        setup = RewriteSetup(
+            provider: settings.modelProvider,
             instructions: settings.instructions.text(for: mode),
             translation: settings.translation,
+            localServer: settings.localServer,
         )
         self.vocabulary = vocabulary
         self.target = target

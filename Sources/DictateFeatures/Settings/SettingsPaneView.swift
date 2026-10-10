@@ -29,12 +29,18 @@ struct SettingsPaneView: View {
             WritingSettingsPane(
                 settings: model.settings,
                 apiKeys: model.apiKeys,
+                localModels: model.localModels,
                 shortcutTitle: model.modeSwitcher.shortcutTitle,
                 state: state,
             )
 
         case .aiModels:
-            AIModelsSettingsPane(settings: model.settings, speechModel: model.speechModel, apiKeys: model.apiKeys)
+            AIModelsSettingsPane(
+                settings: model.settings,
+                speechModel: model.speechModel,
+                apiKeys: model.apiKeys,
+                localModels: model.localModels,
+            )
 
         case .dictionary:
             DictionarySettingsPane(vocabulary: model.vocabulary)

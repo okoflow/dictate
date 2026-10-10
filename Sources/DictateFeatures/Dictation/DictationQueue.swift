@@ -22,7 +22,7 @@ final class DictationQueue {
 
     init(
         transcriber: any Transcriber,
-        rewriters: PerProvider<any TextRewriter>,
+        rewriters: Rewriters,
         inserter: any TextInserter,
         clipboard: any Clipboard,
         history: HistoryModel,
@@ -47,6 +47,14 @@ final class DictationQueue {
         }
     }
 
+    private static func workingLabel(for job: DictationJob, spoken: Language) -> String {
+        if job.mode == .translate {
+            return "Translating into \(job.setup.translation.target(forSpoken: spoken).name)…"
+        }
+
+        return job.setup.provider.isCloud ? "Polishing with \(job.setup.provider.title)…" : "Polishing on this Mac…"
+    }
+
     func submit(_ job: DictationJob) {
         pendingCount += 1
 
@@ -64,7 +72,7 @@ final class DictationQueue {
         pendingCount -= 1
 
         hud.setWorking(pendingCount > 0 ? "Transcribing…" : nil)
-        hud.show(outcome.message(for: job.cloud.provider))
+        hud.show(outcome.message(for: job.setup.provider))
     }
 
     private func outcome(of job: DictationJob) async -> DictationOutcome {
@@ -79,19 +87,15 @@ final class DictationQueue {
                 return .noSpeech
             }
 
-            if job.mode == .translate {
-                let target = job.cloud.translation.target(forSpoken: transcript.language)
-
-                hud.setWorking("Translating into \(target.name)…")
-            } else if job.mode.isCloud {
-                hud.setWorking("Polishing with \(job.cloud.provider.title)…")
+            if job.mode.isCloud {
+                hud.setWorking(Self.workingLabel(for: job, spoken: transcript.language))
             }
 
             let processed = await processor.process(
                 transcript.text,
                 language: transcript.language,
                 mode: job.mode,
-                cloud: job.cloud,
+                setup: job.setup,
                 vocabulary: job.vocabulary,
             )
             log(transcript, processed)

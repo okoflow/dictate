@@ -1,5 +1,6 @@
 package enum RewriteError: Error, Equatable, Sendable {
     case missingKey
+    case unavailable
     case offline
     case timeout
     case rejectedKey

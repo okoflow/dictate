@@ -8,10 +8,15 @@ struct RewriteTransport: Sendable {
         self.session = session
     }
 
-    func post(_ body: Data, to endpoint: String, headers: [String: String]) async throws -> (data: Data, status: Int) {
+    func post(
+        _ body: Data,
+        to endpoint: String,
+        headers: [String: String],
+        timeout: Duration = ModeProcessor.cloudDeadline,
+    ) async throws -> (data: Data, status: Int) {
         guard let url = URL(string: endpoint) else { throw RewriteError.offline }
 
-        var request = URLRequest(url: url, timeoutInterval: ModeProcessor.cloudDeadline.timeInterval)
+        var request = URLRequest(url: url, timeoutInterval: timeout.timeInterval)
         request.httpMethod = "POST"
         request.httpBody = body
 

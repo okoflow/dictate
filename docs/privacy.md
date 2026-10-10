@@ -18,6 +18,7 @@ Dictate connects to these services, and only for these reasons:
 | Hugging Face | Downloading the speech model, once | Requests for the model files |
 | Anthropic API | Dictating in Clean, Formal, or Translate with Claude chosen and a key added | The recognized text, the mode's instruction, the spoken language, the target language when translating, your Claude API key |
 | OpenAI API | Dictating in Clean, Formal, or Translate with OpenAI chosen and a key added | The recognized text, the mode's instruction, the spoken language, the target language when translating, your OpenAI API key |
+| A local server you run | Dictating in Clean, Formal, or Translate with Local server chosen | The same as above without a key, sent only to the address you set, usually on this Mac |
 
 Raw and Light never use the network. In the cloud modes, only the provider
 you chose receives the text after recognition, never audio, and only when the

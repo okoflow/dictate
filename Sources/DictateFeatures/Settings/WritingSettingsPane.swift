@@ -11,11 +11,12 @@ struct WritingSettingsPane: View {
     @Bindable var settings: SettingsModel
 
     let apiKeys: PerProvider<APIKeyModel>
+    let localModels: LocalModelsModel
     let shortcutTitle: String
     let state: SettingsWindowState
 
-    private var provider: CloudProvider {
-        settings.settings.cloudProvider
+    private var provider: ModelProvider {
+        settings.settings.modelProvider
     }
 
     private var translationTarget: Binding<Language> {
@@ -51,8 +52,15 @@ struct WritingSettingsPane: View {
         return "Speak \(other.name) to get \(translation.target.name), and \(translation.target.name) to get \(other.name)."
     }
 
-    private var needsKey: Bool {
-        !apiKeys[provider].isSet
+    private var setupNote: String? {
+        switch provider {
+        case let .cloud(cloud):
+            apiKeys[cloud].isSet ? nil : "Clean, Formal and Translate need a \(cloud.title) API key."
+        case .localServer:
+            settings.settings.localServer.isConfigured ? nil : "Clean, Formal and Translate need a local server and model."
+        case .apple:
+            localModels.appleAvailability == .available ? nil : "Apple Intelligence isn't available on this Mac yet."
+        }
     }
 
     private var appIdentifiers: [String] {
@@ -69,8 +77,8 @@ struct WritingSettingsPane: View {
                 ModeRow(mode: mode, provider: provider, settings: settings, state: state)
             }
         } footer: {
-            if needsKey {
-                Text("Cloud modes need a \(provider.title) API key.")
+            if let setupNote {
+                Text(setupNote)
                     .font(.rowDetail)
                     .foregroundStyle(.secondary)
 
@@ -139,7 +147,7 @@ struct WritingSettingsPane: View {
 
 private struct ModeRow: View {
     let mode: Mode
-    let provider: CloudProvider
+    let provider: ModelProvider
 
     @Bindable var settings: SettingsModel
 
@@ -184,7 +192,7 @@ private struct ModeRow: View {
 
 private struct ModeLabel: View {
     let mode: Mode
-    let provider: CloudProvider
+    let provider: ModelProvider
     let isCustomized: Bool
 
     var body: some View {
@@ -194,10 +202,12 @@ private struct ModeLabel: View {
                     .font(.rowTitle)
 
                 if mode.isCloud {
-                    Image(systemName: "cloud")
+                    Image(systemName: provider.isCloud ? "cloud" : "cpu")
                         .font(.glyph)
                         .foregroundStyle(.secondary)
-                        .help("Sends the recognized text to \(provider.title)")
+                        .help(provider
+                            .isCloud ? "Sends the recognized text to \(provider.title)" :
+                            "Runs on this Mac with \(provider.title)")
                 }
 
                 if isCustomized {

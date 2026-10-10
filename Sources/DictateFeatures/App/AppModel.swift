@@ -14,6 +14,7 @@ package final class AppModel {
     package let history: HistoryModel
     package let vocabulary: VocabularyModel
     package let apiKeys: PerProvider<APIKeyModel>
+    package let localModels: LocalModelsModel
     package let frontmostApp: FrontmostAppTracker
     package let hud: HUDController
     package let keyRecorder: KeyRecorder
@@ -63,6 +64,7 @@ package final class AppModel {
             claude: APIKeyModel(store: dependencies.apiKeyStores.claude),
             openAI: APIKeyModel(store: dependencies.apiKeyStores.openAI),
         )
+        localModels = LocalModelsModel(browser: dependencies.localServers, onDeviceModel: dependencies.onDeviceModel)
         frontmostApp = FrontmostAppTracker()
         hud = models.hud
         keyRecorder = models.keyRecorder

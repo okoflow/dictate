@@ -3,7 +3,7 @@ import SwiftUI
 
 struct InstructionsButton: View {
     let mode: Mode
-    let provider: CloudProvider
+    let provider: ModelProvider
 
     @Bindable var settings: SettingsModel
 
@@ -36,7 +36,7 @@ struct InstructionsButton: View {
 
 private struct InstructionsEditor: View {
     let mode: Mode
-    let provider: CloudProvider
+    let provider: ModelProvider
 
     @Bindable var settings: SettingsModel
 
@@ -59,7 +59,9 @@ private struct InstructionsEditor: View {
                 Text(mode.title)
                     .font(.sectionTitle)
 
-                Text("Instructions sent to \(provider.title) with your text.")
+                Text(provider
+                    .isCloud ? "Instructions sent to \(provider.title) with your text." :
+                    "Instructions for \(provider.title) on this Mac.")
                     .font(.rowDetail)
                     .foregroundStyle(.secondary)
             }

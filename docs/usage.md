@@ -104,11 +104,18 @@ Terminal. Choose **Mode in *app*** in the menu while the app is in front, or
 add the app in Settings › Writing › Apps. Dictate uses the mode of the app that
 was in front when you pressed the key.
 
-### The cloud provider
+### The model for Clean, Formal, and Translate
 
-Settings › AI Models has a section for **Claude** and one for **OpenAI**: paste
-the provider's API key there and click **Use** on the one the cloud modes
-should call:
+Settings › AI Models lists every model these modes can use; click **Use** on
+the one you want:
+
+- **Apple Intelligence** runs Apple's model on your Mac, free and offline, on
+  macOS 26 or later with Apple Intelligence turned on.
+- **Local server** calls a model you run yourself with Ollama, LM Studio,
+  llama.cpp, MLX, or Jan. **Detect** finds a running server, and **Model**
+  lists the models it has loaded. Any server with an OpenAI-compatible
+  `/v1/chat/completions` endpoint works.
+- **Claude** and **OpenAI** need your own API key:
 
 - Claude: create the key inside a workspace in the
   [Anthropic Console](https://console.anthropic.com/settings/keys).

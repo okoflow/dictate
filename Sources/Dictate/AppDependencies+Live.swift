@@ -12,6 +12,8 @@ extension AppDependencies {
             claude: KeychainStore.apiKey(for: .claude),
             openAI: KeychainStore.apiKey(for: .openAI),
         )
+        let localServer = LocalServerRewriter()
+        let appleIntelligence = AppleIntelligence()
         let vocabularyFile = AppIdentity.supportDirectory.appending(path: "dictionary.json")
         let historyFile = AppIdentity.supportDirectory.appending(path: "history.json")
 
@@ -19,10 +21,16 @@ extension AppDependencies {
             recorder: AudioEngineRecorder(),
             audioInputs: CoreAudioInputs(),
             transcriber: WhisperTranscriber(),
-            rewriters: PerProvider<any TextRewriter>(
-                claude: AnthropicRewriter(apiKeyStore: apiKeyStores.claude),
-                openAI: OpenAIRewriter(apiKeyStore: apiKeyStores.openAI),
+            rewriters: Rewriters(
+                cloud: PerProvider(
+                    claude: AnthropicRewriter(apiKeyStore: apiKeyStores.claude),
+                    openAI: OpenAIRewriter(apiKeyStore: apiKeyStores.openAI),
+                ),
+                localServer: localServer,
+                apple: appleIntelligence,
             ),
+            localServers: localServer,
+            onDeviceModel: appleIntelligence,
             keyEventMonitor: KeyEventTap(),
             keyboardState: keyboardState,
             modeShortcut: CarbonHotKey.modeCycle(),

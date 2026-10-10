@@ -1,8 +1,13 @@
 package struct Settings: Codable, Equatable, Sendable {
+    private enum LegacyKeys: String, CodingKey {
+        case cloudProvider
+    }
+
     package var mode = Mode.light
     package var languages = LanguageSelection(languages: [.english])
     package var appModes = AppModeOverrides()
-    package var cloudProvider = CloudProvider.claude
+    package var modelProvider = ModelProvider.cloud(.claude)
+    package var localServer = LocalServer()
     package var instructions = ModeInstructions()
     package var translation = Translation()
     package var pushToTalkKey = PushToTalkKey.rightOption
@@ -27,7 +32,10 @@ package struct Settings: Codable, Equatable, Sendable {
         mode = try container.decodeIfPresent(Mode.self, forKey: .mode) ?? defaults.mode
         languages = try container.decodeIfPresent(LanguageSelection.self, forKey: .languages) ?? defaults.languages
         appModes = try container.decodeIfPresent(AppModeOverrides.self, forKey: .appModes) ?? defaults.appModes
-        cloudProvider = try container.decodeIfPresent(CloudProvider.self, forKey: .cloudProvider) ?? defaults.cloudProvider
+        modelProvider = try container.decodeIfPresent(ModelProvider.self, forKey: .modelProvider)
+            ?? decoder.container(keyedBy: LegacyKeys.self).decodeIfPresent(ModelProvider.self, forKey: .cloudProvider)
+            ?? defaults.modelProvider
+        localServer = try container.decodeIfPresent(LocalServer.self, forKey: .localServer) ?? defaults.localServer
         instructions = try container.decodeIfPresent(ModeInstructions.self, forKey: .instructions) ?? defaults.instructions
         translation = try container.decodeIfPresent(Translation.self, forKey: .translation) ?? defaults.translation
         pushToTalkKey = try container.decodeIfPresent(PushToTalkKey.self, forKey: .pushToTalkKey) ?? defaults.pushToTalkKey

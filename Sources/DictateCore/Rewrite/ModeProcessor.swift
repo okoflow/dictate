@@ -3,13 +3,15 @@ package struct ModeProcessor: Sendable {
 
     private let rewriter: any TextRewriter
     private let deadline: Duration
+    private let contactsCloud: Bool
 
-    package init(rewriter: any TextRewriter, deadline: Duration = cloudDeadline) {
+    package init(rewriter: any TextRewriter, deadline: Duration = cloudDeadline, contactsCloud: Bool = true) {
         self.rewriter = rewriter
         self.deadline = deadline
+        self.contactsCloud = contactsCloud
     }
 
-    package func process(_ text: String, mode: Mode, language: Language, cloud: CloudRewrite) async -> ProcessedText {
+    package func process(_ text: String, mode: Mode, language: Language, setup: RewriteSetup) async -> ProcessedText {
         switch mode {
         case .raw:
             ProcessedText(text: text, requestedMode: mode, appliedMode: .raw)
@@ -18,9 +20,10 @@ package struct ModeProcessor: Sendable {
         case .clean, .formal, .translate:
             await rewrite(RewriteRequest(
                 text: text,
-                instructions: cloud.instructions,
+                instructions: setup.instructions,
                 language: language,
-                target: mode == .translate ? cloud.translation.target(forSpoken: language) : nil,
+                target: mode == .translate ? setup.translation.target(forSpoken: language) : nil,
+                localServer: setup.provider == .localServer ? setup.localServer : nil,
             ), mode: mode)
         }
     }
@@ -34,10 +37,16 @@ package struct ModeProcessor: Sendable {
                 try await rewriter.rewrite(request)
             }
             guard let accepted = RewriteValidator.validated(answer, for: request, mode: mode) else {
-                return light(text, language: language, requestedMode: mode, fallback: .unusableAnswer, contactedCloud: true)
+                return light(
+                    text,
+                    language: language,
+                    requestedMode: mode,
+                    fallback: .unusableAnswer,
+                    contactedCloud: contactsCloud,
+                )
             }
 
-            return ProcessedText(text: accepted, requestedMode: mode, appliedMode: mode, contactedCloud: true)
+            return ProcessedText(text: accepted, requestedMode: mode, appliedMode: mode, contactedCloud: contactsCloud)
         } catch {
             let rewriteError = error as? RewriteError ?? .offline
             let fallback = RewriteFallback(rewriteError)
@@ -47,7 +56,7 @@ package struct ModeProcessor: Sendable {
                 language: language,
                 requestedMode: mode,
                 fallback: fallback,
-                contactedCloud: rewriteError != .missingKey,
+                contactedCloud: contactsCloud && rewriteError != .missingKey,
             )
         }
     }

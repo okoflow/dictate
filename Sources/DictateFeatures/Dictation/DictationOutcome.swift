@@ -7,13 +7,13 @@ enum DictationOutcome {
     case noSpeech
     case failed(String)
 
-    private static func copiedDetail(_ processed: ProcessedText, provider: CloudProvider) -> String {
+    private static func copiedDetail(_ processed: ProcessedText, provider: ModelProvider) -> String {
         let fallback = processed.fallback?.message(for: provider)
 
         return ["Copied: press ⌘V to paste", fallback].compactMap(\.self).joined(separator: "\n")
     }
 
-    func message(for provider: CloudProvider) -> HUDMessage {
+    func message(for provider: ModelProvider) -> HUDMessage {
         switch self {
         case let .pasted(processed):
             HUDMessage(kind: .pasted, title: processed.text, detail: processed.fallback?.message(for: provider))
