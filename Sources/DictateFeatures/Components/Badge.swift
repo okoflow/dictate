@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct EmptyRow: View {
+struct Badge: View {
     private let text: String
 
     init(_ text: String) {
@@ -9,9 +9,10 @@ struct EmptyRow: View {
 
     var body: some View {
         Text(text)
-            .font(.rowTitle)
+            .font(.badge)
             .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .settingsRowPadding()
+            .padding(.horizontal, 6)
+            .padding(.vertical, 1)
+            .background(Palette.selection, in: Capsule())
     }
 }

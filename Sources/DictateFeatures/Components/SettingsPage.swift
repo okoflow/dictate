@@ -12,13 +12,13 @@ struct SettingsPage<Content: View>: View {
     var body: some View {
         ZStack(alignment: .top) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 31) {
+                VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
                     content
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 73)
-                .padding(.bottom, 24)
+                .padding(.horizontal, Metrics.pagePadding)
+                .padding(.top, Metrics.pageTop)
+                .padding(.bottom, Metrics.pagePadding)
             }
             .hidingSystemScrollEdge()
 
@@ -28,9 +28,9 @@ struct SettingsPage<Content: View>: View {
 
     private var header: some View {
         Text(title)
-            .font(.system(size: 15, weight: .bold))
-            .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52, alignment: .leading)
-            .padding(.horizontal, 20)
+            .font(.pageTitle)
+            .frame(maxWidth: .infinity, minHeight: Metrics.titleBarHeight, maxHeight: Metrics.titleBarHeight, alignment: .leading)
+            .padding(.horizontal, Metrics.pagePadding)
             .background(alignment: .top) {
                 LinearGradient(
                     stops: [
@@ -41,7 +41,7 @@ struct SettingsPage<Content: View>: View {
                     startPoint: .top,
                     endPoint: .bottom,
                 )
-                .frame(height: 68)
+                .frame(height: Metrics.pageTop - 5)
             }
             .allowsHitTesting(false)
             .accessibilityAddTraits(.isHeader)

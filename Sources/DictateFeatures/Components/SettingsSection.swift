@@ -26,7 +26,7 @@ struct SettingsSection<Content: View, Accessory: View, Footer: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Metrics.groupSpacing) {
             if title != nil || subtitle != nil || accessory != nil {
                 header
             }
@@ -36,7 +36,7 @@ struct SettingsSection<Content: View, Accessory: View, Footer: View>: View {
             }
 
             if let footer {
-                HStack(spacing: 8) {
+                HStack(spacing: Metrics.controlSpacing) {
                     Spacer(minLength: 0)
                     footer
                 }
@@ -45,17 +45,17 @@ struct SettingsSection<Content: View, Accessory: View, Footer: View>: View {
     }
 
     private var header: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.rowSpacing) {
             VStack(alignment: .leading, spacing: 2) {
                 if let title {
                     Text(title)
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.sectionTitle)
                         .accessibilityAddTraits(.isHeader)
                 }
 
                 if let subtitle {
                     Text(subtitle)
-                        .font(.system(size: 11))
+                        .font(.rowDetail)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -65,7 +65,7 @@ struct SettingsSection<Content: View, Accessory: View, Footer: View>: View {
 
             accessory
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, Metrics.rowPadding)
     }
 }
 

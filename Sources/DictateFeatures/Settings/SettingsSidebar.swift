@@ -4,7 +4,7 @@ struct SettingsSidebar: View {
     let state: SettingsWindowState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Metrics.sidebarRowSpacing) {
             ForEach(SettingsPane.sidebarPanes, id: \.self) { pane in
                 SidebarRow(pane: pane, state: state)
             }
@@ -13,9 +13,9 @@ struct SettingsSidebar: View {
 
             SidebarRow(pane: .about, state: state)
         }
-        .padding(.horizontal, 10)
-        .padding(.top, 48)
-        .padding(.bottom, 10)
+        .padding(.horizontal, Metrics.rowPadding)
+        .padding(.top, Metrics.sidebarTop)
+        .padding(.bottom, Metrics.rowPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background {
             SidebarBackground()
@@ -35,9 +35,9 @@ struct SettingsSidebar: View {
 private struct SidebarBackground: View {
     var body: some View {
         if #available(macOS 26, *) {
-            surface(ConcentricRectangle(corners: .concentric(minimum: .fixed(8)), isUniform: true))
+            surface(ConcentricRectangle(corners: .concentric(minimum: .fixed(Metrics.sidebarRadius)), isUniform: true))
         } else {
-            surface(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            surface(RoundedRectangle(cornerRadius: Metrics.sidebarRadius, style: .continuous))
         }
     }
 
@@ -67,22 +67,22 @@ private struct SidebarRow: View {
                 IconTile(symbolName: pane.symbolName, tint: pane.tint)
 
                 Text(pane.title)
-                    .font(.system(size: 13))
+                    .font(.rowTitle)
 
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 6)
-            .frame(height: 36)
+            .frame(height: Metrics.sidebarRowHeight)
             .background {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    RoundedRectangle(cornerRadius: Metrics.rowRadius, style: .continuous)
                         .fill(Palette.selection)
                 } else if state.hoveredPane == pane {
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    RoundedRectangle(cornerRadius: Metrics.rowRadius, style: .continuous)
                         .fill(Palette.hover)
                 }
             }
-            .contentShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Metrics.rowRadius, style: .continuous))
         }
         .buttonStyle(.plain)
         .onHover { state.hover(pane, $0) }

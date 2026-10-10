@@ -16,10 +16,10 @@ struct InputField: View {
     var body: some View {
         field
             .textFieldStyle(.plain)
-            .font(.system(size: 13))
+            .font(.control)
             .focused($isFocused)
-            .padding(.horizontal, 8)
-            .frame(height: 26)
+            .padding(.horizontal, Metrics.fieldPadding)
+            .frame(height: Metrics.controlHeight)
             .modifier(FieldChrome(isFocused: isFocused))
     }
 

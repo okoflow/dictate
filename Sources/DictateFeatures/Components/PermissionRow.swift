@@ -18,16 +18,16 @@ struct PermissionRow: View {
                         .foregroundStyle(.secondary)
                 } icon: {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Palette.success)
                 }
-                .font(.system(size: 13))
+                .font(.rowTitle)
             } else if offersRequest {
                 Button("Allow…") {
                     Task { await monitor.request(permission) }
                 }
             } else {
                 Text("Not allowed yet")
-                    .font(.system(size: 13))
+                    .font(.rowTitle)
                     .foregroundStyle(.secondary)
             }
         }

@@ -34,7 +34,7 @@ struct WritingSettingsPane: View {
         } footer: {
             if needsKey {
                 Text("Cloud modes need a \(provider.title) API key.")
-                    .font(.system(size: 11))
+                    .font(.rowDetail)
                     .foregroundStyle(.secondary)
 
                 Button("Set Up…") { state.selection = .cloud }
@@ -97,7 +97,7 @@ private struct ModeRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Metrics.controlSpacing + 4) {
             Button {
                 settings.settings.mode = mode
             } label: {
@@ -116,7 +116,7 @@ private struct ModeRow: View {
             }
 
             Image(systemName: "checkmark")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.sectionTitle)
                 .foregroundStyle(.tint)
                 .opacity(isSelected ? 1 : 0)
                 .accessibilityHidden(true)
@@ -134,27 +134,22 @@ private struct ModeLabel: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
                 Text(mode.title)
-                    .font(.system(size: 13))
+                    .font(.rowTitle)
 
                 if mode.isCloud {
                     Image(systemName: "cloud")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.glyph)
                         .foregroundStyle(.secondary)
                         .help("Sends the recognized text to \(provider.title)")
                 }
 
                 if isCustomized {
-                    Text("Edited")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 1)
-                        .background(Palette.selection, in: Capsule())
+                    Badge("Edited")
                 }
             }
 
             Text(mode.summary)
-                .font(.system(size: 11))
+                .font(.rowDetail)
                 .foregroundStyle(.secondary)
         }
     }
@@ -182,23 +177,19 @@ private struct AppModeRow: View {
         HStack(spacing: 10) {
             Image(nsImage: icon)
                 .resizable()
-                .frame(width: 24, height: 24)
+                .frame(width: Metrics.tileSize, height: Metrics.tileSize)
                 .accessibilityHidden(true)
 
             Text(FrontmostAppTracker.name(of: bundleIdentifier))
-                .font(.system(size: 13))
+                .font(.rowTitle)
 
             Spacer(minLength: 16)
 
-            Picker("Mode", selection: mode) {
+            MenuPicker("Mode", selection: mode, current: mode.wrappedValue.title) {
                 ForEach(Mode.allCases, id: \.self) { mode in
                     Text(mode.title).tag(mode)
                 }
             }
-            .pickerStyle(.menu)
-            .buttonStyle(.borderless)
-            .labelsHidden()
-            .fixedSize()
 
             RemoveButton(help: "Use the main mode in this app") {
                 settings.settings.appModes.set(nil, for: bundleIdentifier)

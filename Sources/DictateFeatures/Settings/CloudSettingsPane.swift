@@ -18,14 +18,12 @@ struct CloudSettingsPane: View {
     var body: some View {
         SettingsSection("Provider", subtitle: "Clean, Formal and Translate send the text, never audio.") {
             SettingsRow("Rewrite with") {
-                Picker("Rewrite with", selection: $settings.settings.cloudProvider) {
-                    ForEach(CloudProvider.allCases, id: \.self) { provider in
-                        Text(provider.title).tag(provider)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .fixedSize()
+                SegmentedPicker(
+                    "Rewrite with",
+                    selection: $settings.settings.cloudProvider,
+                    options: CloudProvider.allCases,
+                    label: \.title,
+                )
             }
         }
 
@@ -37,7 +35,7 @@ struct CloudSettingsPane: View {
                     Text("Get a \(provider.title) Key")
 
                     Image(systemName: "arrow.up.right")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.glyph)
                 }
             }
         }
@@ -69,7 +67,7 @@ private struct APIKeyRows: View {
             RowDivider()
         }
 
-        HStack(spacing: 8) {
+        HStack(spacing: Metrics.controlSpacing) {
             InputField(prompt, text: $apiKey.draft, isSecure: true)
 
             Button("Save") { apiKey.saveDraft() }

@@ -29,7 +29,7 @@ struct HistorySettingsPane: View {
 
             if settings.settings.keepsHistory {
                 RowDivider()
-                PickerRow("Keep dictations for", selection: retention) {
+                PickerRow("Keep dictations for", selection: retention, current: retention.wrappedValue.title) {
                     ForEach(HistoryRetention.allCases, id: \.self) { retention in
                         Text(retention.title).tag(retention)
                     }
@@ -91,15 +91,15 @@ private struct HistoryRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: Metrics.rowSpacing) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(entry.text)
-                    .font(.system(size: 13))
+                    .font(.rowTitle)
                     .lineLimit(3)
                     .textSelection(.enabled)
 
                 Text(details)
-                    .font(.system(size: 11))
+                    .font(.rowDetail)
                     .foregroundStyle(.secondary)
             }
 

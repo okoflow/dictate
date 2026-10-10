@@ -14,13 +14,13 @@ struct SearchField: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 12, weight: .medium))
+                .font(.glyph)
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
 
             TextField(prompt, text: $text, prompt: Text(prompt))
                 .textFieldStyle(.plain)
-                .font(.system(size: 13))
+                .font(.control)
                 .focused($isFocused)
 
             if !text.isEmpty {
@@ -35,8 +35,8 @@ struct SearchField: View {
                 .accessibilityLabel("Clear the search")
             }
         }
-        .padding(.horizontal, 8)
-        .frame(height: 26)
+        .padding(.horizontal, Metrics.fieldPadding)
+        .frame(height: Metrics.controlHeight)
         .modifier(FieldChrome(isFocused: isFocused))
     }
 }

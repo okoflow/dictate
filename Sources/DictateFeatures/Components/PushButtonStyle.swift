@@ -24,7 +24,7 @@ private struct PushButton: View {
             return .white
         }
 
-        return configuration.role == .destructive ? .red : .primary
+        return configuration.role == .destructive ? Palette.danger : .primary
     }
 
     private var fill: Color {
@@ -36,14 +36,17 @@ private struct PushButton: View {
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: isLarge ? 9 : 7, style: .continuous)
+        let shape = RoundedRectangle(
+            cornerRadius: isLarge ? Metrics.largeControlRadius : Metrics.controlRadius,
+            style: .continuous,
+        )
 
         configuration.label
-            .font(.system(size: 13, weight: isProminent ? .medium : .regular))
+            .font(isProminent ? .prominentControl : .control)
             .lineLimit(1)
             .foregroundStyle(foreground)
-            .padding(.horizontal, isLarge ? 16 : 12)
-            .frame(minHeight: isLarge ? 32 : 24)
+            .padding(.horizontal, isLarge ? Metrics.largeControlPadding : Metrics.controlPadding)
+            .frame(minHeight: isLarge ? Metrics.largeControlHeight : Metrics.controlHeight)
             .background(fill, in: shape)
             .opacity(isEnabled ? 1 : 0.4)
             .contentShape(shape)

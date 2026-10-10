@@ -26,6 +26,10 @@ struct DictationSettingsPane: View {
         return "Russian and Ukrainian sound alike: pin one if Dictate mixes them up."
     }
 
+    private var microphoneName: String {
+        settings.microphones.first { $0.id == settings.settings.microphoneID }?.name ?? "System default"
+    }
+
     private var addableLanguages: [Language] {
         Language.allCases
             .filter { !selection.languages.contains($0) }
@@ -34,13 +38,17 @@ struct DictationSettingsPane: View {
 
     var body: some View {
         SettingsSection("Recording") {
-            PickerRow("Hold to dictate", selection: $settings.settings.pushToTalkKey) {
+            PickerRow(
+                "Hold to dictate",
+                selection: $settings.settings.pushToTalkKey,
+                current: settings.settings.pushToTalkKey.title,
+            ) {
                 ForEach(PushToTalkKey.allCases, id: \.self) { key in
                     Text(key.title).tag(key)
                 }
             }
             RowDivider()
-            PickerRow("Microphone", selection: $settings.settings.microphoneID) {
+            PickerRow("Microphone", selection: $settings.settings.microphoneID, current: microphoneName) {
                 Text("System default").tag(String?.none)
                 ForEach(settings.microphones) { microphone in
                     Text(microphone.name).tag(String?.some(microphone.id))
@@ -56,7 +64,12 @@ struct DictationSettingsPane: View {
                 RowDivider()
             }
 
-            PickerRow("Spoken language", selection: pinnedLanguage, description: spokenLanguageNote) {
+            PickerRow(
+                "Spoken language",
+                selection: pinnedLanguage,
+                current: selection.pinned?.name ?? "Detect automatically",
+                description: spokenLanguageNote,
+            ) {
                 Text("Detect automatically").tag(Language?.none)
                 Divider()
                 ForEach(selection.languages, id: \.self) { language in

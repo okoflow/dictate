@@ -9,8 +9,8 @@ struct CopyButton: View {
             HStack(spacing: 4) {
                 if isCopied {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(.green)
+                        .font(.glyph)
+                        .foregroundStyle(Palette.success)
                         .transition(.scale.combined(with: .opacity))
                 }
 

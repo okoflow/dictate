@@ -8,7 +8,7 @@ struct SettingsCard<Content: View>: View {
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous)
 
         VStack(alignment: .leading, spacing: 0) {
             content

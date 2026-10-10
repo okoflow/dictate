@@ -13,11 +13,11 @@ struct OnboardingStep<Hero: View, Content: View>: View {
             hero
 
             Text(title)
-                .font(.system(size: 26, weight: .bold))
+                .font(.heroTitle)
                 .padding(.top, 20)
 
             Text(message)
-                .font(.system(size: 13))
+                .font(.rowTitle)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -117,14 +117,14 @@ struct PracticeStep: View {
             VStack(spacing: 10) {
                 TextField("Your words appear here", text: $onboarding.practiceText, axis: .vertical)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 15))
+                    .font(.practice)
                     .lineLimit(4, reservesSpace: true)
                     .focused($isTyping)
                     .padding(14)
-                    .modifier(FieldChrome(isFocused: isTyping, cornerRadius: 12))
+                    .modifier(FieldChrome(isFocused: isTyping, cornerRadius: Metrics.cardRadius))
 
                 Text(modelStatus)
-                    .font(.system(size: 11))
+                    .font(.rowDetail)
                     .foregroundStyle(.secondary)
             }
         }

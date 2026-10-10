@@ -12,8 +12,8 @@ package struct SettingsWindowView: View {
     package var body: some View {
         HStack(spacing: 0) {
             SettingsSidebar(state: state)
-                .frame(width: 222)
-                .padding([.leading, .vertical], 8)
+                .frame(width: Metrics.sidebarWidth)
+                .padding([.leading, .vertical], Metrics.windowInset)
 
             SettingsPaneView(model: model, state: state)
         }

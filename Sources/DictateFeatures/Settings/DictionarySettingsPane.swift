@@ -67,11 +67,11 @@ private struct EntryRow: View {
     let remove: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Metrics.controlSpacing) {
             InputField(firstPrompt, text: $first)
 
             Image(systemName: "arrow.right")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.glyph)
                 .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
 

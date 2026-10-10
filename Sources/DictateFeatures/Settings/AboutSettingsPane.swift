@@ -20,14 +20,14 @@ struct AboutSettingsPane: View {
                 .accessibilityHidden(true)
 
             Text("Dictate")
-                .font(.system(size: 24, weight: .bold))
+                .font(.heroTitle)
 
             Text(versionText)
-                .font(.system(size: 13))
+                .font(.rowTitle)
                 .foregroundStyle(.secondary)
 
             Text("Push-to-talk dictation for macOS with on-device Whisper.")
-                .font(.system(size: 13))
+                .font(.rowTitle)
                 .multilineTextAlignment(.center)
                 .padding(.top, 8)
         }
@@ -42,7 +42,7 @@ struct AboutSettingsPane: View {
         }
 
         Text("Copyright 2026 The Dictate Authors")
-            .font(.system(size: 11))
+            .font(.rowDetail)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity)
     }
@@ -65,10 +65,10 @@ private struct LinkRow: View {
                     .foregroundStyle(.secondary)
 
                 Image(systemName: "arrow.up.right")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.glyph)
                     .foregroundStyle(.secondary)
             }
-            .font(.system(size: 13))
+            .font(.rowTitle)
             .settingsRowPadding()
             .contentShape(Rectangle())
         }

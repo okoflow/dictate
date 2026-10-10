@@ -3,7 +3,7 @@ import SwiftUI
 struct IconTile: View {
     let symbolName: String
     let tint: TileTint
-    var size: CGFloat = 24
+    var size = Metrics.tileSize
 
     var body: some View {
         Image(systemName: symbolName)

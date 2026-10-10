@@ -57,10 +57,10 @@ private struct InstructionsEditor: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(mode.title)
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.sectionTitle)
 
                 Text("Instructions sent to \(provider.title) with your text.")
-                    .font(.system(size: 11))
+                    .font(.rowDetail)
                     .foregroundStyle(.secondary)
             }
 

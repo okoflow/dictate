@@ -12,12 +12,12 @@ struct SettingsRow<Accessory: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: Metrics.rowSpacing) {
             RowLabel(title: title, description: description)
 
             Spacer(minLength: 0)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Metrics.controlSpacing) {
                 accessory
             }
         }
@@ -32,11 +32,11 @@ struct RowLabel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
-                .font(.system(size: 13))
+                .font(.rowTitle)
 
             if let description {
                 Text(description)
-                    .font(.system(size: 11))
+                    .font(.rowDetail)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -46,8 +46,7 @@ struct RowLabel: View {
 
 extension View {
     func settingsRowPadding() -> some View {
-        padding(.horizontal, 10)
-            .padding(.vertical, 10)
-            .frame(minHeight: 37)
+        padding(Metrics.rowPadding)
+            .frame(minHeight: Metrics.rowMinHeight)
     }
 }

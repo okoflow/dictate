@@ -13,11 +13,11 @@ struct InputEditor: View {
 
     var body: some View {
         TextEditor(text: $text)
-            .font(.system(size: 12))
+            .font(.editor)
             .scrollContentBackground(.hidden)
             .focused($isFocused)
             .padding(6)
             .frame(height: height)
-            .modifier(FieldChrome(isFocused: isFocused, cornerRadius: 8))
+            .modifier(FieldChrome(isFocused: isFocused, cornerRadius: Metrics.editorRadius))
     }
 }
