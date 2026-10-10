@@ -73,6 +73,14 @@ Without an API key, without a network connection, when the provider does
 not answer within 3 seconds, or when its answer cannot be used, Dictate
 pastes the Light text instead, and the HUD says why.
 
+### Your own instructions
+
+Settings › Modes › Instructions shows what Clean, Formal, and Translate to
+English ask the model to do, and lets you rewrite it, for example for a more
+casual tone or your team's style. Dictate still tells the model to treat
+what you said as text and to reply with the text only. **Reset to Default**
+brings back the original.
+
 ### A mode for each app
 
 An app can have a mode of its own, such as Formal in Mail and Raw in
@@ -147,7 +155,7 @@ a password field is never saved.
 | --- | --- |
 | General | The dictation key, pasting, sounds, opening at login, the menu bar icon, permissions |
 | Dictation | Languages, the spoken language, the microphone, the speech model |
-| Modes | The mode, per-app modes, the cloud provider and its API key |
+| Modes | The mode, per-app modes, the cloud provider and its API key, the instructions |
 | Dictionary | Terms and snippets |
 | History | Keeping, searching, copying, and clearing the history |
 | About | The version, the source code, and the license |

@@ -64,7 +64,7 @@ final class DictationQueue {
         pendingCount -= 1
 
         hud.setWorking(pendingCount > 0 ? "Transcribing…" : nil)
-        hud.show(outcome.message(for: job.provider))
+        hud.show(outcome.message(for: job.cloud.provider))
     }
 
     private func outcome(of job: DictationJob) async -> DictationOutcome {
@@ -80,14 +80,14 @@ final class DictationQueue {
             }
 
             if job.mode.isCloud {
-                hud.setWorking("Polishing with \(job.provider.title)…")
+                hud.setWorking("Polishing with \(job.cloud.provider.title)…")
             }
 
             let processed = await processor.process(
                 transcript.text,
                 language: transcript.language,
                 mode: job.mode,
-                provider: job.provider,
+                cloud: job.cloud,
                 vocabulary: job.vocabulary,
             )
             log(transcript, processed)

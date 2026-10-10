@@ -60,6 +60,14 @@ struct ModesSettingsPane: View {
             } footer: {
                 SectionNote("Cloud modes send the text, never audio, to \(provider.title).")
             }
+
+            Section {
+                ForEach(Mode.allCases.filter(\.isCloud), id: \.self) { mode in
+                    InstructionsEditor(mode: mode, settings: settings)
+                }
+            } header: {
+                Text("Instructions")
+            }
         }
     }
 
@@ -167,6 +175,30 @@ private struct APIKeyRow: View {
 
             Button("Save") { apiKey.saveDraft() }
                 .disabled(!apiKey.canSaveDraft)
+        }
+    }
+}
+
+private struct InstructionsEditor: View {
+    let mode: Mode
+
+    @Bindable var settings: SettingsModel
+
+    private var text: Binding<String> {
+        Binding(
+            get: { settings.settings.instructions.editableText(for: mode) },
+            set: { settings.settings.instructions.set($0, for: mode) },
+        )
+    }
+
+    var body: some View {
+        DisclosureGroup(mode.title) {
+            TextEditor(text: text)
+                .font(.callout)
+                .frame(height: 120)
+
+            Button("Reset to Default") { settings.settings.instructions.reset(mode) }
+                .disabled(!settings.settings.instructions.isCustomized(mode))
         }
     }
 }

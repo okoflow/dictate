@@ -5,7 +5,7 @@ package enum AnthropicMessagesCodec {
     package static let apiVersion = "2023-06-01"
     package static let model = "claude-haiku-5-5"
 
-    package static func requestBody(text: String, mode: Mode, language: Language) throws -> Data {
+    package static func requestBody(text: String, instructions: String, language: Language) throws -> Data {
         let message = AnthropicMessagesRequest.Message(
             role: "user",
             content: RewritePrompt.userMessage(text: text, language: language),
@@ -14,7 +14,7 @@ package enum AnthropicMessagesCodec {
             model: model,
             maximumTokens: maximumTokens(for: text),
             thinking: AnthropicMessagesRequest.Thinking(type: "disabled"),
-            system: RewritePrompt.system(for: mode),
+            system: RewritePrompt.system(instructions: instructions),
             messages: [message],
         )
 
