@@ -13,7 +13,7 @@ struct HistorySettingsPane: View {
             Section {
                 Toggle("Keep history", isOn: $settings.settings.keepsHistory)
             } footer: {
-                SectionNote("The last \(DictationHistory.capacity) dictations stay on this Mac, in a file only you can read.")
+                SectionNote("The last \(DictationHistory.capacity) dictations stay on this Mac.")
             }
 
             Section("Recent") {

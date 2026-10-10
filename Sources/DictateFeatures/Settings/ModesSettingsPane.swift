@@ -22,7 +22,7 @@ struct ModesSettingsPane: View {
             } header: {
                 Text("Mode")
             } footer: {
-                SectionNote("Press \(shortcutTitle) anywhere to switch to the next mode.")
+                SectionNote("\(shortcutTitle) switches to the next mode.")
             }
 
             Section {
@@ -33,8 +33,6 @@ struct ModesSettingsPane: View {
                 Button("Add App…", action: addApp)
             } header: {
                 Text("Apps with their own mode")
-            } footer: {
-                SectionNote("Dictating into one of these apps uses its mode instead of the one above.")
             }
 
             Section {
@@ -42,10 +40,7 @@ struct ModesSettingsPane: View {
             } header: {
                 Text("Claude")
             } footer: {
-                SectionNote(
-                    "Modes with a cloud send the recognized text, never audio, to Claude Haiku. "
-                        + "Without a key, offline, or with no answer within 3 seconds, Dictate uses Light.",
-                )
+                SectionNote("Cloud modes send the text, never audio, to Claude.")
             }
         }
     }
@@ -139,7 +134,7 @@ private struct ClaudeKeyRow: View {
     var body: some View {
         if apiKey.isSet {
             HStack {
-                Label("Your API key is saved in the Keychain", systemImage: "key.fill")
+                Label("Saved in the Keychain", systemImage: "key.fill")
                 Spacer()
                 Button("Remove", role: .destructive) { apiKey.remove() }
             }

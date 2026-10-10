@@ -20,10 +20,10 @@ package enum SettingsPane: Int, CaseIterable {
     var symbolName: String {
         switch self {
         case .general: "gearshape"
-        case .dictation: "waveform"
-        case .modes: "wand.and.stars"
-        case .dictionary: "text.book.closed"
-        case .history: "clock.arrow.circlepath"
+        case .dictation: "mic"
+        case .modes: "sparkles"
+        case .dictionary: "book.closed"
+        case .history: "clock"
         case .about: "info.circle"
         }
     }

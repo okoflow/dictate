@@ -6,9 +6,9 @@ struct SettingsPaneView: View {
 
     private var height: CGFloat {
         switch pane {
-        case .general: 430
-        case .dictation: 460
-        case .modes: 760
+        case .general: 400
+        case .dictation: 430
+        case .modes: 720
         case .dictionary: 520
         case .history: 480
         case .about: 360

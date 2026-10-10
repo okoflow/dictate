@@ -20,13 +20,11 @@ struct GeneralSettingsPane: View {
                 }
 
                 Toggle("Paste into the focused field", isOn: $settings.settings.pastesIntoFocusedField)
-                Toggle("Play sounds when recording starts and stops", isOn: $settings.settings.playsSounds)
-            } footer: {
-                SectionNote("Hold the key, speak, and let go. With pasting off, the text goes to the clipboard instead.")
+                Toggle("Play sounds", isOn: $settings.settings.playsSounds)
             }
 
             Section {
-                Toggle("Open Dictate at login", isOn: launchesAtLogin)
+                Toggle("Open at login", isOn: launchesAtLogin)
             }
 
             Section("Permissions") {

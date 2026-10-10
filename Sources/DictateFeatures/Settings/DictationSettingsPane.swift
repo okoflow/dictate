@@ -14,12 +14,10 @@ struct DictationSettingsPane: View {
         )
     }
 
-    private var languagesFooter: String {
+    private var mixesSimilarLanguages: Bool {
         let languages = settings.settings.languages.languages
-        let base = "Dictate listens only for the languages you check. Fewer languages make detection faster and more accurate."
-        guard languages.contains(.russian), languages.contains(.ukrainian) else { return base }
 
-        return base + " Russian and Ukrainian sound alike, so pin one if Dictate picks the wrong language."
+        return languages.contains(.russian) && languages.contains(.ukrainian)
     }
 
     var body: some View {
@@ -37,7 +35,9 @@ struct DictationSettingsPane: View {
             } header: {
                 Text("Languages")
             } footer: {
-                SectionNote(languagesFooter)
+                if mixesSimilarLanguages {
+                    SectionNote("Russian and Ukrainian sound alike: pin one if Dictate mixes them up.")
+                }
             }
 
             Section("Microphone") {
@@ -101,7 +101,7 @@ private struct SpeechModelRow: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(controller.state.statusText)
-                Text("Whisper large-v3 turbo, 630 MB, runs on this Mac")
+                Text("Whisper large-v3 turbo · 630 MB")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
