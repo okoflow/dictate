@@ -1,23 +1,25 @@
 <p align="center">
-  <img src="Packaging/Dictate.png" width="128" alt="">
+  <img src="Packaging/Waft.png" width="128" alt="">
 </p>
 
-<h1 align="center">Dictate</h1>
+<h1 align="center">Waft</h1>
 
-<p align="center">Push-to-talk dictation for macOS with on-device Whisper.</p>
+<p align="center">On-device dictation for macOS with AI cleanup.</p>
 
-<p align="center"><a href="https://dictate.okoflow.com">dictate.okoflow.com</a></p>
+<p align="center"><a href="https://waft.okoflow.com">waft.okoflow.com</a></p>
 
 <p align="center">
-  <a href="https://github.com/okoflow/dictate/actions/workflows/ci.yml"><img src="https://github.com/okoflow/dictate/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
+  <a href="https://github.com/okoflow/waft/actions/workflows/ci.yml"><img src="https://github.com/okoflow/waft/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-informational" alt="macOS 14 or later">
 </p>
+
+https://github.com/user-attachments/assets/789262cb-d13e-4813-bd99-8e650cd78881
 
 Hold the right Option key, speak, and let go: the text appears wherever you
 are typing, in any app. Whisper turns your voice into text on your Mac, so the
 audio never leaves it. When you want polished prose rather than a transcript,
-a cloud mode rewrites the text with Claude or OpenAI.
+an AI mode rewrites the text with Claude, OpenAI, or a model on your own Mac.
 
 ![Dictating into a note](.github/screenshots/preview.jpg)
 
@@ -27,41 +29,65 @@ a cloud mode rewrites the text with Claude or OpenAI.
   clipboard is put back afterward. Password fields are left alone.
 - **Recognizes speech on your Mac.** Whisper large-v3 turbo runs on Core ML
   through WhisperKit. Audio stays in memory and is never saved.
-- **Understands thirteen languages.** Chinese, Dutch, English, French, German,
-  Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, and
-  Ukrainian. Dictate detects which one you speak among those you choose.
+- **Understands 45 languages.** Arabic, Azerbaijani, Bosnian, Bulgarian,
+  Catalan, Chinese, Croatian, Czech, Danish, Dutch, English, Estonian,
+  Filipino, Finnish, French, Galician, German, Greek, Hebrew, Hindi,
+  Hungarian, Indonesian, Italian, Japanese, Korean, Latvian, Lithuanian,
+  Macedonian, Malay, Norwegian, Polish, Portuguese, Romanian, Russian,
+  Serbian, Slovak, Slovenian, Spanish, Swedish, Tamil, Thai, Turkish,
+  Ukrainian, Urdu, and Vietnamese. Waft detects which one you speak among
+  those you choose.
 - **Cleans up as much as you like.** Light removes hesitations such as "um",
-  capitalizes the first letter, and adds a full stop, offline. Clean, Formal,
-  and Translate to English rewrite the text with Claude or OpenAI, whichever
-  you choose. Any app can have a mode of its own.
+  capitalizes the first letter, adds a full stop, and starts a new line or
+  paragraph when you say so, offline. Clean, Formal, and Translate rewrite the
+  text with Claude or OpenAI using your key, or with a local model through
+  Ollama, LM Studio and similar servers. Translate works
+  into any of the 45 languages, or both ways between two. Any app can have a
+  mode of its own.
+- **Edits by voice.** Select text, hold the editing key, and say what to
+  change: "make it shorter", "turn this into a list", "translate into German".
+- **Transcribes files.** Drop a recording or a video on Transcribe File… and
+  get the text or SRT subtitles, recognized on your Mac.
+- **Speaks your language.** Menus, Settings, and messages are in English,
+  Russian, Ukrainian, German, French, Italian, Spanish, Brazilian Portuguese,
+  Japanese, Korean, and Simplified Chinese, following the language of your Mac
+  or the one you pick for Waft in System Settings › General › Language &
+  Region.
 - **Learns your words.** The dictionary fixes names and terms that come out
   wrong, and snippets turn a spoken phrase into text such as your email
   address.
-- **Remembers when you want it to.** The last 50 dictations stay on your Mac,
-  searchable and one click away from the clipboard.
+- **Remembers when you want it to.** Your dictations stay on your Mac for as
+  long as you choose, searchable and one click away from the clipboard.
 
 ![The HUD while listening, transcribing, and after pasting](.github/screenshots/hud.jpg)
 
+## How it compares
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/comparison-dark.jpg">
+  <img src=".github/screenshots/comparison-light.jpg" alt="Waft compared with Wispr Flow, Superwhisper, MacWhisper, VoiceInk, Aqua Voice, and Apple Dictation">
+</picture>
+
 ## Install
 
-Dictate is built from source. You need a Mac with Apple silicon, macOS 14 or
+Waft is built from source. You need a Mac with Apple silicon, macOS 14 or
 later, and the Command Line Tools for Xcode 26 or later; a full Xcode works
 too.
 
 ```sh
-git clone https://github.com/okoflow/dictate.git
-cd dictate
+git clone https://github.com/okoflow/waft.git
+cd waft
 make signing
 make run
 ```
 
 `make signing` runs once: it creates a local code-signing identity, so macOS
 keeps the permissions you grant across rebuilds, and asks for your password
-to trust it. `make run` builds `build/Dictate.app`, signs it, and opens it.
+to trust it. `make run` builds `build/Waft.app`, signs it, and opens it.
 Copy the app to `/Applications` to keep it.
 
 On first launch, a short guide asks for the microphone and Accessibility
-permissions while Dictate downloads the speech model, about 630 MB. Loading
+permissions while Waft downloads the speech model, about 630 MB. Loading
 the model for the first time compiles it for your chip and takes about a
 minute; after that it takes a second.
 
@@ -74,12 +100,14 @@ minute; after that it takes a second.
 | Keys | What they do |
 | --- | --- |
 | Hold right ⌥ | Dictate into the focused field while held |
+| Double-tap right ⌥ | Dictate hands-free until you press it again |
+| Hold the editing key | Change the selected text by voice, once you choose a key |
 | ⌃⌥M | Switch to the next mode |
 
-Dictate lives in the menu bar. Its menu switches the mode and the language,
-copies the last transcript, and opens Settings, where you can choose right
-Command or right Shift as the dictation key, pick a microphone, and choose
-the languages Dictate listens for.
+Waft lives in the menu bar. Its menu switches the mode and the language,
+copies the last transcript, transcribes files, and opens Settings, where you
+can choose any modifier, fn, or F-key as the dictation key, pick a
+microphone, and choose the languages Waft listens for.
 
 ## Modes
 
@@ -87,27 +115,37 @@ the languages Dictate listens for.
 | --- | --- | --- |
 | Raw | Nothing: exactly what Whisper heard | No |
 | Light | Hesitations go, the first letter is capitalized, a full stop is added | No |
-| Clean | Fillers and false starts go, grammar is fixed, the language stays | Text only |
-| Formal | Like Clean, in a polite business tone | Text only |
-| Translate to English | Translated into English | Text only |
+| Clean | Fillers and false starts go, grammar is fixed, the language stays | Text only, unless the model runs on your Mac |
+| Formal | Like Clean, in a polite business tone | Text only, unless the model runs on your Mac |
+| Translate | Translated into the language you choose, or both ways between two | Text only, unless the model runs on your Mac |
 
-Light is the default. Clean, Formal, and Translate to English need an API
-key from [Anthropic](https://console.anthropic.com/settings/keys) or
-[OpenAI](https://platform.openai.com/settings/organization/api-keys), which you add in Settings ›
-Modes and which stays in your Keychain. Without a key, offline, or when the
-provider does not answer within 3 seconds, Dictate uses Light and says why, so
-you always get your text.
+Light is the default. Clean, Formal, and Translate need an AI model, which
+you choose in Settings › AI Models: Claude or OpenAI with an API key from
+[Anthropic](https://console.anthropic.com/settings/keys) or
+[OpenAI](https://platform.openai.com/settings/organization/api-keys) that
+stays in your Keychain, or a model on a local server such as Ollama or
+LM Studio. When the model can't answer in
+time or at all, Waft uses Light and says why, so you always get your text.
 
 ![Settings with the modes and per-app modes](.github/screenshots/modes.jpg)
 
 ## Privacy
 
-Speech recognition, Raw, and Light run entirely on your Mac. Dictate uses the
-network for two things only: downloading the speech model once, and the cloud
-modes, which send the recognized text, never audio, to Anthropic or OpenAI,
-whichever you choose.
+Speech recognition, Raw, Light, and file transcription run entirely on your
+Mac. Waft uses the network for two things only: downloading the speech
+model once, and the AI modes and editing by voice with Claude or OpenAI, which
+send text, never audio, to the provider you choose. With a local model, that
+text stays on your Mac too.
 Dictated text never reaches the logs. [Privacy](docs/privacy.md) lists every
-file Dictate keeps and how to remove it.
+file Waft keeps and how to remove it.
+
+## Waft Pro
+
+Dictation, Raw and Light, voice commands, the dictionary, and history are
+free. Waft Pro adds the AI modes with any model, translation both ways,
+your own instructions, editing by voice, and file transcription, for a single
+payment of $13.99. While Waft is in beta, every Pro feature is free and needs
+no license.
 
 ## Documentation
 
@@ -129,11 +167,14 @@ that run in CI, and the commit and pull request conventions.
 ## Security
 
 Report vulnerabilities privately through
-[GitHub security advisories](https://github.com/okoflow/dictate/security/advisories/new).
+[GitHub security advisories](https://github.com/okoflow/waft/security/advisories/new).
 [SECURITY.md](SECURITY.md) describes the process and the scope.
 
 ## License
 
-Copyright The Dictate Authors, listed in [AUTHORS](AUTHORS).
+Copyright The Waft Authors, listed in [AUTHORS](AUTHORS).
 
-MIT. See [LICENSE](LICENSE).
+GPL-3.0. See [LICENSE](LICENSE). Releases up to 0.3.0 were published under
+the MIT License; [NOTICE](NOTICE) keeps its terms for that code.
+The license covers the code, not the Waft name and logo: a fork needs a name
+and an icon of its own.

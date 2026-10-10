@@ -22,7 +22,7 @@ Shorter presses, another key pressed while holding, and recordings longer
 than 5 minutes are discarded.
 
 macOS can switch an event tap off when an app is busy, and a key-up can get
-lost. Dictate checks the tap every 5 seconds and turns it back on, and while
+lost. Waft checks the tap every 5 seconds and turns it back on, and while
 you record it polls the key four times a second, so a lost key-up still ends
 the recording.
 
@@ -36,7 +36,7 @@ after you let go, to catch the end of the last word.
 The HUD appears after 0.3 seconds of holding, so a quick tap does not flash
 it. It never takes focus: the app you are typing in stays active.
 
-Dictate remembers the focused app and text field when you press the key. The
+Waft remembers the focused app and text field when you press the key. The
 text goes there later, and the app decides which mode applies.
 
 ## Recognition
@@ -53,7 +53,7 @@ floor. Everything else goes to Whisper large-v3 turbo, run on Core ML by
   sentence that nudges it toward punctuation and capitalization, followed by
   up to 200 characters of dictionary terms.
 - **Long recordings.** Audio over 30 seconds is split at pauses.
-- **Made-up text.** Whisper sometimes invents text in silence. Dictate drops
+- **Made-up text.** Whisper sometimes invents text in silence. Waft drops
   results with low confidence or heavy repetition, results made only of tags
   such as `[music]`, an echo of the prompt, and stock phrases such as "Thanks
   for watching" when they are the whole result. The HUD then says "Didn't
@@ -78,34 +78,37 @@ Light works word by word. It removes hesitation sounds, such as "um", "uh",
 forms, together with the commas around them, but keeps one that follows a
 number, as in "5 мм". It tidies the spaces around punctuation, following
 French spacing before `!`, `?`, `;`, and `:`, capitalizes the first letter in
-languages with letter case, and ends text that ends in a letter or digit with
-a full stop, "。" in Chinese and Japanese. Filler words with meaning, such as
-"like", "ну", or "그러니까", stay: telling them apart needs Clean.
+languages with letter case, with a dotted "İ" in Turkish and Azerbaijani, and
+ends text that ends in a letter or digit with a full stop: "。" in Chinese and
+Japanese, "।" in Hindi, "۔" in Urdu, and none in Thai. Filler words with
+meaning, such as "like", "ну", or "그러니까", stay: telling them apart needs
+Clean.
 
 ### Cloud modes
 
-Clean, Formal, and Translate to English send the text, with a short
+Clean, Formal, and Translate send the text, with a short
 instruction for the mode, to the provider you chose: the Anthropic Messages
 API with `claude-haiku-5-5` and thinking turned off, or the OpenAI Responses
 API with `gpt-6-luna`, reasoning turned off, and `store: false`, so OpenAI
 keeps no copy of the response. The transcript is marked as text to edit, never
 instructions to follow, so dictating a question gives you the question rather
 than an answer, and the model is told to reply with the text only. You can
-rewrite a mode's instruction in Settings › Modes › Instructions; Dictate adds
-these rules after it either way.
+rewrite a mode's instruction with **Instructions…** in Settings › Writing;
+Waft adds these rules after it either way.
 
-The answer is checked before it is used. An empty answer, one more than three
-times longer than what you said, one cut off or refused, and one in another
-writing system than the language you spoke, or than Latin for Translate to
-English, are rejected.
+The answer is checked before it is used. An empty answer, one cut off or
+refused, one more than three times longer than what you said, or five times
+for a translation from Chinese, Japanese, or Korean, and one in another
+writing system than both the language you spoke and the transcript itself, or
+for Translate than the target language's, are rejected.
 
-Dictate waits up to 3 seconds. Without a key, offline, on an error, a rate
+Waft waits up to 3 seconds. Without a key, offline, on an error, a rate
 limit, a timeout, or a rejected answer, it uses Light instead, and the HUD
 adds a line that says why. The text is never lost.
 
 ## Pasting
 
-Dictate pastes through the clipboard rather than typing key by key:
+Waft pastes through the clipboard rather than typing key by key:
 
 1. It waits for you to release the dictation key, for up to 10 seconds, since
    ⌘V with Option held would be a different shortcut.
@@ -138,10 +141,10 @@ Texts are pasted one at a time, in the order you spoke them.
 
 The model, `openai_whisper-large-v3-v20240930_626MB` from
 [argmaxinc/whisperkit-coreml](https://huggingface.co/argmaxinc/whisperkit-coreml),
-downloads once to `~/Library/Application Support/Dictate/Models`, about
+downloads once to `~/Library/Application Support/Waft/Models`, about
 630 MB. Core ML compiles it for your chip the first time it loads, which takes
 about a minute, and keeps the compiled copy in
-`~/Library/Caches/dev.dictate.app`, about 135 MB. Later loads take about a
+`~/Library/Caches/com.okoflow.waft`, about 135 MB. Later loads take about a
 second.
 
 Changing the enabled languages reloads the model, which takes a moment. A
@@ -155,9 +158,9 @@ from release to text, language detection included.
 
 - The first syllable can be lost if you speak the instant you press the key.
 - Apps that expose little to Accessibility, such as some Electron apps, games,
-  and remote desktops, still get the paste, but Dictate cannot see the text
+  and remote desktops, still get the paste, but Waft cannot see the text
   before the cursor there, so it adds no leading space.
-- When an app holds secure keyboard input and Dictate cannot see the focused
+- When an app holds secure keyboard input and Waft cannot see the focused
   field, it treats the field as a password field and pastes nothing.
-- ⌃⌥M belongs to Dictate while it runs. If another app holds it already,
+- ⌃⌥M belongs to Waft while it runs. If another app holds it already,
   switch modes from the menu.

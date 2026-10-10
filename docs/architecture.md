@@ -1,6 +1,6 @@
 # Architecture
 
-Dictate is a Swift package of four libraries and an executable. The domain
+Waft is a Swift package of four libraries and an executable. The domain
 and every interface live in one module that depends on nothing but
 Foundation; the system frameworks and WhisperKit stay behind those interfaces,
 and a single composition root wires the real implementations together.
@@ -9,31 +9,31 @@ and a single composition root wires the real implementations together.
 
 ```mermaid
 flowchart TD
-  dictate[Dictate<br/>composition root] --> features[DictateFeatures<br/>models · flow · views]
-  dictate --> platform[DictatePlatform<br/>macOS adapters]
-  dictate --> speech[DictateSpeech<br/>WhisperKit adapter]
-  features --> core[DictateCore<br/>domain · interfaces]
+  waft[Waft<br/>composition root] --> features[WaftFeatures<br/>models · flow · views]
+  waft --> platform[WaftPlatform<br/>macOS adapters]
+  waft --> speech[WaftSpeech<br/>WhisperKit adapter]
+  features --> core[WaftCore<br/>domain · interfaces]
   platform --> core
   speech --> core
 ```
 
 | Module | Isolation | What lives there |
 | --- | --- | --- |
-| `DictateCore` | Nonisolated | Domain types, text and recognition rules, state machines, and every interface |
-| `DictateSpeech` | Nonisolated | `WhisperTranscriber`, the model files, and the language-restricted tokenizer |
-| `DictatePlatform` | Nonisolated | Adapters for audio, the keyboard, Accessibility, the pasteboard, storage, the network, and the system |
-| `DictateFeatures` | Main actor | Observable models, the dictation flow, the HUD, the menu, Settings, and the first-run guide |
-| `Dictate` | Main actor | The app, its delegate, and `AppDependencies.live()` |
+| `WaftCore` | Nonisolated | Domain types, text and recognition rules, state machines, and every interface |
+| `WaftSpeech` | Nonisolated | `WhisperTranscriber`, the model files, and the language-restricted tokenizer |
+| `WaftPlatform` | Nonisolated | Adapters for audio, the keyboard, Accessibility, the pasteboard, storage, the network, and the system |
+| `WaftFeatures` | Main actor | Observable models, the dictation flow, the HUD, the menu, Settings, and the first-run guide |
+| `Waft` | Main actor | The app, its delegate, and `AppDependencies.live()` |
 
-Dependencies point toward `DictateCore`:
+Dependencies point toward `WaftCore`:
 
-- `DictateCore` imports Foundation only.
-- `DictateFeatures` depends on `DictateCore` alone. It never sees the AppKit
+- `WaftCore` imports Foundation only.
+- `WaftFeatures` depends on `WaftCore` alone. It never sees the AppKit
   adapters or WhisperKit, only their interfaces, so any implementation can
   stand in for them.
-- `DictatePlatform` and `DictateSpeech` implement interfaces from
-  `DictateCore` and know nothing about the features.
-- Only the `Dictate` executable names concrete adapters, in
+- `WaftPlatform` and `WaftSpeech` implement interfaces from
+  `WaftCore` and know nothing about the features.
+- Only the `Waft` executable names concrete adapters, in
   `AppDependencies.live()`.
 
 Declarations shared between modules use `package` access; nothing is
@@ -101,7 +101,7 @@ Feature state lives in `@Observable` models owned by `AppModel`:
 that affect other models, such as new languages reloading the speech model,
 are wired once in `AppModel`.
 
-Rules that need no system access are value types in `DictateCore`, so they
+Rules that need no system access are value types in `WaftCore`, so they
 can be reasoned about on their own: `PushToTalk`, `ReleaseWatchdog`,
 `SpeechModelState`, whose transitions return effects for the controller to
 run, `InsertionDecision`, `PasteboardRestorePolicy`, `HallucinationFilter`,
@@ -112,9 +112,9 @@ and `LightModeRules`.
 The package builds in the Swift 6 language mode with complete concurrency
 checking, and treats every warning as an error.
 
-- `DictateFeatures` and the executables isolate their declarations to the
+- `WaftFeatures` and the executables isolate their declarations to the
   main actor by default.
-- `DictateCore`, `DictateSpeech`, and `DictatePlatform` are nonisolated.
+- `WaftCore`, `WaftSpeech`, and `WaftPlatform` are nonisolated.
   Values that cross into them are `Sendable`.
 - `WhisperTranscriber` and `AudioEngineRecorder` are actors, so recognition
   and audio work stay off the main actor.
@@ -123,13 +123,17 @@ checking, and treats every warning as an error.
 
 ## Extending
 
-- **A language.** Add a case to `Language` with its Whisper code and names,
-  then its data: hesitation sounds in `HesitationPattern`, stock phrases in
-  `StockPhrase`, the example sentence in `WhisperPrompt`, and the writing
-  system and typography in `Language+Typography`.
+- **A language.** Add a case to `Language` with its Whisper code, its names
+  in `Language+Names`, and its writing systems in `Language+Typography`.
+  Letter case and word spacing follow from the `WritingScript`; a full stop
+  or question mark of its own goes next to them, and marks that comparisons
+  ignore go in `Language+Folding`. Then add its rows: the shortest spellings
+  of hesitation sounds in `HesitationPattern`, stock phrases in
+  `StockPhrase`, and the example sentence in `WhisperPrompt`. A language
+  without a row has none.
 - **A mode.** Add a case to `Mode` with its title and summary. A cloud mode
   needs its instruction in `RewritePrompt`.
-- **An adapter.** Implement the interface in `DictatePlatform` and pass it in
+- **An adapter.** Implement the interface in `WaftPlatform` and pass it in
   `AppDependencies.live()`.
 
 [CONTRIBUTING.md](../CONTRIBUTING.md) describes the code style and the checks.

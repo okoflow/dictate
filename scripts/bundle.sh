@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-readonly PRODUCT='Dictate'
+readonly PRODUCT='Waft'
 readonly APP="build/${PRODUCT}.app"
-readonly IDENTITY='Dictate Dev'
+readonly IDENTITY="${SIGNING_IDENTITY:-Waft Dev}"
 readonly USAGE='usage: scripts/bundle.sh [debug|release]'
 
 usage() {
@@ -29,6 +29,7 @@ assemble_app() {
   cp "${binary_dir}/${PRODUCT}" "${APP}/Contents/MacOS/${PRODUCT}"
   cp "Packaging/${PRODUCT}-Info.plist" "${APP}/Contents/Info.plist"
   cp "Packaging/${PRODUCT}.icns" "${APP}/Contents/Resources/${PRODUCT}.icns"
+  cp -R Packaging/Localizations/*.lproj "${APP}/Contents/Resources/"
 }
 
 has_identity() {

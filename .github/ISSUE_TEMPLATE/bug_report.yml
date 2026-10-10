@@ -1,12 +1,12 @@
 name: Bug report
-description: Something in Dictate does not behave as documented
+description: Something in Waft does not behave as documented
 type: Bug
 
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for the report. Fill in what you can; the macOS version, the mode, and the log lines around the problem make most bugs reproducible on the first try. Security problems go through [private vulnerability reporting](https://github.com/okoflow/dictate/security/advisories/new) instead.
+        Thanks for the report. Fill in what you can; the macOS version, the mode, and the log lines around the problem make most bugs reproducible on the first try. Security problems go through [private vulnerability reporting](https://github.com/okoflow/waft/security/advisories/new) instead.
 
   - type: textarea
     id: what-happened
@@ -81,5 +81,5 @@ body:
     id: logs
     attributes:
       label: Logs
-      description: Output of `log show --last 10m --info --predicate 'subsystem == "dev.dictate.app"'` around the problem. Dictate never logs what you said.
+      description: Output of `log show --last 10m --info --predicate 'subsystem == "com.okoflow.waft"'` around the problem. Waft never logs what you said.
       render: text

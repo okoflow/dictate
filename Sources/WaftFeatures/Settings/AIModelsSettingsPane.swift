@@ -1,0 +1,51 @@
+import AppKit
+import SwiftUI
+import WaftCore
+
+struct AIModelsSettingsPane: View {
+    @Bindable var settings: SettingsModel
+
+    let speechModel: SpeechModelController
+    let apiKeys: PerProvider<APIKeyModel>
+    let localModels: LocalModelsModel
+
+    var body: some View {
+        SettingsSection("Speech recognition", subtitle: "Whisper runs on this Mac, so audio never leaves it.") {
+            SpeechModelRow(controller: speechModel)
+        }
+
+        LocalServerSection(settings: settings, localModels: localModels)
+
+        ForEach(CloudProvider.allCases, id: \.self) { provider in
+            CloudProviderSection(provider: provider, apiKey: apiKeys[provider], settings: settings)
+        }
+    }
+}
+
+private struct SpeechModelRow: View {
+    let controller: SpeechModelController
+
+    var body: some View {
+        SettingsRow(.verbatim(controller.state.statusText), description: "Whisper large-v3 turbo · 630 MB") {
+            if let progress = controller.state.progress {
+                ProgressView(value: progress)
+                    .frame(width: 100)
+
+                Text(progress, format: .percent.precision(.fractionLength(0)))
+                    .font(.rowDetail)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(value: progress))
+                    .animation(Motion.layout, value: progress)
+            }
+
+            if controller.state.canRetry {
+                Button("Retry") { controller.retry() }
+            }
+
+            Button("Show in Finder") {
+                NSWorkspace.shared.activateFileViewerSelecting([controller.modelDirectory])
+            }
+        }
+    }
+}
