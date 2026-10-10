@@ -25,6 +25,11 @@ struct GeneralSettingsPane: View {
 
             Section {
                 Toggle("Open at login", isOn: launchesAtLogin)
+                Toggle("Show in menu bar", isOn: $settings.settings.showsMenuBarIcon)
+            } footer: {
+                if !settings.settings.showsMenuBarIcon {
+                    SectionNote("Open Dictate again to get to Settings.")
+                }
             }
 
             Section("Permissions") {

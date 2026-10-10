@@ -48,6 +48,10 @@ to right Command or right Shift.
 | Recent | Copies one of your last five dictations |
 | Settings… | Opens Settings |
 
+To hide the icon, turn off **Show in menu bar** in Settings › General.
+Dictation keeps working, ⌃⌥M still switches the mode, and opening Dictate
+again brings up Settings.
+
 ## Modes
 
 **Raw** pastes exactly what Whisper heard. **Light**, the default, removes
@@ -141,7 +145,7 @@ a password field is never saved.
 
 | Pane | What you set there |
 | --- | --- |
-| General | The dictation key, pasting, sounds, opening at login, permissions |
+| General | The dictation key, pasting, sounds, opening at login, the menu bar icon, permissions |
 | Dictation | Languages, the spoken language, the microphone, the speech model |
 | Modes | The mode, per-app modes, the cloud provider and its API key |
 | Dictionary | Terms and snippets |

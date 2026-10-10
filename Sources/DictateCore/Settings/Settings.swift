@@ -7,6 +7,7 @@ package struct Settings: Codable, Equatable, Sendable {
     package var pastesIntoFocusedField = true
     package var keepsHistory = true
     package var playsSounds = true
+    package var showsMenuBarIcon = true
     package var microphoneID: String?
     package var hasCompletedSetup = false
 
@@ -27,6 +28,7 @@ package struct Settings: Codable, Equatable, Sendable {
             ?? defaults.pastesIntoFocusedField
         keepsHistory = try container.decodeIfPresent(Bool.self, forKey: .keepsHistory) ?? defaults.keepsHistory
         playsSounds = try container.decodeIfPresent(Bool.self, forKey: .playsSounds) ?? defaults.playsSounds
+        showsMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showsMenuBarIcon) ?? defaults.showsMenuBarIcon
         microphoneID = try container.decodeIfPresent(String.self, forKey: .microphoneID)
         hasCompletedSetup = try container.decodeIfPresent(Bool.self, forKey: .hasCompletedSetup) ?? defaults.hasCompletedSetup
     }
