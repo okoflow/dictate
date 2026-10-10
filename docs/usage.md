@@ -73,8 +73,8 @@ starts a new line or paragraph there. They work in 19 languages, for example
 such as "a new line of products" as it is.
 
 The AI modes send the recognized text to the model you choose in
-Settings › AI Models: Claude or OpenAI with your own key (marked with ☁︎),
-Apple Intelligence on the Mac, or a model on a local server:
+Settings › AI Models: Claude or OpenAI with your own key (marked with ☁︎), or
+a model on a local server:
 
 - **Clean** removes filler words and false starts, keeps only the final
   version when you correct yourself ("Thursday, no, Friday"), and fixes the
@@ -139,8 +139,6 @@ was in front when you pressed the key.
 Settings › AI Models lists every model these modes can use; click **Use** on
 the one you want:
 
-- **Apple Intelligence** runs Apple's model on your Mac, free and offline, on
-  macOS 26 or later with Apple Intelligence turned on.
 - **Local server** calls a model you run yourself with Ollama, LM Studio,
   llama.cpp, MLX, or Jan. **Detect** finds a running server, and **Model**
   lists the models it has loaded. Any server with an OpenAI-compatible
@@ -228,7 +226,7 @@ a password field is never saved.
 | General | Opening at login, the menu bar icon, sounds, permissions |
 | Dictation | The dictation key, hands-free, the microphone, the editing key, languages |
 | Writing | The mode and its instructions, translation, per-app modes, pasting |
-| AI Models | The speech model, Apple Intelligence, a local server, and Claude or OpenAI with your API keys |
+| AI Models | The speech model, a local server, and Claude or OpenAI with your API keys |
 | Dictionary | Terms and snippets |
 | History | This week's stats, how long and how much to keep, searching, copying, and clearing |
 | Dictate Pro | The free trial, what Pro adds, and your license |

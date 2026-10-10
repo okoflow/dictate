@@ -14,7 +14,6 @@ struct AIModelsSettingsPane: View {
             SpeechModelRow(controller: speechModel)
         }
 
-        AppleIntelligenceSection(settings: settings, localModels: localModels)
         LocalServerSection(settings: settings, localModels: localModels)
 
         ForEach(CloudProvider.allCases, id: \.self) { provider in

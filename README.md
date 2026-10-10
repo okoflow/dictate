@@ -19,8 +19,7 @@ https://github.com/user-attachments/assets/789262cb-d13e-4813-bd99-8e650cd78881
 Hold the right Option key, speak, and let go: the text appears wherever you
 are typing, in any app. Whisper turns your voice into text on your Mac, so the
 audio never leaves it. When you want polished prose rather than a transcript,
-an AI mode rewrites the text with Claude, OpenAI, Apple Intelligence, or a
-model on your own Mac.
+an AI mode rewrites the text with Claude, OpenAI, or a model on your own Mac.
 
 ![Dictating into a note](.github/screenshots/preview.jpg)
 
@@ -41,8 +40,8 @@ model on your own Mac.
 - **Cleans up as much as you like.** Light removes hesitations such as "um",
   capitalizes the first letter, adds a full stop, and starts a new line or
   paragraph when you say so, offline. Clean, Formal, and Translate rewrite the
-  text with Claude or OpenAI using your key, with Apple Intelligence, or with a
-  local model through Ollama, LM Studio and similar servers. Translate works
+  text with Claude or OpenAI using your key, or with a local model through
+  Ollama, LM Studio and similar servers. Translate works
   into any of the 45 languages, or both ways between two. Any app can have a
   mode of its own.
 - **Edits by voice.** Select text, hold the editing key, and say what to
@@ -117,8 +116,8 @@ Light is the default. Clean, Formal, and Translate need an AI model, which
 you choose in Settings › AI Models: Claude or OpenAI with an API key from
 [Anthropic](https://console.anthropic.com/settings/keys) or
 [OpenAI](https://platform.openai.com/settings/organization/api-keys) that
-stays in your Keychain, Apple Intelligence on Macs that have it, or a model
-on a local server such as Ollama or LM Studio. When the model can't answer in
+stays in your Keychain, or a model on a local server such as Ollama or
+LM Studio. When the model can't answer in
 time or at all, Dictate uses Light and says why, so you always get your text.
 
 ![Settings with the modes and per-app modes](.github/screenshots/modes.jpg)
@@ -128,8 +127,8 @@ time or at all, Dictate uses Light and says why, so you always get your text.
 Speech recognition, Raw, Light, and file transcription run entirely on your
 Mac. Dictate uses the network for two things only: downloading the speech
 model once, and the AI modes and editing by voice with Claude or OpenAI, which
-send text, never audio, to the provider you choose. With Apple Intelligence
-or a local model, that text stays on your Mac too.
+send text, never audio, to the provider you choose. With a local model, that
+text stays on your Mac too.
 Dictated text never reaches the logs. [Privacy](docs/privacy.md) lists every
 file Dictate keeps and how to remove it.
 

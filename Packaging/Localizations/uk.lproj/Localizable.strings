@@ -29,10 +29,6 @@
 "Allow…" = "Дозволити…";
 "Any AI model" = "Будь-яка модель ШІ";
 "App" = "Програма";
-"Apple Intelligence isn't available on this Mac yet." = "Apple Intelligence поки що не працює на цьому Mac.";
-"Apple Intelligence isn't available on this Mac" = "Apple Intelligence не працює на цьому Mac";
-"Apple Intelligence" = "Apple Intelligence";
-"Apple's model on this Mac: free, offline, and the text never leaves it." = "Модель Apple на цьому Mac: безкоштовно, без інтернету, і текст нікуди не передається.";
 "Apps" = "Програми";
 "Audio and video files, transcribed on this Mac." = "Аудіо- та відеофайли розпізнаються прямо на цьому Mac.";
 "Automatic (%@)" = "Автоматично (%@)";
@@ -47,7 +43,7 @@
 "Choose File…" = "Вибрати файл…";
 "Choose Languages…" = "Вибрати мови…";
 "Choose" = "Вибрати";
-"Claude or OpenAI with your own key, Apple Intelligence, or a local model." = "Claude чи OpenAI з вашим ключем, Apple Intelligence або локальна модель.";
+"Claude or OpenAI with your own key, or a local model on your Mac." = "Claude чи OpenAI з вашим ключем або локальна модель на вашому Mac.";
 "Clean and Formal" = "«Чистовий» і «Діловий»";
 "Clean" = "Чистовий";
 "Clean, Formal and Translate need Dictate Pro" = "режимам «Чистовий», «Діловий» і «Переклад» потрібен Dictate Pro";
@@ -118,7 +114,6 @@
 "General" = "Загальні";
 "Get Started" = "Почати";
 "Get an API key" = "Отримати ключ API";
-"Getting ready, try again in a few minutes" = "Готується, спробуйте за кілька хвилин";
 "Hands-free" = "Вільні руки";
 "Heard as" = "Чується як";
 "History" = "Історія";
@@ -161,7 +156,6 @@
 "Mode: %@" = "Режим: %@";
 "Model" = "Модель";
 "Names and words that come out wrong." = "Імена й слова, які розпізнаються неправильно.";
-"Needs macOS 26 or later" = "Потрібна macOS 26 або новіша";
 "Next mode: %@" = "Наступний режим: %@";
 "No apps yet" = "Програм ще немає";
 "No audio was captured." = "Звук не записано.";
@@ -170,7 +164,6 @@
 "No terms yet" = "Термінів ще немає";
 "None" = "Немає";
 "Not allowed yet" = "Ще не дозволено";
-"Not available on this Mac" = "Недоступно на цьому Mac";
 "Not checked yet" = "Ще не перевірено";
 "Not pasted into a password field" = "Не вставлено в поле пароля";
 "Not running at this address" = "За цією адресою не відповідає";
@@ -306,7 +299,6 @@
 "Try it" = "Спробуйте";
 "Tune each mode to the way you write." = "Налаштуйте кожен режим під свій стиль.";
 "Turn off editing by voice" = "Вимкнути редагування голосом";
-"Turn on Apple Intelligence in System Settings" = "Увімкніть Apple Intelligence у Системних параметрах";
 "Two-way with" = "Друга мова";
 "Unlock Dictate Pro…" = "Розблокувати Dictate Pro…";
 "Unlock…" = "Розблокувати…";
@@ -324,7 +316,6 @@
 "Whisper runs on this Mac, so audio never leaves it." = "Whisper працює на цьому Mac, тож звук нікуди не передається.";
 "Words dictated each day for the last two weeks" = "Слова, продиктовані за кожен день останніх двох тижнів";
 "Words" = "Слова";
-"Works best in English and the other languages Apple Intelligence supports." = "Найкраще працює англійською та іншими мовами, які підтримує Apple Intelligence.";
 "Writing" = "Текст";
 "You're all set" = "Усе готово";
 "Your free trial has ended." = "Безкоштовний пробний період закінчився.";

@@ -73,7 +73,7 @@ package final class AppModel {
             claude: APIKeyModel(store: dependencies.apiKeyStores.claude),
             openAI: APIKeyModel(store: dependencies.apiKeyStores.openAI),
         )
-        localModels = LocalModelsModel(browser: dependencies.localServers, onDeviceModel: dependencies.onDeviceModel)
+        localModels = LocalModelsModel(browser: dependencies.localServers)
         frontmostApp = FrontmostAppTracker()
         hud = models.hud
         keyRecorder = models.keyRecorder

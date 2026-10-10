@@ -11,7 +11,6 @@ struct WritingSettingsPane: View {
     @Bindable var settings: SettingsModel
 
     let apiKeys: PerProvider<APIKeyModel>
-    let localModels: LocalModelsModel
     let shortcutTitle: String
     let pro: ProModel
     let state: SettingsWindowState
@@ -59,8 +58,6 @@ struct WritingSettingsPane: View {
             apiKeys[cloud].isSet ? nil : "Clean, Formal and Translate need a \(cloud.title) API key."
         case .localServer:
             settings.settings.localServer.isConfigured ? nil : "Clean, Formal and Translate need a local server and model."
-        case .apple:
-            localModels.appleAvailability == .available ? nil : "Apple Intelligence isn't available on this Mac yet."
         }
     }
 

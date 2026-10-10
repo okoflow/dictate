@@ -29,10 +29,6 @@
 "Allow…" = "許可…";
 "Any AI model" = "好きなAIモデル";
 "App" = "アプリ";
-"Apple Intelligence isn't available on this Mac yet." = "このMacではApple Intelligenceをまだ利用できません。";
-"Apple Intelligence isn't available on this Mac" = "このMacではApple Intelligenceを利用できません";
-"Apple Intelligence" = "Apple Intelligence";
-"Apple's model on this Mac: free, offline, and the text never leaves it." = "このMacで動作するAppleのモデルです。無料でオフラインでも使え、テキストがMacの外に出ることはありません。";
 "Apps" = "アプリ";
 "Audio and video files, transcribed on this Mac." = "オーディオファイルやビデオファイルを、このMac上で文字起こしします。";
 "Automatic (%@)" = "自動（%@）";
@@ -47,7 +43,7 @@
 "Choose File…" = "ファイルを選択…";
 "Choose Languages…" = "言語を選択…";
 "Choose" = "選択";
-"Claude or OpenAI with your own key, Apple Intelligence, or a local model." = "自分のキーで使うClaudeやOpenAI、Apple Intelligence、またはローカルモデル。";
+"Claude or OpenAI with your own key, or a local model on your Mac." = "自分のキーで使うClaudeやOpenAI、またはMac上のローカルモデル。";
 "Clean and Formal" = "「清書」と「フォーマル」";
 "Clean" = "清書";
 "Clean, Formal and Translate need Dictate Pro" = "「清書」、「フォーマル」、「翻訳」モードにはDictate Proが必要です";
@@ -118,7 +114,6 @@
 "General" = "一般";
 "Get Started" = "始める";
 "Get an API key" = "APIキーを取得";
-"Getting ready, try again in a few minutes" = "準備中です。数分後にもう一度お試しください";
 "Hands-free" = "ハンズフリー";
 "Heard as" = "聞き間違い";
 "History" = "履歴";
@@ -161,7 +156,6 @@
 "Mode: %@" = "モード: %@";
 "Model" = "モデル";
 "Names and words that come out wrong." = "正しく認識されない名前や単語を登録します。";
-"Needs macOS 26 or later" = "macOS 26以降が必要です";
 "Next mode: %@" = "次のモード: %@";
 "No apps yet" = "アプリはまだありません";
 "No audio was captured." = "音声が録音されませんでした。";
@@ -170,7 +164,6 @@
 "No terms yet" = "用語はまだありません";
 "None" = "なし";
 "Not allowed yet" = "まだ許可されていません";
-"Not available on this Mac" = "このMacでは利用できません";
 "Not checked yet" = "未確認";
 "Not pasted into a password field" = "パスワード欄にはペーストしませんでした";
 "Not running at this address" = "このアドレスでは応答がありません";
@@ -306,7 +299,6 @@
 "Try it" = "試してみましょう";
 "Tune each mode to the way you write." = "各モードを自分の書き方に合わせて調整できます。";
 "Turn off editing by voice" = "「音声で編集」をオフにする";
-"Turn on Apple Intelligence in System Settings" = "「システム設定」でApple Intelligenceをオンにしてください";
 "Two-way with" = "双方向翻訳";
 "Unlock Dictate Pro…" = "Dictate Proのロックを解除…";
 "Unlock…" = "ロックを解除…";
@@ -324,7 +316,6 @@
 "Whisper runs on this Mac, so audio never leaves it." = "WhisperはこのMac上で動作するため、音声がMacの外に出ることはありません。";
 "Words dictated each day for the last two weeks" = "過去2週間に毎日音声入力した単語数";
 "Words" = "単語数";
-"Works best in English and the other languages Apple Intelligence supports." = "英語、およびApple Intelligenceが対応しているその他の言語で最適に動作します。";
 "Writing" = "テキスト";
 "You're all set" = "準備ができました";
 "Your free trial has ended." = "無料体験期間が終了しました。";

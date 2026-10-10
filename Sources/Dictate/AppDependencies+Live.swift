@@ -13,7 +13,6 @@ extension AppDependencies {
             openAI: KeychainStore.apiKey(for: .openAI),
         )
         let localServer = LocalServerRewriter()
-        let appleIntelligence = AppleIntelligence()
         let vocabularyFile = AppIdentity.supportDirectory.appending(path: "dictionary.json")
         let historyFile = AppIdentity.supportDirectory.appending(path: "history.json")
         let statsFile = AppIdentity.supportDirectory.appending(path: "stats.json")
@@ -23,9 +22,8 @@ extension AppDependencies {
             audioInputs: CoreAudioInputs(),
             transcriber: WhisperTranscriber(),
             mediaDecoder: MediaAudioReader(),
-            rewriters: rewriters(keys: apiKeyStores, localServer: localServer, apple: appleIntelligence),
+            rewriters: rewriters(keys: apiKeyStores, localServer: localServer),
             localServers: localServer,
-            onDeviceModel: appleIntelligence,
             keyEventMonitor: KeyEventTap(),
             keyboardState: keyboardState,
             modeShortcut: CarbonHotKey.modeCycle(),
@@ -50,7 +48,6 @@ extension AppDependencies {
     private static func rewriters(
         keys: PerProvider<any ValueStore<String>>,
         localServer: LocalServerRewriter,
-        apple: AppleIntelligence,
     ) -> Rewriters {
         Rewriters(
             cloud: PerProvider(
@@ -58,7 +55,6 @@ extension AppDependencies {
                 openAI: OpenAIRewriter(apiKeyStore: keys.openAI),
             ),
             localServer: localServer,
-            apple: apple,
         )
     }
 }

@@ -1,13 +1,11 @@
 import Foundation
 
 package enum ModelProvider: Hashable, Sendable {
-    case apple
     case localServer
     case cloud(CloudProvider)
 
     package var title: String {
         switch self {
-        case .apple: "Apple Intelligence"
         case .localServer: String(localized: "Local server")
         case let .cloud(provider): provider.title
         }
@@ -31,7 +29,6 @@ package enum ModelProvider: Hashable, Sendable {
 
     private var storedName: String {
         switch self {
-        case .apple: "apple"
         case .localServer: "local"
         case let .cloud(provider): provider.rawValue
         }
@@ -39,7 +36,6 @@ package enum ModelProvider: Hashable, Sendable {
 
     private init(storedName: String) {
         switch storedName {
-        case "apple": self = .apple
         case "local": self = .localServer
         default: self = .cloud(CloudProvider(rawValue: storedName) ?? .claude)
         }

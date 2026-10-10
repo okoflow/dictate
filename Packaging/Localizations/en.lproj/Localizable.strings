@@ -29,10 +29,6 @@
 "Allow…" = "Allow…";
 "Any AI model" = "Any AI model";
 "App" = "App";
-"Apple Intelligence isn't available on this Mac yet." = "Apple Intelligence isn't available on this Mac yet.";
-"Apple Intelligence isn't available on this Mac" = "Apple Intelligence isn't available on this Mac";
-"Apple Intelligence" = "Apple Intelligence";
-"Apple's model on this Mac: free, offline, and the text never leaves it." = "Apple's model on this Mac: free, offline, and the text never leaves it.";
 "Apps" = "Apps";
 "Audio and video files, transcribed on this Mac." = "Audio and video files, transcribed on this Mac.";
 "Automatic (%@)" = "Automatic (%@)";
@@ -47,7 +43,7 @@
 "Choose File…" = "Choose File…";
 "Choose Languages…" = "Choose Languages…";
 "Choose" = "Choose";
-"Claude or OpenAI with your own key, Apple Intelligence, or a local model." = "Claude or OpenAI with your own key, Apple Intelligence, or a local model.";
+"Claude or OpenAI with your own key, or a local model on your Mac." = "Claude or OpenAI with your own key, or a local model on your Mac.";
 "Clean and Formal" = "Clean and Formal";
 "Clean" = "Clean";
 "Clean, Formal and Translate need Dictate Pro" = "Clean, Formal and Translate need Dictate Pro";
@@ -118,7 +114,6 @@
 "General" = "General";
 "Get Started" = "Get Started";
 "Get an API key" = "Get an API key";
-"Getting ready, try again in a few minutes" = "Getting ready, try again in a few minutes";
 "Hands-free" = "Hands-free";
 "Heard as" = "Heard as";
 "History" = "History";
@@ -161,7 +156,6 @@
 "Mode: %@" = "Mode: %@";
 "Model" = "Model";
 "Names and words that come out wrong." = "Names and words that come out wrong.";
-"Needs macOS 26 or later" = "Needs macOS 26 or later";
 "Next mode: %@" = "Next mode: %@";
 "No apps yet" = "No apps yet";
 "No audio was captured." = "No audio was captured.";
@@ -170,7 +164,6 @@
 "No terms yet" = "No terms yet";
 "None" = "None";
 "Not allowed yet" = "Not allowed yet";
-"Not available on this Mac" = "Not available on this Mac";
 "Not checked yet" = "Not checked yet";
 "Not pasted into a password field" = "Not pasted into a password field";
 "Not running at this address" = "Not running at this address";
@@ -306,7 +299,6 @@
 "Try it" = "Try it";
 "Tune each mode to the way you write." = "Tune each mode to the way you write.";
 "Turn off editing by voice" = "Turn off editing by voice";
-"Turn on Apple Intelligence in System Settings" = "Turn on Apple Intelligence in System Settings";
 "Two-way with" = "Two-way with";
 "Unlock Dictate Pro…" = "Unlock Dictate Pro…";
 "Unlock…" = "Unlock…";
@@ -324,7 +316,6 @@
 "Whisper runs on this Mac, so audio never leaves it." = "Whisper runs on this Mac, so audio never leaves it.";
 "Words dictated each day for the last two weeks" = "Words dictated each day for the last two weeks";
 "Words" = "Words";
-"Works best in English and the other languages Apple Intelligence supports." = "Works best in English and the other languages Apple Intelligence supports.";
 "Writing" = "Writing";
 "You're all set" = "You're all set";
 "Your free trial has ended." = "Your free trial has ended.";

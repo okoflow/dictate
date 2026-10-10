@@ -29,10 +29,6 @@
 "Allow…" = "Permitir…";
 "Any AI model" = "Cualquier modelo de IA";
 "App" = "App";
-"Apple Intelligence isn't available on this Mac yet." = "Apple Intelligence aún no está disponible en este Mac.";
-"Apple Intelligence isn't available on this Mac" = "Apple Intelligence no está disponible en este Mac";
-"Apple Intelligence" = "Apple Intelligence";
-"Apple's model on this Mac: free, offline, and the text never leaves it." = "El modelo de Apple en este Mac: gratis, sin conexión y el texto nunca sale de él.";
 "Apps" = "Apps";
 "Audio and video files, transcribed on this Mac." = "Archivos de audio y vídeo, transcritos en este Mac.";
 "Automatic (%@)" = "Automático (%@)";
@@ -47,7 +43,7 @@
 "Choose File…" = "Elegir archivo…";
 "Choose Languages…" = "Elegir idiomas…";
 "Choose" = "Elegir";
-"Claude or OpenAI with your own key, Apple Intelligence, or a local model." = "Claude u OpenAI con tu propia clave, Apple Intelligence o un modelo local.";
+"Claude or OpenAI with your own key, or a local model on your Mac." = "Claude u OpenAI con tu propia clave, o un modelo local en tu Mac.";
 "Clean and Formal" = "«Limpio» y «Formal»";
 "Clean" = "Limpio";
 "Clean, Formal and Translate need Dictate Pro" = "«Limpio», «Formal» y «Traducción» necesitan Dictate Pro";
@@ -118,7 +114,6 @@
 "General" = "General";
 "Get Started" = "Empezar";
 "Get an API key" = "Obtener una clave de API";
-"Getting ready, try again in a few minutes" = "Preparándose, vuelve a intentarlo en unos minutos";
 "Hands-free" = "Manos libres";
 "Heard as" = "Se oye como";
 "History" = "Historial";
@@ -161,7 +156,6 @@
 "Mode: %@" = "Modo: %@";
 "Model" = "Modelo";
 "Names and words that come out wrong." = "Nombres y palabras que se transcriben mal.";
-"Needs macOS 26 or later" = "Requiere macOS 26 o posterior";
 "Next mode: %@" = "Siguiente modo: %@";
 "No apps yet" = "Aún no hay apps";
 "No audio was captured." = "No se ha grabado audio.";
@@ -170,7 +164,6 @@
 "No terms yet" = "Aún no hay términos";
 "None" = "Ninguna";
 "Not allowed yet" = "Aún no permitido";
-"Not available on this Mac" = "No disponible en este Mac";
 "Not checked yet" = "Aún sin comprobar";
 "Not pasted into a password field" = "No se ha pegado en un campo de contraseña";
 "Not running at this address" = "No responde en esta dirección";
@@ -306,7 +299,6 @@
 "Try it" = "Pruébalo";
 "Tune each mode to the way you write." = "Ajusta cada modo a tu forma de escribir.";
 "Turn off editing by voice" = "Desactivar la edición por voz";
-"Turn on Apple Intelligence in System Settings" = "Activa Apple Intelligence en Ajustes del Sistema";
 "Two-way with" = "Segundo idioma";
 "Unlock Dictate Pro…" = "Desbloquear Dictate Pro…";
 "Unlock…" = "Desbloquear…";
@@ -324,7 +316,6 @@
 "Whisper runs on this Mac, so audio never leaves it." = "Whisper funciona en este Mac, así que el audio nunca sale de él.";
 "Words dictated each day for the last two weeks" = "Palabras dictadas cada día en las dos últimas semanas";
 "Words" = "Palabras";
-"Works best in English and the other languages Apple Intelligence supports." = "Funciona mejor en inglés y en los demás idiomas compatibles con Apple Intelligence.";
 "Writing" = "Texto";
 "You're all set" = "Todo listo";
 "Your free trial has ended." = "Tu prueba gratuita ha terminado.";

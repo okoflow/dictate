@@ -113,7 +113,7 @@ struct ProBenefit: Identifiable {
             symbolName: "cpu.fill",
             tint: .teal,
             title: "Any AI model",
-            detail: "Claude or OpenAI with your own key, Apple Intelligence, or a local model.",
+            detail: "Claude or OpenAI with your own key, or a local model on your Mac.",
         ),
         ProBenefit(
             symbolName: "text.cursor",

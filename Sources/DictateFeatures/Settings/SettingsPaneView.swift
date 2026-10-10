@@ -29,7 +29,6 @@ struct SettingsPaneView: View {
             WritingSettingsPane(
                 settings: model.settings,
                 apiKeys: model.apiKeys,
-                localModels: model.localModels,
                 shortcutTitle: model.modeSwitcher.shortcutTitle,
                 pro: model.pro,
                 state: state,

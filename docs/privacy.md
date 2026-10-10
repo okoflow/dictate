@@ -23,7 +23,7 @@ Dictate connects to these services, and only for these reasons:
 | A local server you run | Dictating in Clean, Formal, or Translate with Local server chosen | The same as above without a key, sent only to the address you set, usually on this Mac |
 
 Editing by voice sends the selected text and your spoken instruction to the
-same provider, under the same conditions. With Apple Intelligence chosen,
+same provider, under the same conditions. With a local server on your Mac,
 everything stays on the Mac. Raw and Light never use the network. In the cloud modes, only the provider
 you chose receives the text after recognition, never audio, and only when the
 mode in use is a cloud mode and you have added a key for that provider.

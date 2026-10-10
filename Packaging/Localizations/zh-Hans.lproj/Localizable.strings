@@ -29,10 +29,6 @@
 "Allow…" = "允许…";
 "Any AI model" = "任意AI模型";
 "App" = "App";
-"Apple Intelligence isn't available on this Mac yet." = "此Mac尚无法使用Apple Intelligence。";
-"Apple Intelligence isn't available on this Mac" = "此Mac无法使用Apple Intelligence";
-"Apple Intelligence" = "Apple Intelligence";
-"Apple's model on this Mac: free, offline, and the text never leaves it." = "此Mac上的Apple模型：免费、可离线使用，文本不会离开此Mac。";
 "Apps" = "App";
 "Audio and video files, transcribed on this Mac." = "在此Mac上转写音频和视频文件。";
 "Automatic (%@)" = "自动（%@）";
@@ -47,7 +43,7 @@
 "Choose File…" = "选取文件…";
 "Choose Languages…" = "选取语言…";
 "Choose" = "选取";
-"Claude or OpenAI with your own key, Apple Intelligence, or a local model." = "使用自己密钥的Claude或OpenAI、Apple Intelligence或本地模型。";
+"Claude or OpenAI with your own key, or a local model on your Mac." = "使用自己密钥的Claude或OpenAI，或Mac上的本地模型。";
 "Clean and Formal" = "“整理”和“正式”模式";
 "Clean" = "整理";
 "Clean, Formal and Translate need Dictate Pro" = "“整理”、“正式”和“翻译”模式需要Dictate Pro";
@@ -118,7 +114,6 @@
 "General" = "通用";
 "Get Started" = "开始使用";
 "Get an API key" = "获取API密钥";
-"Getting ready, try again in a few minutes" = "正在准备，请几分钟后再试";
 "Hands-free" = "免提";
 "Heard as" = "误识别为";
 "History" = "历史记录";
@@ -161,7 +156,6 @@
 "Mode: %@" = "模式：%@";
 "Model" = "模型";
 "Names and words that come out wrong." = "识别有误的名称和词语。";
-"Needs macOS 26 or later" = "需要macOS 26或更高版本";
 "Next mode: %@" = "下一个模式：%@";
 "No apps yet" = "尚未添加App";
 "No audio was captured." = "未录到任何音频。";
@@ -170,7 +164,6 @@
 "No terms yet" = "尚未添加术语";
 "None" = "无";
 "Not allowed yet" = "尚未允许";
-"Not available on this Mac" = "此Mac不可用";
 "Not checked yet" = "尚未检查";
 "Not pasted into a password field" = "未粘贴到密码栏";
 "Not running at this address" = "此地址无响应";
@@ -306,7 +299,6 @@
 "Try it" = "试一试";
 "Tune each mode to the way you write." = "按你的写作方式调整每种模式。";
 "Turn off editing by voice" = "关闭语音编辑";
-"Turn on Apple Intelligence in System Settings" = "请在“系统设置”中打开Apple Intelligence";
 "Two-way with" = "双向翻译";
 "Unlock Dictate Pro…" = "解锁Dictate Pro…";
 "Unlock…" = "解锁…";
@@ -324,7 +316,6 @@
 "Whisper runs on this Mac, so audio never leaves it." = "Whisper在此Mac上运行，因此音频不会离开此Mac。";
 "Words dictated each day for the last two weeks" = "过去两周每天听写的字词数";
 "Words" = "字词";
-"Works best in English and the other languages Apple Intelligence supports." = "在英语及Apple Intelligence支持的其他语言中效果最佳。";
 "Writing" = "文本";
 "You're all set" = "一切就绪";
 "Your free trial has ended." = "免费试用已结束。";

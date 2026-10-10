@@ -12,19 +12,11 @@ package final class LocalModelsModel {
 
     package private(set) var serverState = ServerState.unknown
     package private(set) var serverModels: [String] = []
-    package private(set) var appleAvailability = OnDeviceModelAvailability.notSupported
 
     @ObservationIgnored private let browser: any LocalServerBrowsing
-    @ObservationIgnored private let onDeviceModel: any OnDeviceModel
 
-    init(browser: any LocalServerBrowsing, onDeviceModel: any OnDeviceModel) {
+    init(browser: any LocalServerBrowsing) {
         self.browser = browser
-        self.onDeviceModel = onDeviceModel
-        appleAvailability = onDeviceModel.availability
-    }
-
-    func refreshApple() {
-        appleAvailability = onDeviceModel.availability
     }
 
     func refresh(_ server: LocalServer) async {

@@ -54,7 +54,6 @@ package enum RewriteFallback: String, Sendable {
 
     private func unavailableReason(for provider: ModelProvider) -> String {
         switch provider {
-        case .apple: String(localized: "Apple Intelligence isn't available on this Mac")
         case .localServer: String(localized: "choose a local server and model in Settings › AI Models")
         case let .cloud(provider): String(localized: "\(provider.title) isn't available")
         }
