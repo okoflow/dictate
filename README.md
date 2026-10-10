@@ -6,6 +6,8 @@
 
 <p align="center">Push-to-talk dictation for macOS with on-device Whisper.</p>
 
+<p align="center"><a href="https://dictate.okoflow.com">dictate.okoflow.com</a></p>
+
 <p align="center">
   <a href="https://github.com/okoflow/dictate/actions/workflows/ci.yml"><img src="https://github.com/okoflow/dictate/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
