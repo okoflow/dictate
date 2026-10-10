@@ -9,12 +9,17 @@ struct DictionarySettingsPane: View {
                 EmptyRow("No terms yet")
             }
 
-            ForEach($vocabulary.terms) { $term in
+            ForEach(vocabulary.terms) { term in
                 if term.id != vocabulary.terms.first?.id {
                     RowDivider()
                 }
 
-                EntryRow(first: $term.term, firstPrompt: "Term", second: $term.spokenForms, secondPrompt: "Heard as") {
+                EntryRow(
+                    first: termField(term.id, \.term),
+                    firstPrompt: "Term",
+                    second: termField(term.id, \.spokenForms),
+                    secondPrompt: "Heard as",
+                ) {
                     vocabulary.removeTerm(term.id)
                 }
                 .rowTransition()
@@ -29,15 +34,15 @@ struct DictionarySettingsPane: View {
                 EmptyRow("No snippets yet")
             }
 
-            ForEach($vocabulary.snippets) { $snippet in
+            ForEach(vocabulary.snippets) { snippet in
                 if snippet.id != vocabulary.snippets.first?.id {
                     RowDivider()
                 }
 
                 EntryRow(
-                    first: $snippet.trigger,
+                    first: snippetField(snippet.id, \.trigger),
                     firstPrompt: "Phrase to say",
-                    second: $snippet.text,
+                    second: snippetField(snippet.id, \.text),
                     secondPrompt: "Text to paste",
                 ) {
                     vocabulary.removeSnippet(snippet.id)
@@ -55,6 +60,28 @@ struct DictionarySettingsPane: View {
                 Button("Show in Finder") { vocabulary.revealInFinder() }
             }
         }
+    }
+
+    private func termField(_ id: UUID, _ field: WritableKeyPath<VocabularyModel.TermDraft, String>) -> Binding<String> {
+        Binding(
+            get: { vocabulary.terms.first { $0.id == id }?[keyPath: field] ?? "" },
+            set: { value in
+                guard let index = vocabulary.terms.firstIndex(where: { $0.id == id }) else { return }
+
+                vocabulary.terms[index][keyPath: field] = value
+            },
+        )
+    }
+
+    private func snippetField(_ id: UUID, _ field: WritableKeyPath<VocabularyModel.SnippetDraft, String>) -> Binding<String> {
+        Binding(
+            get: { vocabulary.snippets.first { $0.id == id }?[keyPath: field] ?? "" },
+            set: { value in
+                guard let index = vocabulary.snippets.firstIndex(where: { $0.id == id }) else { return }
+
+                vocabulary.snippets[index][keyPath: field] = value
+            },
+        )
     }
 }
 
