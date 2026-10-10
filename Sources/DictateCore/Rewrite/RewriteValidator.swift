@@ -8,9 +8,9 @@ package enum RewriteValidator {
         let text = unwrapped(answer, input: input)
         guard !text.isEmpty, text.count <= maximumLength(for: input, mode: mode, language: language) else { return nil }
 
-        let expectedScripts: Set<WritingScript> = mode == .translate ? [.latin] : language.scripts
+        let scripts = expectedScripts(for: input, mode: mode, language: language)
 
-        if let script = WritingScript.dominant(in: text), !expectedScripts.contains(script) {
+        if let script = WritingScript.dominant(in: text), !scripts.contains(script) {
             return nil
         }
 
@@ -21,6 +21,13 @@ package enum RewriteValidator {
         let translatesCompactScript = mode == .translate && !language.scripts.isDisjoint(with: compactScripts)
 
         return input.count * (translatesCompactScript ? 5 : 3) + 60
+    }
+
+    private static func expectedScripts(for input: String, mode: Mode, language: Language) -> Set<WritingScript> {
+        guard mode != .translate else { return [.latin] }
+        guard let transcriptScript = WritingScript.dominant(in: input) else { return language.scripts }
+
+        return language.scripts.union([transcriptScript])
     }
 
     private static func unwrapped(_ answer: String, input: String) -> String {

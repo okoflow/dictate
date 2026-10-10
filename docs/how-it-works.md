@@ -99,8 +99,8 @@ Dictate adds these rules after it either way.
 The answer is checked before it is used. An empty answer, one cut off or
 refused, one more than three times longer than what you said, or five times
 for a translation from Chinese, Japanese, or Korean, and one in another
-writing system than the language you spoke, or than Latin for Translate to
-English, are rejected.
+writing system than both the language you spoke and the transcript itself, or
+than Latin for Translate to English, are rejected.
 
 Dictate waits up to 3 seconds. Without a key, offline, on an error, a rate
 limit, a timeout, or a rejected answer, it uses Light instead, and the HUD
