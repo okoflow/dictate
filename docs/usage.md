@@ -48,6 +48,10 @@ to right Command or right Shift.
 | Recent | Copies one of your last five dictations |
 | Settings… | Opens Settings |
 
+To hide the icon, turn off **Show in menu bar** in Settings › General.
+Dictation keeps working, ⌃⌥M still switches the mode, and opening Dictate
+again brings up Settings.
+
 ## Modes
 
 **Raw** pastes exactly what Whisper heard. **Light**, the default, removes
@@ -68,6 +72,14 @@ OpenAI, whichever you choose in Settings › Modes:
 Without an API key, without a network connection, when the provider does
 not answer within 3 seconds, or when its answer cannot be used, Dictate
 pastes the Light text instead, and the HUD says why.
+
+### Your own instructions
+
+Settings › Modes › Instructions shows what Clean, Formal, and Translate to
+English ask the model to do, and lets you rewrite it, for example for a more
+casual tone or your team's style. Dictate still tells the model to treat
+what you said as text and to reply with the text only. **Reset to Default**
+brings back the original.
 
 ### A mode for each app
 
@@ -141,9 +153,9 @@ a password field is never saved.
 
 | Pane | What you set there |
 | --- | --- |
-| General | The dictation key, pasting, sounds, opening at login, permissions |
+| General | The dictation key, pasting, sounds, opening at login, the menu bar icon, permissions |
 | Dictation | Languages, the spoken language, the microphone, the speech model |
-| Modes | The mode, per-app modes, the cloud provider and its API key |
+| Modes | The mode, per-app modes, the cloud provider and its API key, the instructions |
 | Dictionary | Terms and snippets |
 | History | Keeping, searching, copying, and clearing the history |
 | About | The version, the source code, and the license |

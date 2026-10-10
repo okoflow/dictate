@@ -11,10 +11,10 @@ package struct AnthropicRewriter: TextRewriter {
         transport = RewriteTransport(session: session)
     }
 
-    package func rewrite(_ text: String, mode: Mode, language: Language) async throws -> String {
+    package func rewrite(_ text: String, instructions: String, language: Language) async throws -> String {
         guard let apiKey = try? apiKeyStore.load(), !apiKey.isEmpty else { throw RewriteError.missingKey }
 
-        let body = try AnthropicMessagesCodec.requestBody(text: text, mode: mode, language: language)
+        let body = try AnthropicMessagesCodec.requestBody(text: text, instructions: instructions, language: language)
         let headers = [
             "x-api-key": apiKey,
             "anthropic-version": AnthropicMessagesCodec.apiVersion,
