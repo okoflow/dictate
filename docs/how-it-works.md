@@ -96,8 +96,9 @@ than an answer, and the model is told to reply with the text only. You can
 rewrite a mode's instruction with **Instructions…** in Settings › Writing;
 Dictate adds these rules after it either way.
 
-The answer is checked before it is used. An empty answer, one more than three
-times longer than what you said, one cut off or refused, and one in another
+The answer is checked before it is used. An empty answer, one cut off or
+refused, one more than three times longer than what you said, or five times
+for a translation from Chinese, Japanese, or Korean, and one in another
 writing system than the language you spoke, or than Latin for Translate to
 English, are rejected.
 
