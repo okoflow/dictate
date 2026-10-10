@@ -69,7 +69,7 @@ package struct ModeProcessor: Sendable {
         contactedCloud: Bool = false,
     ) -> ProcessedText {
         ProcessedText(
-            text: LightModeRules.apply(text, language: language),
+            text: VoiceCommands.apply(LightModeRules.apply(text, language: language), language: language),
             requestedMode: requestedMode,
             appliedMode: .light,
             fallback: fallback,

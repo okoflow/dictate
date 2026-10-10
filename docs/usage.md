@@ -66,8 +66,15 @@ punctuation, capitalizes the first letter, and ends the text with a full
 stop. Light works offline and leaves words with meaning alone: filler words
 such as "like" and self-corrections need Clean.
 
-The cloud modes, marked with ☁︎, send the recognized text to Claude or
-OpenAI, whichever you choose in Settings › AI Models:
+Light also understands two voice commands. Say "new line" or "new paragraph"
+as a phrase of its own, with a short pause before and after, and Dictate
+starts a new line or paragraph there. They work in 19 languages, for example
+"новая строка", "neuer Absatz", or "à la ligne"; the pauses keep a sentence
+such as "a new line of products" as it is.
+
+The AI modes send the recognized text to the model you choose in
+Settings › AI Models: Claude or OpenAI with your own key (marked with ☁︎),
+Apple Intelligence on the Mac, or a model on a local server:
 
 - **Clean** removes filler words and false starts, keeps only the final
   version when you correct yourself ("Thursday, no, Friday"), and fixes the
@@ -90,7 +97,7 @@ pastes the Light text instead, and the HUD says why.
 ### Your own instructions
 
 In Settings › Writing, **Instructions…** next to Clean, Formal, and Translate
-to English shows what the mode asks the model to do, and lets you rewrite it, for example for a more
+shows what the mode asks the model to do, and lets you rewrite it, for example for a more
 casual tone or your team's style. Dictate still tells the model to treat
 what you said as text and to reply with the text only. **Reset to Default**
 brings back the original. Instructions you changed stay as you wrote them
