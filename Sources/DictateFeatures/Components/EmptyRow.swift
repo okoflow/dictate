@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SectionNote: View {
+struct EmptyRow: View {
     private let text: String
 
     init(_ text: String) {
@@ -9,10 +9,9 @@ struct SectionNote: View {
 
     var body: some View {
         Text(text)
-            .font(.footnote)
+            .font(.system(size: 13))
             .foregroundStyle(.secondary)
-            .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .fixedSize(horizontal: false, vertical: true)
+            .settingsRowPadding()
     }
 }

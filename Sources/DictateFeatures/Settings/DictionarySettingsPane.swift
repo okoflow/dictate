@@ -4,60 +4,81 @@ struct DictionarySettingsPane: View {
     @Bindable var vocabulary: VocabularyModel
 
     var body: some View {
-        Form {
-            Section {
-                ForEach($vocabulary.terms) { $term in
-                    HStack {
-                        TextField("Term", text: $term.term, prompt: Text("Term"))
-                        TextField("Heard as", text: $term.spokenForms, prompt: Text("Heard as, separated by commas"))
-                        RemoveButton { vocabulary.removeTerm(term.id) }
-                    }
-                    .labelsHidden()
-                }
-
-                Button("Add Term") { vocabulary.addTerm() }
-            } header: {
-                Text("Terms")
-            } footer: {
-                SectionNote("Names and words that come out wrong.")
+        SettingsSection("Terms", subtitle: "Names and words that come out wrong.") {
+            if vocabulary.terms.isEmpty {
+                EmptyRow("No terms yet")
             }
 
-            Section {
-                ForEach($vocabulary.snippets) { $snippet in
-                    HStack {
-                        TextField("Say", text: $snippet.trigger, prompt: Text("Phrase to say"))
-                        TextField("Insert", text: $snippet.text, prompt: Text("Text to paste"))
-                        RemoveButton { vocabulary.removeSnippet(snippet.id) }
-                    }
-                    .labelsHidden()
+            ForEach($vocabulary.terms) { $term in
+                if term.id != vocabulary.terms.first?.id {
+                    RowDivider()
                 }
 
-                Button("Add Snippet") { vocabulary.addSnippet() }
-            } header: {
-                Text("Snippets")
-            } footer: {
-                SectionNote("Say the phrase on its own to paste the text.")
+                EntryRow(first: $term.term, firstPrompt: "Term", second: $term.spokenForms, secondPrompt: "Heard as") {
+                    vocabulary.removeTerm(term.id)
+                }
+            }
+        } footer: {
+            Button("Add Term") { vocabulary.addTerm() }
+        }
+
+        SettingsSection("Snippets", subtitle: "Say the phrase on its own to paste the text.") {
+            if vocabulary.snippets.isEmpty {
+                EmptyRow("No snippets yet")
             }
 
-            Section {
-                HStack {
-                    Button("Open in Editor") { vocabulary.openInEditor() }
-                    Button("Show in Finder") { vocabulary.revealInFinder() }
+            ForEach($vocabulary.snippets) { $snippet in
+                if snippet.id != vocabulary.snippets.first?.id {
+                    RowDivider()
                 }
+
+                EntryRow(
+                    first: $snippet.trigger,
+                    firstPrompt: "Phrase to say",
+                    second: $snippet.text,
+                    secondPrompt: "Text to paste",
+                ) {
+                    vocabulary.removeSnippet(snippet.id)
+                }
+            }
+        } footer: {
+            Button("Add Snippet") { vocabulary.addSnippet() }
+        }
+
+        SettingsSection("File") {
+            SettingsRow("Dictionary file") {
+                Button("Open in Editor") { vocabulary.openInEditor() }
+                Button("Show in Finder") { vocabulary.revealInFinder() }
             }
         }
     }
 }
 
-private struct RemoveButton: View {
-    let action: () -> Void
+private struct EntryRow: View {
+    @Binding var first: String
+
+    let firstPrompt: String
+
+    @Binding var second: String
+
+    let secondPrompt: String
+    let remove: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Image(systemName: "minus.circle.fill")
-                .foregroundStyle(.secondary)
+        HStack(spacing: 8) {
+            TextField(firstPrompt, text: $first, prompt: Text(firstPrompt))
+
+            Image(systemName: "arrow.right")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.tertiary)
+                .accessibilityHidden(true)
+
+            TextField(secondPrompt, text: $second, prompt: Text(secondPrompt))
+
+            RemoveButton(help: "Remove", action: remove)
         }
-        .buttonStyle(.borderless)
-        .help("Remove")
+        .textFieldStyle(.roundedBorder)
+        .labelsHidden()
+        .settingsRowPadding()
     }
 }

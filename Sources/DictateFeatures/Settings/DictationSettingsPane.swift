@@ -7,90 +7,84 @@ struct DictationSettingsPane: View {
 
     let speechModel: SpeechModelController
 
+    private var selection: LanguageSelection {
+        settings.settings.languages
+    }
+
     private var pinnedLanguage: Binding<Language?> {
         Binding(
-            get: { settings.settings.languages.pinned },
-            set: { settings.settings.languages = settings.settings.languages.pinning($0) },
+            get: { selection.pinned },
+            set: { settings.settings.languages = selection.pinning($0) },
         )
     }
 
-    private var mixesSimilarLanguages: Bool {
-        let languages = settings.settings.languages.languages
+    private var spokenLanguageNote: String? {
+        let languages = selection.languages
 
-        return languages.contains(.russian) && languages.contains(.ukrainian)
+        guard languages.contains(.russian), languages.contains(.ukrainian) else { return nil }
+
+        return "Russian and Ukrainian sound alike: pin one if Dictate mixes them up."
+    }
+
+    private var addableLanguages: [Language] {
+        Language.allCases
+            .filter { !selection.languages.contains($0) }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
     var body: some View {
-        Form {
-            Section {
-                LanguageGrid(selection: $settings.settings.languages)
-
-                Picker("Spoken language", selection: pinnedLanguage) {
-                    Text("Detect automatically").tag(Language?.none)
-                    Divider()
-                    ForEach(settings.settings.languages.languages, id: \.self) { language in
-                        Text(language.name).tag(Language?.some(language))
-                    }
+        SettingsSection("Languages", subtitle: "Dictate listens for these languages.") {
+            ForEach(selection.languages, id: \.self) { language in
+                LanguageRow(language: language, canRemove: selection.languages.count > 1) {
+                    settings.settings.languages = selection.including(language, false)
                 }
-            } header: {
-                Text("Languages")
-            } footer: {
-                if mixesSimilarLanguages {
-                    SectionNote("Russian and Ukrainian sound alike: pin one if Dictate mixes them up.")
-                }
+                RowDivider()
             }
 
-            Section("Microphone") {
-                Picker("Record from", selection: $settings.settings.microphoneID) {
-                    Text("System default").tag(String?.none)
-                    ForEach(settings.microphones) { microphone in
-                        Text(microphone.name).tag(String?.some(microphone.id))
+            PickerRow("Spoken language", selection: pinnedLanguage, description: spokenLanguageNote) {
+                Text("Detect automatically").tag(Language?.none)
+                Divider()
+                ForEach(selection.languages, id: \.self) { language in
+                    Text(language.name).tag(Language?.some(language))
+                }
+            }
+        } footer: {
+            Menu("Add Language") {
+                ForEach(addableLanguages, id: \.self) { language in
+                    Button("\(language.name) · \(language.nativeName)") {
+                        settings.settings.languages = selection.including(language, true)
                     }
                 }
             }
+            .fixedSize()
+            .disabled(addableLanguages.isEmpty)
+        }
 
-            Section("Speech model") {
-                SpeechModelRow(controller: speechModel)
+        SettingsSection("Microphone") {
+            PickerRow("Record from", selection: $settings.settings.microphoneID) {
+                Text("System default").tag(String?.none)
+                ForEach(settings.microphones) { microphone in
+                    Text(microphone.name).tag(String?.some(microphone.id))
+                }
             }
+        }
+
+        SettingsSection("Speech model") {
+            SpeechModelRow(controller: speechModel)
         }
     }
 }
 
-private struct LanguageGrid: View {
-    private static let columnCount = 4
-
-    private static var rows: [[Language]] {
-        let languages = Language.allCases.sorted { $0.nativeName.localizedStandardCompare($1.nativeName) == .orderedAscending }
-
-        return stride(from: 0, to: languages.count, by: columnCount).map { start in
-            Array(languages[start ..< min(start + columnCount, languages.count)])
-        }
-    }
-
-    @Binding var selection: LanguageSelection
+private struct LanguageRow: View {
+    let language: Language
+    let canRemove: Bool
+    let remove: () -> Void
 
     var body: some View {
-        Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 8) {
-            ForEach(Self.rows, id: \.self) { row in
-                GridRow {
-                    ForEach(row, id: \.self) { language in
-                        Toggle(isOn: binding(for: language)) {
-                            Text(language.nativeName)
-                        }
-                        .toggleStyle(.checkbox)
-                        .help(language.name)
-                    }
-                }
-            }
+        SettingsRow(language.nativeName, description: language.nativeName == language.name ? nil : language.name) {
+            RemoveButton(help: "Remove \(language.name)", action: remove)
+                .disabled(!canRemove)
         }
-        .padding(.vertical, 4)
-    }
-
-    private func binding(for language: Language) -> Binding<Bool> {
-        Binding(
-            get: { selection.languages.contains(language) },
-            set: { selection = selection.including(language, $0) },
-        )
     }
 }
 
@@ -98,16 +92,7 @@ private struct SpeechModelRow: View {
     let controller: SpeechModelController
 
     var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(controller.state.statusText)
-                Text("Whisper large-v3 turbo · 630 MB")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
+        SettingsRow(controller.state.statusText, description: "Whisper large-v3 turbo · 630 MB") {
             if let progress = controller.state.progress {
                 ProgressView(value: progress)
                     .frame(width: 100)

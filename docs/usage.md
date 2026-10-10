@@ -85,8 +85,8 @@ brings back the original.
 
 An app can have a mode of its own, such as Formal in Mail and Raw in
 Terminal. Choose **Mode in *app*** in the menu while the app is in front, or
-add the app in Settings › Modes › Apps with their own mode. Dictate uses the
-mode of the app that was in front when you pressed the key.
+add the app in Settings › Modes › Apps. Dictate uses the mode of the app that
+was in front when you pressed the key.
 
 ### The cloud provider
 
@@ -105,12 +105,12 @@ Dictate reads it for each cloud request. **Remove** deletes it.
 
 ![Settings with the languages](../.github/screenshots/languages.jpg)
 
-Check the languages you speak in Settings › Dictation, and Dictate detects
-which of them you speak each time. Fewer languages make detection faster and
+Add the languages you speak in Settings › Dictation with **Add Language**, and
+Dictate detects which of them you speak each time. Fewer languages make detection faster and
 more accurate. To skip detection, pin one language with **Spoken language**
 or the **Language** menu.
 
-On first launch, Dictate checks up to three of your macOS preferred languages
+On first launch, Dictate adds up to three of your macOS preferred languages
 and English.
 
 ## Dictionary and snippets

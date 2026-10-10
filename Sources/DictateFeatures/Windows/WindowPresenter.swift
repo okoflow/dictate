@@ -5,8 +5,8 @@ import SwiftUI
 package final class WindowPresenter: NSObject, NSWindowDelegate {
     weak var model: AppModel?
 
+    private let settingsNavigation = SettingsNavigation()
     private var settingsWindow: NSWindow?
-    private var settingsTabs: NSTabViewController?
     private var onboardingWindow: NSWindow?
 
     package func showSettings(_ pane: SettingsPane? = nil) {
@@ -15,7 +15,7 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         let window = settingsWindow ?? makeSettingsWindow(model: model)
 
         if let pane {
-            settingsTabs?.selectedTabViewItemIndex = pane.rawValue
+            settingsNavigation.selection = pane
         }
 
         model.settings.refreshMicrophones()
@@ -56,32 +56,37 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
     }
 
     private func makeSettingsWindow(model: AppModel) -> NSWindow {
-        let tabs = NSTabViewController()
-        tabs.tabStyle = .toolbar
+        let content = NSHostingController(rootView: SettingsWindowView(model: model, navigation: settingsNavigation))
+        content.sizingOptions = []
 
-        for pane in SettingsPane.allCases {
-            let content = NSHostingController(rootView: SettingsPaneView(pane: pane, model: model))
-            content.sizingOptions = .preferredContentSize
-            content.title = pane.title
-
-            let item = NSTabViewItem(viewController: content)
-            item.label = pane.title
-            item.image = NSImage(systemSymbolName: pane.symbolName, accessibilityDescription: pane.title)
-
-            tabs.addTabViewItem(item)
-        }
-
-        let window = NSWindow(contentViewController: tabs)
-        window.styleMask = [.titled, .closable]
-        window.toolbarStyle = .preference
+        let window = NSWindow(contentViewController: content)
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
+        window.toolbar = NSToolbar()
+        window.toolbarStyle = .unified
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
+        window.backgroundColor = .textBackgroundColor
+        window.setContentSize(NSSize(width: 820, height: 660))
+        window.contentMinSize = NSSize(width: 760, height: 520)
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.center()
 
-        settingsTabs = tabs
         settingsWindow = window
+        followSelectedPaneTitle()
 
         return window
+    }
+
+    private func followSelectedPaneTitle() {
+        withObservationTracking {
+            settingsWindow?.title = settingsNavigation.selection.title
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.followSelectedPaneTitle()
+            }
+        }
     }
 
     private func makeOnboardingWindow(model: AppModel) -> NSWindow {
@@ -92,6 +97,8 @@ package final class WindowPresenter: NSObject, NSWindowDelegate {
         window.styleMask = [.titled, .closable, .fullSizeContentView]
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
+        window.titlebarSeparatorStyle = .none
+        window.backgroundColor = .textBackgroundColor
         window.isMovableByWindowBackground = true
         window.isReleasedWhenClosed = false
         window.delegate = self

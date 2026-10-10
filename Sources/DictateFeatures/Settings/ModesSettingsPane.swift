@@ -20,53 +20,61 @@ struct ModesSettingsPane: View {
         }
     }
 
+    private var appIdentifiers: [String] {
+        settings.settings.appModes.bundleIdentifiers
+    }
+
     var body: some View {
-        Form {
-            Section {
-                Picker("Mode", selection: $settings.settings.mode) {
-                    ForEach(Mode.allCases, id: \.self) { mode in
-                        ModeLabel(mode: mode, provider: provider).tag(mode)
-                    }
-                }
-                .pickerStyle(.radioGroup)
-                .labelsHidden()
-            } header: {
-                Text("Mode")
-            } footer: {
-                SectionNote("\(shortcutTitle) switches to the next mode.")
-            }
-
-            Section {
-                ForEach(settings.settings.appModes.bundleIdentifiers, id: \.self) { bundleIdentifier in
-                    AppModeRow(bundleIdentifier: bundleIdentifier, settings: settings)
+        SettingsSection("Mode", subtitle: "\(shortcutTitle) switches to the next mode.") {
+            ForEach(Mode.allCases, id: \.self) { mode in
+                if mode != Mode.allCases.first {
+                    RowDivider()
                 }
 
-                Button("Add App…", action: addApp)
-            } header: {
-                Text("Apps with their own mode")
+                ModeRow(mode: mode, provider: provider, isSelected: settings.settings.mode == mode) {
+                    settings.settings.mode = mode
+                }
+            }
+        }
+
+        SettingsSection("Apps", subtitle: "These apps get their own mode.") {
+            if appIdentifiers.isEmpty {
+                EmptyRow("No apps yet")
             }
 
-            Section {
+            ForEach(appIdentifiers, id: \.self) { bundleIdentifier in
+                if bundleIdentifier != appIdentifiers.first {
+                    RowDivider()
+                }
+
+                AppModeRow(bundleIdentifier: bundleIdentifier, settings: settings)
+            }
+        } footer: {
+            Button("Add App…", action: addApp)
+        }
+
+        SettingsSection("Cloud", subtitle: "Cloud modes send the text, never audio, to \(provider.title).") {
+            SettingsRow("Provider") {
                 Picker("Provider", selection: $settings.settings.cloudProvider) {
                     ForEach(CloudProvider.allCases, id: \.self) { provider in
                         Text(provider.title).tag(provider)
                     }
                 }
                 .pickerStyle(.segmented)
-
-                APIKeyRow(apiKey: apiKeys[provider], prompt: keyPrompt)
-            } header: {
-                Text("Cloud")
-            } footer: {
-                SectionNote("Cloud modes send the text, never audio, to \(provider.title).")
+                .labelsHidden()
+                .fixedSize()
             }
+            RowDivider()
+            APIKeyRows(apiKey: apiKeys[provider], prompt: keyPrompt)
+        }
 
-            Section {
-                ForEach(Mode.allCases.filter(\.isCloud), id: \.self) { mode in
-                    InstructionsEditor(mode: mode, settings: settings)
+        SettingsSection("Instructions", subtitle: "How each cloud mode rewrites your text.") {
+            ForEach(Mode.allCases.filter(\.isCloud), id: \.self) { mode in
+                if mode != Mode.allCases.first(where: \.isCloud) {
+                    RowDivider()
                 }
-            } header: {
-                Text("Instructions")
+
+                InstructionsEditor(mode: mode, settings: settings)
             }
         }
     }
@@ -84,26 +92,45 @@ struct ModesSettingsPane: View {
     }
 }
 
-private struct ModeLabel: View {
+private struct ModeRow: View {
     let mode: Mode
     let provider: CloudProvider
+    let isSelected: Bool
+    let select: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 1) {
-            HStack(spacing: 5) {
-                Text(mode.title)
+        Button(action: select) {
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 5) {
+                        Text(mode.title)
+                            .font(.system(size: 13))
 
-                if mode.isCloud {
-                    Image(systemName: "cloud")
+                        if mode.isCloud {
+                            Image(systemName: "cloud")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(.secondary)
+                                .help("Sends the recognized text to \(provider.title)")
+                        }
+                    }
+
+                    Text(mode.summary)
+                        .font(.system(size: 11))
                         .foregroundStyle(.secondary)
-                        .help("Sends the recognized text to \(provider.title)")
                 }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "checkmark")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.tint)
+                    .opacity(isSelected ? 1 : 0)
             }
-            Text(mode.summary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            .settingsRowPadding()
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, 2)
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
@@ -129,53 +156,54 @@ private struct AppModeRow: View {
         HStack(spacing: 10) {
             Image(nsImage: icon)
                 .resizable()
-                .frame(width: 20, height: 20)
+                .frame(width: 24, height: 24)
+                .accessibilityHidden(true)
 
             Text(FrontmostAppTracker.name(of: bundleIdentifier))
+                .font(.system(size: 13))
 
-            Spacer()
+            Spacer(minLength: 16)
 
             Picker("Mode", selection: mode) {
                 ForEach(Mode.allCases, id: \.self) { mode in
                     Text(mode.title).tag(mode)
                 }
             }
+            .pickerStyle(.menu)
+            .buttonStyle(.borderless)
             .labelsHidden()
             .fixedSize()
 
-            Button {
+            RemoveButton(help: "Use the main mode in this app") {
                 settings.settings.appModes.set(nil, for: bundleIdentifier)
-            } label: {
-                Image(systemName: "minus.circle.fill")
-                    .foregroundStyle(.secondary)
             }
-            .buttonStyle(.borderless)
-            .help("Use the main mode in this app")
         }
+        .settingsRowPadding()
     }
 }
 
-private struct APIKeyRow: View {
+private struct APIKeyRows: View {
     @Bindable var apiKey: APIKeyModel
 
     let prompt: String
 
     var body: some View {
         if apiKey.isSet {
-            HStack {
-                Label("Saved in the Keychain", systemImage: "key.fill")
-                Spacer()
+            SettingsRow("API key", description: "Saved in the Keychain") {
                 Button("Remove", role: .destructive) { apiKey.remove() }
             }
+            RowDivider()
         }
 
-        HStack {
+        HStack(spacing: 8) {
             SecureField("API key", text: $apiKey.draft, prompt: Text(apiKey.isSet ? "Replace the key" : prompt))
+                .textFieldStyle(.roundedBorder)
                 .labelsHidden()
 
             Button("Save") { apiKey.saveDraft() }
                 .disabled(!apiKey.canSaveDraft)
         }
+        .settingsRowPadding()
     }
 }
 
@@ -191,14 +219,31 @@ private struct InstructionsEditor: View {
         )
     }
 
-    var body: some View {
-        DisclosureGroup(mode.title) {
-            TextEditor(text: text)
-                .font(.callout)
-                .frame(height: 120)
+    private var isCustomized: Bool {
+        settings.settings.instructions.isCustomized(mode)
+    }
 
-            Button("Reset to Default") { settings.settings.instructions.reset(mode) }
-                .disabled(!settings.settings.instructions.isCustomized(mode))
+    var body: some View {
+        DisclosureGroup {
+            VStack(alignment: .trailing, spacing: 8) {
+                TextEditor(text: text)
+                    .font(.system(size: 12))
+                    .scrollContentBackground(.hidden)
+                    .padding(6)
+                    .frame(height: 132)
+                    .background(Palette.window, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(Palette.separator, lineWidth: 1)
+                    }
+
+                Button("Reset to Default") { settings.settings.instructions.reset(mode) }
+                    .disabled(!isCustomized)
+            }
+            .padding(.top, 10)
+        } label: {
+            RowLabel(title: mode.title, description: isCustomized ? "Edited" : nil)
         }
+        .settingsRowPadding()
     }
 }

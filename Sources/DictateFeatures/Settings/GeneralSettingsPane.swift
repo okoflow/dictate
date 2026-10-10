@@ -10,32 +10,38 @@ struct GeneralSettingsPane: View {
         Binding(get: { settings.launchesAtLogin }, set: { settings.setLaunchesAtLogin($0) })
     }
 
+    private var menuBarNote: String? {
+        settings.settings.showsMenuBarIcon ? nil : "Open Dictate again to get to Settings."
+    }
+
     var body: some View {
-        Form {
-            Section {
-                Picker("Hold to dictate", selection: $settings.settings.pushToTalkKey) {
-                    ForEach(PushToTalkKey.allCases, id: \.self) { key in
-                        Text(key.title).tag(key)
-                    }
-                }
+        SettingsSection("App") {
+            ToggleRow("Open at login", isOn: launchesAtLogin)
+            RowDivider()
+            ToggleRow("Show in menu bar", isOn: $settings.settings.showsMenuBarIcon, description: menuBarNote)
+        }
 
-                Toggle("Paste into the focused field", isOn: $settings.settings.pastesIntoFocusedField)
-                Toggle("Play sounds", isOn: $settings.settings.playsSounds)
-            }
-
-            Section {
-                Toggle("Open at login", isOn: launchesAtLogin)
-                Toggle("Show in menu bar", isOn: $settings.settings.showsMenuBarIcon)
-            } footer: {
-                if !settings.settings.showsMenuBarIcon {
-                    SectionNote("Open Dictate again to get to Settings.")
+        SettingsSection("Dictation") {
+            PickerRow("Hold to dictate", selection: $settings.settings.pushToTalkKey) {
+                ForEach(PushToTalkKey.allCases, id: \.self) { key in
+                    Text(key.title).tag(key)
                 }
             }
+            RowDivider()
+            ToggleRow("Paste into the focused field", isOn: $settings.settings.pastesIntoFocusedField)
+        }
 
-            Section("Permissions") {
-                ForEach(Permission.allCases, id: \.self) { permission in
-                    PermissionRow(permission: permission, monitor: permissions)
+        SettingsSection("Sounds") {
+            ToggleRow("Play sounds", isOn: $settings.settings.playsSounds)
+        }
+
+        SettingsSection("Permissions") {
+            ForEach(Permission.allCases, id: \.self) { permission in
+                if permission != Permission.allCases.first {
+                    RowDivider()
                 }
+
+                PermissionRow(permission: permission, monitor: permissions)
             }
         }
     }

@@ -8,32 +8,37 @@ struct HistorySettingsPane: View {
 
     let copy: (DictationHistory.Entry) -> Void
 
+    private var emptyText: String {
+        history.searchText.isEmpty ? "Nothing yet" : "No matches"
+    }
+
     var body: some View {
-        Form {
-            Section {
-                Toggle("Keep history", isOn: $settings.settings.keepsHistory)
-            } footer: {
-                SectionNote("The last \(DictationHistory.capacity) dictations stay on this Mac.")
+        SettingsSection("Saving") {
+            ToggleRow(
+                "Keep history",
+                isOn: $settings.settings.keepsHistory,
+                description: "The last \(DictationHistory.capacity) dictations stay on this Mac.",
+            )
+        }
+
+        SettingsSection("Recent", subtitle: nil) {
+            if history.matchingEntries.isEmpty {
+                EmptyRow(emptyText)
             }
 
-            Section("Recent") {
-                TextField("Search", text: $history.searchText, prompt: Text("Search"))
-                    .labelsHidden()
-
-                if history.matchingEntries.isEmpty {
-                    Text("Nothing yet")
-                        .foregroundStyle(.secondary)
+            ForEach(history.matchingEntries.indices, id: \.self) { index in
+                if index > 0 {
+                    RowDivider()
                 }
 
-                ForEach(history.matchingEntries.indices, id: \.self) { index in
-                    HistoryRow(entry: history.matchingEntries[index], copy: copy)
-                }
+                HistoryRow(entry: history.matchingEntries[index], copy: copy)
             }
-
-            Section {
-                Button("Clear History…", role: .destructive, action: confirmClear)
-                    .disabled(history.history.entries.isEmpty)
-            }
+        } accessory: {
+            SearchField(text: $history.searchText, prompt: "Search")
+                .frame(width: 180)
+        } footer: {
+            Button("Clear History…", role: .destructive, action: confirmClear)
+                .disabled(history.history.entries.isEmpty)
         }
     }
 
@@ -63,20 +68,21 @@ private struct HistoryRow: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 3) {
                 Text(entry.text)
+                    .font(.system(size: 13))
                     .lineLimit(3)
 
                 Text(details)
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
 
-            Spacer()
+            Spacer(minLength: 0)
 
             Button("Copy") { copy(entry) }
         }
-        .padding(.vertical, 2)
+        .settingsRowPadding()
     }
 }

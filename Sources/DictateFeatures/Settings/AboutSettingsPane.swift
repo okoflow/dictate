@@ -13,34 +13,65 @@ struct AboutSettingsPane: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 4) {
             Image(nsImage: NSApp.applicationIconImage)
                 .resizable()
-                .frame(width: 96, height: 96)
+                .frame(width: 112, height: 112)
+                .accessibilityHidden(true)
 
             Text("Dictate")
-                .font(.title.weight(.semibold))
+                .font(.system(size: 24, weight: .bold))
 
             Text(versionText)
+                .font(.system(size: 13))
                 .foregroundStyle(.secondary)
 
             Text("Push-to-talk dictation for macOS with on-device Whisper.")
+                .font(.system(size: 13))
                 .multilineTextAlignment(.center)
-                .padding(.top, 4)
-
-            HStack(spacing: 16) {
-                Link("Website", destination: Self.website)
-                Link("Source code", destination: Self.repository)
-                Link("License", destination: Self.license)
-            }
-            .padding(.top, 4)
-
-            Text("Copyright 2026 The Dictate Authors")
-                .font(.caption)
-                .foregroundStyle(.secondary)
                 .padding(.top, 8)
         }
-        .padding(32)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity)
+
+        SettingsSection {
+            LinkRow(title: "Website", detail: "dictate.okoflow.com", url: Self.website)
+            RowDivider()
+            LinkRow(title: "Source code", detail: "github.com/okoflow/dictate", url: Self.repository)
+            RowDivider()
+            LinkRow(title: "License", detail: "MIT", url: Self.license)
+        }
+
+        Text("Copyright 2026 The Dictate Authors")
+            .font(.system(size: 11))
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity)
+    }
+}
+
+private struct LinkRow: View {
+    let title: String
+    let detail: String
+    let url: URL
+
+    var body: some View {
+        Link(destination: url) {
+            HStack(spacing: 8) {
+                Text(title)
+                    .foregroundStyle(.primary)
+
+                Spacer(minLength: 16)
+
+                Text(detail)
+                    .foregroundStyle(.secondary)
+
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .font(.system(size: 13))
+            .settingsRowPadding()
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
