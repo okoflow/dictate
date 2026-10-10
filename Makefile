@@ -12,16 +12,16 @@ build: ## Build every target and extract its localizable strings
 	mkdir -p $(STRINGS_DIR)
 	swift build --configuration $(CONFIG) -Xswiftc -emit-localized-strings -Xswiftc -emit-localized-strings-path -Xswiftc $(STRINGS_DIR)
 
-bundle: ## Build and sign build/Dictate.app
+bundle: ## Build and sign build/Waft.app
 	scripts/bundle.sh $(CONFIG)
 
-run: bundle ## Build, sign, and open Dictate
-	open build/Dictate.app
+run: bundle ## Build, sign, and open Waft
+	open build/Waft.app
 
 format: ## Format Swift, shell, and the property list
 	swiftformat .
 	shfmt -w scripts
-	plutil -convert xml1 Packaging/Dictate-Info.plist
+	plutil -convert xml1 Packaging/Waft-Info.plist
 
 check: format-check lint build periphery secrets shellcheck strings ## Run every check that CI runs
 	@echo "make check: OK"
@@ -29,7 +29,7 @@ check: format-check lint build periphery secrets shellcheck strings ## Run every
 format-check: ## Fail on any formatting difference
 	swiftformat . --lint
 	shfmt -d scripts
-	plutil -convert xml1 -o - Packaging/Dictate-Info.plist | diff -u Packaging/Dictate-Info.plist -
+	plutil -convert xml1 -o - Packaging/Waft-Info.plist | diff -u Packaging/Waft-Info.plist -
 
 lint: ## Lint Swift sources in strict mode
 	TOOLCHAIN_DIR=$(TOOLCHAIN_DIR) swiftlint lint --quiet

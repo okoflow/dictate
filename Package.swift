@@ -11,40 +11,40 @@ let strictConcurrency: [SwiftSetting] = [
 let mainActorByDefault = strictConcurrency + [.defaultIsolation(MainActor.self)]
 
 let package = Package(
-    name: "Dictate",
+    name: "Waft",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "Dictate", targets: ["Dictate"]),
+        .executable(name: "Waft", targets: ["Waft"]),
     ],
     dependencies: [
         .package(url: "https://github.com/argmaxinc/argmax-oss-swift.git", exact: "1.1.1"),
     ],
     targets: [
         .target(
-            name: "DictateCore",
+            name: "WaftCore",
             swiftSettings: strictConcurrency,
         ),
         .target(
-            name: "DictateSpeech",
+            name: "WaftSpeech",
             dependencies: [
-                "DictateCore",
+                "WaftCore",
                 .product(name: "WhisperKit", package: "argmax-oss-swift"),
             ],
             swiftSettings: strictConcurrency,
         ),
         .target(
-            name: "DictatePlatform",
-            dependencies: ["DictateCore"],
+            name: "WaftPlatform",
+            dependencies: ["WaftCore"],
             swiftSettings: strictConcurrency,
         ),
         .target(
-            name: "DictateFeatures",
-            dependencies: ["DictateCore"],
+            name: "WaftFeatures",
+            dependencies: ["WaftCore"],
             swiftSettings: mainActorByDefault,
         ),
         .executableTarget(
-            name: "Dictate",
-            dependencies: ["DictateCore", "DictateFeatures", "DictatePlatform", "DictateSpeech"],
+            name: "Waft",
+            dependencies: ["WaftCore", "WaftFeatures", "WaftPlatform", "WaftSpeech"],
             swiftSettings: mainActorByDefault,
         ),
     ],

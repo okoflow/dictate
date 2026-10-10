@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping build Dictate. This guide covers the development setup,
+Thank you for helping build Waft. This guide covers the development setup,
 the checks a change has to pass, and how code, commits, and pull requests are
 shaped. Everyone participating agrees to the
 [Code of Conduct](CODE_OF_CONDUCT.md).
@@ -20,11 +20,11 @@ shaped. Everyone participating agrees to the
 
 | Path | What lives there |
 | --- | --- |
-| `Sources/DictateCore` | Domain types, rules, state machines, and every interface |
-| `Sources/DictateSpeech` | The WhisperKit adapter |
-| `Sources/DictatePlatform` | The macOS adapters |
-| `Sources/DictateFeatures` | Observable models, the dictation flow, and the interface |
-| `Sources/Dictate` | The app and its composition root |
+| `Sources/WaftCore` | Domain types, rules, state machines, and every interface |
+| `Sources/WaftSpeech` | The WhisperKit adapter |
+| `Sources/WaftPlatform` | The macOS adapters |
+| `Sources/WaftFeatures` | Observable models, the dictation flow, and the interface |
+| `Sources/Waft` | The app and its composition root |
 | `Packaging` | The Info.plist and the app icon |
 | `scripts` | Bundling and signing the app |
 | `docs` | Guides for users and the architecture |
@@ -39,8 +39,8 @@ Xcode 26 or later, or Xcode itself, and [Homebrew](https://brew.sh) for the
 checks.
 
 ```sh
-git clone https://github.com/okoflow/dictate.git
-cd dictate
+git clone https://github.com/okoflow/waft.git
+cd waft
 
 brew install swiftformat swiftlint periphery gitleaks shellcheck shfmt lefthook
 make hooks
@@ -49,15 +49,15 @@ make run
 ```
 
 `make hooks` installs a pre-commit hook that formats, lints, and scans the
-staged files. `make signing` creates the Dictate Dev code-signing identity in
+staged files. `make signing` creates the Waft Dev code-signing identity in
 your login keychain and asks for your password to trust it. Without it, every
 build is signed ad hoc and macOS forgets the permissions you granted.
 
 The everyday targets:
 
 ```sh
-make run      # Build, sign, and open Dictate
-make bundle   # Build and sign build/Dictate.app
+make run      # Build, sign, and open Waft
+make bundle   # Build and sign build/Waft.app
 make build    # Build every target
 make check    # Run every check that CI runs
 make format   # Format Swift, shell, and the property list
@@ -87,8 +87,8 @@ targeted `// swiftlint:disable:next <rule>` directive.
 
 ### Swift
 
-- Dependencies point toward `DictateCore`. Interfaces live there; adapters
-  for system frameworks go into `DictatePlatform` or `DictateSpeech`, and
+- Dependencies point toward `WaftCore`. Interfaces live there; adapters
+  for system frameworks go into `WaftPlatform` or `WaftSpeech`, and
   features receive them through `AppDependencies`. No singletons.
 - Name things after what they are and do, following the
   [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/).
@@ -157,7 +157,7 @@ Commits follow
 
 ## Licensing of contributions
 
-Dictate is licensed under the [MIT license](LICENSE). By submitting a
+Waft is licensed under the [MIT license](LICENSE). By submitting a
 contribution, you agree that it is licensed under the same terms. Add your
 name to [AUTHORS](AUTHORS) in your first pull request to be listed among The
-Dictate Authors.
+Waft Authors.

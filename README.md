@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="Packaging/Dictate.png" width="128" alt="">
+  <img src="Packaging/Waft.png" width="128" alt="">
 </p>
 
-<h1 align="center">Dictate</h1>
+<h1 align="center">Waft</h1>
 
-<p align="center">Push-to-talk dictation for macOS with on-device Whisper.</p>
+<p align="center">On-device dictation for macOS with AI cleanup.</p>
 
-<p align="center"><a href="https://dictate.okoflow.com">dictate.okoflow.com</a></p>
+<p align="center"><a href="https://waft.okoflow.com">waft.okoflow.com</a></p>
 
 <p align="center">
-  <a href="https://github.com/okoflow/dictate/actions/workflows/ci.yml"><img src="https://github.com/okoflow/dictate/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/okoflow/waft/actions/workflows/ci.yml"><img src="https://github.com/okoflow/waft/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-informational" alt="macOS 14 or later">
 </p>
@@ -35,7 +35,7 @@ an AI mode rewrites the text with Claude, OpenAI, or a model on your own Mac.
   Hungarian, Indonesian, Italian, Japanese, Korean, Latvian, Lithuanian,
   Macedonian, Malay, Norwegian, Polish, Portuguese, Romanian, Russian,
   Serbian, Slovak, Slovenian, Spanish, Swedish, Tamil, Thai, Turkish,
-  Ukrainian, Urdu, and Vietnamese. Dictate detects which one you speak among
+  Ukrainian, Urdu, and Vietnamese. Waft detects which one you speak among
   those you choose.
 - **Cleans up as much as you like.** Light removes hesitations such as "um",
   capitalizes the first letter, adds a full stop, and starts a new line or
@@ -51,7 +51,7 @@ an AI mode rewrites the text with Claude, OpenAI, or a model on your own Mac.
 - **Speaks your language.** Menus, Settings, and messages are in English,
   Russian, Ukrainian, German, French, Italian, Spanish, Brazilian Portuguese,
   Japanese, Korean, and Simplified Chinese, following the language of your Mac
-  or the one you pick for Dictate in System Settings › General › Language &
+  or the one you pick for Waft in System Settings › General › Language &
   Region.
 - **Learns your words.** The dictionary fixes names and terms that come out
   wrong, and snippets turn a spoken phrase into text such as your email
@@ -63,24 +63,24 @@ an AI mode rewrites the text with Claude, OpenAI, or a model on your own Mac.
 
 ## Install
 
-Dictate is built from source. You need a Mac with Apple silicon, macOS 14 or
+Waft is built from source. You need a Mac with Apple silicon, macOS 14 or
 later, and the Command Line Tools for Xcode 26 or later; a full Xcode works
 too.
 
 ```sh
-git clone https://github.com/okoflow/dictate.git
-cd dictate
+git clone https://github.com/okoflow/waft.git
+cd waft
 make signing
 make run
 ```
 
 `make signing` runs once: it creates a local code-signing identity, so macOS
 keeps the permissions you grant across rebuilds, and asks for your password
-to trust it. `make run` builds `build/Dictate.app`, signs it, and opens it.
+to trust it. `make run` builds `build/Waft.app`, signs it, and opens it.
 Copy the app to `/Applications` to keep it.
 
 On first launch, a short guide asks for the microphone and Accessibility
-permissions while Dictate downloads the speech model, about 630 MB. Loading
+permissions while Waft downloads the speech model, about 630 MB. Loading
 the model for the first time compiles it for your chip and takes about a
 minute; after that it takes a second.
 
@@ -97,10 +97,10 @@ minute; after that it takes a second.
 | Hold the editing key | Change the selected text by voice, once you choose a key |
 | ⌃⌥M | Switch to the next mode |
 
-Dictate lives in the menu bar. Its menu switches the mode and the language,
+Waft lives in the menu bar. Its menu switches the mode and the language,
 copies the last transcript, transcribes files, and opens Settings, where you
 can choose any modifier, fn, or F-key as the dictation key, pick a
-microphone, and choose the languages Dictate listens for.
+microphone, and choose the languages Waft listens for.
 
 ## Modes
 
@@ -118,24 +118,24 @@ you choose in Settings › AI Models: Claude or OpenAI with an API key from
 [OpenAI](https://platform.openai.com/settings/organization/api-keys) that
 stays in your Keychain, or a model on a local server such as Ollama or
 LM Studio. When the model can't answer in
-time or at all, Dictate uses Light and says why, so you always get your text.
+time or at all, Waft uses Light and says why, so you always get your text.
 
 ![Settings with the modes and per-app modes](.github/screenshots/modes.jpg)
 
 ## Privacy
 
 Speech recognition, Raw, Light, and file transcription run entirely on your
-Mac. Dictate uses the network for two things only: downloading the speech
+Mac. Waft uses the network for two things only: downloading the speech
 model once, and the AI modes and editing by voice with Claude or OpenAI, which
 send text, never audio, to the provider you choose. With a local model, that
 text stays on your Mac too.
 Dictated text never reaches the logs. [Privacy](docs/privacy.md) lists every
-file Dictate keeps and how to remove it.
+file Waft keeps and how to remove it.
 
-## Dictate Pro
+## Waft Pro
 
 Dictation, Raw and Light, voice commands, the dictionary, and history are
-free. Dictate Pro adds the AI modes with any model, translation both ways,
+free. Waft Pro adds the AI modes with any model, translation both ways,
 your own instructions, editing by voice, and file transcription, for a single
 payment of $13.99. Every Pro feature works for 3 days from the first launch.
 
@@ -159,11 +159,11 @@ that run in CI, and the commit and pull request conventions.
 ## Security
 
 Report vulnerabilities privately through
-[GitHub security advisories](https://github.com/okoflow/dictate/security/advisories/new).
+[GitHub security advisories](https://github.com/okoflow/waft/security/advisories/new).
 [SECURITY.md](SECURITY.md) describes the process and the scope.
 
 ## License
 
-Copyright The Dictate Authors, listed in [AUTHORS](AUTHORS).
+Copyright The Waft Authors, listed in [AUTHORS](AUTHORS).
 
 MIT. See [LICENSE](LICENSE).

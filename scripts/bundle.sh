@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-readonly PRODUCT='Dictate'
+readonly PRODUCT='Waft'
 readonly APP="build/${PRODUCT}.app"
-readonly IDENTITY='Dictate Dev'
+readonly IDENTITY="${SIGNING_IDENTITY:-Waft Dev}"
 readonly USAGE='usage: scripts/bundle.sh [debug|release]'
 
 usage() {

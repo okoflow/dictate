@@ -1,14 +1,14 @@
-# Dictate
+# Waft
 
-Push-to-talk dictation for macOS. Holding the right Option key records the
-microphone, Whisper recognizes the speech on the Mac through WhisperKit, a
-mode cleans the text up offline or with Claude or OpenAI, and the result is
-pasted into the focused field through the clipboard.
+On-device dictation for macOS with AI cleanup. Holding the right Option key
+records the microphone, Whisper recognizes the speech on the Mac through
+WhisperKit, a mode cleans the text up offline or with Claude or OpenAI, and
+the result is pasted into the focused field through the clipboard.
 
-Swift package: `DictateCore` (domain and every interface, Foundation only),
-`DictateSpeech` (WhisperKit adapter), `DictatePlatform` (macOS adapters),
-`DictateFeatures` (main-actor models, dictation flow, SwiftUI interface),
-`Dictate` (app and composition root).
+Swift package: `WaftCore` (domain and every interface, Foundation only),
+`WaftSpeech` (WhisperKit adapter), `WaftPlatform` (macOS adapters),
+`WaftFeatures` (main-actor models, dictation flow, SwiftUI interface),
+`Waft` (app and composition root).
 [docs/architecture.md](docs/architecture.md) explains the layering;
 [CONTRIBUTING.md](CONTRIBUTING.md) the conventions and checks.
 

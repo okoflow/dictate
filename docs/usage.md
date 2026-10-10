@@ -7,12 +7,12 @@ is in [How it works](how-it-works.md).
 
 A short guide walks you through the setup: the gesture, the microphone and
 Accessibility permissions, a field to try dictating into, and whether
-Dictate opens at login. The speech model downloads in the meantime, and the
+Waft opens at login. The speech model downloads in the meantime, and the
 guide's footer shows its progress.
 
 ![The first-run guide](../.github/screenshots/onboarding.jpg)
 
-Accessibility lets Dictate notice the dictation key and paste the text. On
+Accessibility lets Waft notice the dictation key and paste the text. On
 macOS 27, System Settings lists it under Privacy & Security › Device Control
 and Data Access. If you close the guide early, **Finish Setup…** in the menu
 brings it back.
@@ -36,7 +36,7 @@ The dictation key is right Option by default. To change it, click the key in
 Settings › Dictation and press another: Option, Command, Shift, or Control on
 either side, fn (🌐), or an F-key. Keys that type text can't be used.
 
-For longer dictation, tap the key twice quickly: Dictate keeps listening
+For longer dictation, tap the key twice quickly: Waft keeps listening
 without the key held, shows **Hands-free** in the pill, and finishes when you
 press the key once more. Turn off **Double-tap for hands-free** in
 Settings › Dictation if you don't want it.
@@ -55,7 +55,7 @@ Settings › Dictation if you don't want it.
 | Settings… | Opens Settings |
 
 To hide the icon, turn off **Show in menu bar** in Settings › General.
-Dictation keeps working, ⌃⌥M still switches the mode, and opening Dictate
+Dictation keeps working, ⌃⌥M still switches the mode, and opening Waft
 again brings up Settings.
 
 ## Modes
@@ -67,7 +67,7 @@ stop. Light works offline and leaves words with meaning alone: filler words
 such as "like" and self-corrections need Clean.
 
 Light also understands two voice commands. Say "new line" or "new paragraph"
-as a phrase of its own, with a short pause before and after, and Dictate
+as a phrase of its own, with a short pause before and after, and Waft
 starts a new line or paragraph there. They work in 19 languages, for example
 "новая строка", "neuer Absatz", or "à la ligne"; the pauses keep a sentence
 such as "a new line of products" as it is.
@@ -91,7 +91,7 @@ a model on a local server:
   Russian and what you say in Russian comes out in English.
 
 Without an API key, without a network connection, when the provider does
-not answer within 3 seconds, or when its answer cannot be used, Dictate
+not answer within 3 seconds, or when its answer cannot be used, Waft
 pastes the Light text instead, and the HUD says why.
 
 ### Editing selected text by voice
@@ -99,12 +99,12 @@ pastes the Light text instead, and the HUD says why.
 Choose a key under **Editing by voice** in Settings › Dictation. Then select
 text in any app, hold that key, say what to change, such as "make it shorter",
 "turn this into a list", or "translate into German", and let go. The model
-from Settings › AI Models rewrites the selection and Dictate pastes the result
+from Settings › AI Models rewrites the selection and Waft pastes the result
 over it. What you say is an instruction, not text to paste, so nothing is
 added when the model can't be reached: the HUD says why and the selection
 stays as it was.
 
-Dictate reads the selection through Accessibility. Apps that don't expose it,
+Waft reads the selection through Accessibility. Apps that don't expose it,
 such as some web views, show "Select the text to edit" instead.
 
 ### Transcribing files
@@ -121,7 +121,7 @@ file is in progress.
 
 In Settings › Writing, **Instructions…** next to Clean, Formal, and Translate
 shows what the mode asks the model to do, and lets you rewrite it, for example for a more
-casual tone or your team's style. Dictate still tells the model to treat
+casual tone or your team's style. Waft still tells the model to treat
 what you said as text and to reply with the text only. **Reset to Default**
 brings back the original. Instructions you changed stay as you wrote them
 when an update improves the defaults; Reset to Default switches to the new
@@ -131,7 +131,7 @@ ones.
 
 An app can have a mode of its own, such as Formal in Mail and Raw in
 Terminal. Choose **Mode in *app*** in the menu while the app is in front, or
-add the app in Settings › Writing › Apps. Dictate uses the mode of the app that
+add the app in Settings › Writing › Apps. Waft uses the mode of the app that
 was in front when you pressed the key.
 
 ### The model for Clean, Formal, and Translate
@@ -151,28 +151,28 @@ the one you want:
   [OpenAI dashboard](https://platform.openai.com/settings/organization/api-keys).
 
 Each provider keeps its own key in your login Keychain, on this Mac only, and
-Dictate reads it for each cloud request. **Remove** deletes it.
+Waft reads it for each cloud request. **Remove** deletes it.
 
 ## Languages
 
 ![Settings with the languages](../.github/screenshots/languages.jpg)
 
 Add the languages you speak in Settings › Dictation with **Add Language**, and
-Dictate detects which of them you speak each time. Fewer languages make detection faster and
+Waft detects which of them you speak each time. Fewer languages make detection faster and
 more accurate. To skip detection, pin one language with **Spoken language**
 or the **Language** menu.
 
-On first launch, Dictate adds up to three of your macOS preferred languages
+On first launch, Waft adds up to three of your macOS preferred languages
 and English.
 
-Dictate understands 45 languages: Arabic, Azerbaijani, Bosnian, Bulgarian,
+Waft understands 45 languages: Arabic, Azerbaijani, Bosnian, Bulgarian,
 Catalan, Chinese, Croatian, Czech, Danish, Dutch, English, Estonian, Filipino,
 Finnish, French, Galician, German, Greek, Hebrew, Hindi, Hungarian, Indonesian,
 Italian, Japanese, Korean, Latvian, Lithuanian, Macedonian, Malay, Norwegian,
 Polish, Portuguese, Romanian, Russian, Serbian, Slovak, Slovenian, Spanish,
 Swedish, Tamil, Thai, Turkish, Ukrainian, Urdu, and Vietnamese. They are the
 languages in which Whisper gets no more than 30% of the words wrong in OpenAI's
-published tests and that the model Dictate ships also handles well. Spanish,
+published tests and that the model Waft ships also handles well. Spanish,
 Italian, Korean, Portuguese, and English come out best; Tamil and Hebrew come
 out worst.
 
@@ -180,12 +180,12 @@ out worst.
 
 Settings › Dictionary holds two lists.
 
-**Terms** are names and words that come out wrong. Dictate gives them to
+**Terms** are names and words that come out wrong. Waft gives them to
 Whisper as a hint, then replaces the spellings Whisper still writes instead:
 list them under **Heard as**, separated by commas. Replacements match whole
 words in any letter case and work in every mode, Raw included.
 
-**Snippets** turn a phrase into text. Say the phrase on its own, and Dictate
+**Snippets** turn a phrase into text. Say the phrase on its own, and Waft
 pastes the text exactly as written without sending anything to the cloud. The
 phrase inside a longer dictation is replaced too.
 
@@ -229,21 +229,21 @@ a password field is never saved.
 | AI Models | The speech model, a local server, and Claude or OpenAI with your API keys |
 | Dictionary | Terms and snippets |
 | History | This week's stats, how long and how much to keep, searching, copying, and clearing |
-| Dictate Pro | The free trial, what Pro adds, and your license |
+| Waft Pro | The free trial, what Pro adds, and your license |
 | About | The version, the source code, and the license |
 
-With **Paste into the focused field** off, Dictate only puts the text on the
+With **Paste into the focused field** off, Waft only puts the text on the
 clipboard for you to paste with ⌘V.
 
-## Dictate Pro
+## Waft Pro
 
 Dictation with Whisper, the Raw and Light modes, voice commands, the
-dictionary, and history are free. Dictate Pro adds Clean, Formal and
+dictionary, and history are free. Waft Pro adds Clean, Formal and
 Translate with any AI model, translation both ways, your own instructions,
 editing by voice, and file transcription, for a single payment of $13.99.
 
 Every Pro feature works for 3 days after the first launch. After that,
 Pro modes fall back to Light and the HUD says so, until you buy a license
-from Settings › Dictate Pro. The license key arrives with your receipt: paste
-it under **License**, or open the activation link from the email. Dictate
+from Settings › Waft Pro. The license key arrives with your receipt: paste
+it under **License**, or open the activation link from the email. Waft
 checks the key on the Mac, without contacting a server.

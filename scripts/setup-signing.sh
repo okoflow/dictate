@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-readonly NAME='Dictate Dev'
+readonly NAME='Waft Dev'
 readonly KEYCHAIN="${HOME}/Library/Keychains/login.keychain-db"
-readonly EXPORT_PASSWORD='dictate'
+readonly EXPORT_PASSWORD='waft'
 
 die() {
   echo "error: $*" >&2
