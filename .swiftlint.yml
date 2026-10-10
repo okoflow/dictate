@@ -1,34 +1,131 @@
 included:
   - Sources
-  - Tests
+  - Package.swift
+
+strict: true
+
+disabled_rules:
+  - closing_brace
+  - colon
+  - comma
+  - comment_spacing
+  - control_statement
+  - empty_parentheses_with_trailing_closure
+  - function_name_whitespace
+  - implicit_getter
+  - leading_whitespace
+  - mark
+  - no_space_in_method_call
+  - orphaned_doc_comment
+  - private_over_fileprivate
+  - redundant_string_enum_value
+  - redundant_void_return
+  - return_arrow_whitespace
+  - statement_position
+  - switch_case_alignment
+  - todo
+  - trailing_comma
+  - trailing_newline
+  - trailing_semicolon
+  - trailing_whitespace
+  - unneeded_break_in_switch
+  - unused_closure_parameter
+  - vertical_parameter_alignment
+  - vertical_whitespace
+  - void_return
 
 opt_in_rules:
-  - force_unwrapping
-  - implicitly_unwrapped_optional
-  - empty_count
-  - first_where
+  - array_init
+  - async_without_await
   - contains_over_filter_count
-  - redundant_nil_coalescing
-  - fatal_error_message
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+  - convenience_type
+  - discarded_notification_center_observer
   - discouraged_optional_boolean
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - fatal_error_message
+  - file_name
+  - file_types_order
+  - first_where
+  - flatmap_over_map_reduce
+  - force_unwrapping
+  - function_default_parameter_at_end
+  - identical_operands
+  - implicitly_unwrapped_optional
+  - joined_default_parameter
+  - last_where
+  - legacy_multiple
+  - lower_acl_than_parent
+  - optional_enum_case_matching
+  - override_in_extension
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - reduce_into
+  - redundant_nil_coalescing
+  - return_value_from_void_function
   - sorted_first_last
+  - static_operator
+  - superfluous_else
   - toggle_bool
+  - unavailable_function
+  - unhandled_throwing_task
+  - unneeded_escaping
+  - unneeded_throws_rethrows
+  - unowned_variable_capture
+  - weak_delegate
+
+line_length:
+  warning: 130
+  ignores_urls: true
 
 cyclomatic_complexity:
   warning: 8
-  error: 12
+  ignores_case_statements: true
+
 function_body_length:
   warning: 40
-  error: 60
-file_length:
-  warning: 300
-  error: 500
+
 type_body_length:
   warning: 200
-  error: 350
-line_length:
-  warning: 130
-  error: 160
-  ignores_comments: true
-trailing_comma:
-  mandatory_comma: true
+
+file_length:
+  warning: 300
+
+force_unwrapping:
+  ignored_literal_argument_functions: []
+
+file_types_order:
+  order:
+    - main_type
+    - [extension, supporting_type]
+    - preview_provider
+
+custom_rules:
+  no_comments:
+    name: No Comments
+    regex: '//(?!\s*(?:swiftlint|swiftformat):)|/\*'
+    match_kinds:
+      - comment
+      - comment.mark
+      - comment.url
+      - doccomment
+      - doccomment.field
+    excluded: Package\.swift
+    message: Say it with a name, a type or a log message instead of a comment.
+
+  blank_line_before_exit:
+    name: Blank Line Before Exit
+    regex: '(?<=[^\s{:]\n)(?<!\bin\n)[ \t]*(return|throw|break|continue)\b'
+    capture_group: 1
+    match_kinds: keyword
+    message: Separate a return, throw, break or continue from the steps before it with a blank line.
+
+  no_xcode_only_macros:
+    name: No Xcode-Only Macros
+    regex: '@(?:State|Entry|Animatable|AnimatableIgnored|Previewable)\b|#Preview\b'
+    excluded_match_kinds: string
+    message: Xcode-only SwiftUI macro; the package has to build with the Command Line Tools.

@@ -1,0 +1,85 @@
+name: Bug report
+description: Something in Dictate does not behave as documented
+type: Bug
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Fill in what you can; the macOS version, the mode, and the log lines around the problem make most bugs reproducible on the first try. Security problems go through [private vulnerability reporting](https://github.com/okoflow/dictate/security/advisories/new) instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you saw, and what you expected instead.
+      placeholder: 'Dictated into a Safari text field in Light mode; the HUD said "Copied: press ⌘V to paste" instead of pasting.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Click into a text field in Safari
+        2. Hold right Option and say "hello"
+        3. Let go
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The commit you built from, as printed by `git rev-parse --short HEAD`.
+      placeholder: 1a64fc0
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS
+      description: The macOS version and the Mac.
+      placeholder: macOS 27.0 on a MacBook Pro with M4
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - Dictation key
+        - Recording and microphone
+        - Recognition and languages
+        - Modes and Claude
+        - Pasting and clipboard
+        - Dictionary, snippets, and history
+        - Menu and Settings
+        - First-run guide
+        - Building from source
+        - Unsure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      description: Only if the bug involves the text of a dictation.
+      options:
+        - Raw
+        - Light
+        - Clean
+        - Formal
+        - Translate to English
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Output of `log show --last 10m --info --predicate 'subsystem == "dev.dictate.app"'` around the problem. Dictate never logs what you said.
+      render: text

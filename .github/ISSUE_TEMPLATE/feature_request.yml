@@ -1,0 +1,49 @@
+name: Feature request
+description: Propose a capability or an improvement
+type: Feature
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem before the solution. Small, well-scoped proposals land faster.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to achieve, and what stops you today?
+      placeholder: I dictate commit messages in Terminal, and code terms lose their exact spelling.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: How Dictate could solve it. A new mode, a setting, a language, an integration.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Workarounds you tried or other designs you considered.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - Dictation key
+        - Recording and microphone
+        - Recognition and languages
+        - Modes and Claude
+        - Pasting and clipboard
+        - Dictionary, snippets, and history
+        - Menu and Settings
+        - Other
+    validations:
+      required: true

@@ -2,19 +2,33 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleIdentifier</key><string>dev.dictate.app</string>
-    <key>CFBundleName</key><string>Dictate</string>
-    <key>CFBundleDisplayName</key><string>Dictate</string>
-    <key>CFBundleExecutable</key><string>Dictate</string>
-    <key>CFBundleIconFile</key><string>Dictate.icns</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.1.0</string>
-    <key>CFBundleVersion</key><string>1</string>
-    <key>LSMinimumSystemVersion</key><string>14.0</string>
-    <!-- Menu bar app: no Dock icon, no app switcher entry. -->
-    <key>LSUIElement</key><true/>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Dictate records your voice while you hold the hotkey and turns it into text.</string>
-    <key>NSHighResolutionCapable</key><true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>Dictate</string>
+	<key>CFBundleIconFile</key>
+	<string>Dictate.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>dev.dictate.app</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Dictate</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright 2026 The Dictate Authors</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Dictate records your voice while you hold the dictation key and turns it into text.</string>
 </dict>
 </plist>

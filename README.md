@@ -1,115 +1,135 @@
-# Dictate
+<p align="center">
+  <img src="Packaging/Dictate.png" width="128" alt="">
+</p>
 
-[![check](https://github.com/okoflow/dictate/actions/workflows/check.yml/badge.svg)](https://github.com/okoflow/dictate/actions/workflows/check.yml)
+<h1 align="center">Dictate</h1>
 
-Push-to-talk dictation for macOS. Hold right ⌥, speak, let go, and the text shows up where your cursor is, in any app.
+<p align="center">Push-to-talk dictation for macOS with on-device Whisper.</p>
 
-Speech is recognised on your Mac with Whisper. Russian, English and Korean.
+<p align="center">
+  <a href="https://github.com/okoflow/dictate/actions/workflows/ci.yml"><img src="https://github.com/okoflow/dictate/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/macOS-14%2B-informational" alt="macOS 14 or later">
+</p>
+
+Hold the right Option key, speak, and let go: the text appears wherever you
+are typing, in any app. Whisper turns your voice into text on your Mac, so the
+audio never leaves it. When you want polished prose rather than a transcript,
+a cloud mode rewrites the text with Claude.
+
+![Dictating into a note](.github/screenshots/preview.jpg)
+
+## What it does
+
+- **Types into any app.** The text is pasted into the focused field, and your
+  clipboard is put back afterward. Password fields are left alone.
+- **Recognizes speech on your Mac.** Whisper large-v3 turbo runs on Core ML
+  through WhisperKit. Audio stays in memory and is never saved.
+- **Understands thirteen languages.** Chinese, Dutch, English, French, German,
+  Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, and
+  Ukrainian. Dictate detects which one you speak among those you choose.
+- **Cleans up as much as you like.** Light removes hesitations such as "um",
+  capitalizes the first letter, and adds a full stop, offline. Clean, Formal,
+  and Translate to English rewrite the text with Claude Haiku. Any app can
+  have a mode of its own.
+- **Learns your words.** The dictionary fixes names and terms that come out
+  wrong, and snippets turn a spoken phrase into text such as your email
+  address.
+- **Remembers when you want it to.** The last 50 dictations stay on your Mac,
+  searchable and one click away from the clipboard.
+
+![The HUD while listening, transcribing, and after pasting](.github/screenshots/hud.jpg)
 
 ## Install
 
-You need an Apple Silicon Mac with macOS 14 or later, and Xcode 26 (Swift 6.2).
+Dictate is built from source. You need a Mac with Apple silicon, macOS 14 or
+later, and the Command Line Tools for Xcode 26 or later; a full Xcode works
+too.
 
 ```sh
-git clone https://github.com/okoflow/dictate
+git clone https://github.com/okoflow/dictate.git
 cd dictate
-make signing   # once: lets macOS remember the permissions between builds
-make bundle
-open build/Dictate.app
+make signing
+make run
 ```
 
-Dictate lives in the menu bar. On first launch it downloads the speech model (about 600 MB) and prepares it, which takes a minute or so. When the menu says **Ready**, you can dictate.
+`make signing` runs once: it creates a local code-signing identity, so macOS
+keeps the permissions you grant across rebuilds, and asks for your password
+to trust it. `make run` builds `build/Dictate.app`, signs it, and opens it.
+Copy the app to `/Applications` to keep it.
 
-macOS will ask for three permissions:
-
-| Permission | What for |
-|---|---|
-| Microphone | recording while you hold the key |
-| Accessibility | pasting into the field you're in |
-| Input Monitoring | noticing the hotkey |
+On first launch, a short guide asks for the microphone and Accessibility
+permissions while Dictate downloads the speech model, about 630 MB. Loading
+the model for the first time compiles it for your chip and takes about a
+minute; after that it takes a second.
 
 ## Use it
 
-1. Click into any text field.
-2. Hold **right ⌥** and speak.
-3. Let go. The text appears in a second or two.
+1. Click into a text field in any app.
+2. Hold **right Option** and speak.
+3. Let go. The text appears a moment later.
 
-Give it a beat after pressing the key before you start talking, or the first syllable can get cut off.
+| Keys | What they do |
+| --- | --- |
+| Hold right ⌥ | Dictate into the focused field while held |
+| ⌃⌥M | Switch to the next mode |
 
-The language is picked automatically. To pin one, use the menu: **Language → Russian / English / Korean**.
+Dictate lives in the menu bar. Its menu switches the mode and the language,
+copies the last transcript, and opens Settings, where you can choose right
+Command or right Shift as the dictation key, pick a microphone, and choose
+the languages Dictate listens for.
 
 ## Modes
 
-What happens to the text before it is pasted. Pick one in the menu (**Mode**) or press **⌃⌥M** to go to the
-next one; the pill shows which.
+| Mode | What happens to the text | Leaves your Mac |
+| --- | --- | --- |
+| Raw | Nothing: exactly what Whisper heard | No |
+| Light | Hesitations go, the first letter is capitalized, a full stop is added | No |
+| Clean | Fillers and false starts go, grammar is fixed, the language stays | Text only |
+| Formal | Like Clean, in a polite business tone | Text only |
+| Translate to English | Translated into English | Text only |
 
-| Mode | What it does | Leaves your Mac? |
-|---|---|---|
-| **Raw** | Exactly what Whisper heard | no |
-| **Light** (default) | Drops "um", "uh", "ээ", "мм", "음", "어", tidies spaces, capital letter, full stop at the end | no |
-| **Clean** ☁︎ | Removes fillers and self-corrections ("Thursday, no, Friday" → "Friday"), fixes grammar. Keeps your language | **yes** |
-| **Formal** ☁︎ | Clean, in a polite business tone. Keeps your language | **yes** |
-| **Translate → EN** ☁︎ | Translates to English | **yes** |
+Light is the default. Clean, Formal, and Translate to English need an
+[Anthropic API key](https://console.anthropic.com/settings/keys), which you
+add in Settings › Modes and which stays in your Keychain. Without a key,
+offline, or when Claude does not answer within 3 seconds, Dictate uses Light
+and says why, so you always get your text.
 
-The ☁︎ modes use Claude Haiku and need your Anthropic API key: menu → **Set Anthropic API key…** (it is kept in
-your Keychain). Without a key, offline, or when there is no answer within 3 seconds, Dictate uses Light instead
-and the pill says why, so you always get your text.
-
-**A mode per app:** menu → **Mode in Chrome** (the app you were in when you opened the menu) gives that app its
-own mode, say Formal in Mail and Raw in the terminal. Other apps follow the Mode menu.
-
-## Dictionary, snippets, history
-
-- **Dictionary:** menu → **Dictionary & snippets…** opens a small JSON file. List the names and terms Whisper
-  gets wrong, and how it writes them instead:
-
-  ```json
-  {
-    "terms": [
-      { "term": "Kubernetes", "spoken": ["кубернетис", "кубер"] },
-      { "term": "Ivan Petrov" }
-    ],
-    "snippets": [
-      { "trigger": "моя почта", "text": "ivan.petrov@example.com" }
-    ]
-  }
-  ```
-
-  The terms are given to Whisper as a hint, and whatever it still writes from `spoken` (any case, whole words)
-  is replaced by the term. This works in every mode, Raw included. Changes apply to the next dictation.
-- **Snippets:** say just the trigger ("моя почта") and its text is pasted as it is, in any mode, without going to
-  the cloud. A trigger inside a longer dictation is replaced too.
-- **History:** menu → **History** shows your last dictations; click one to copy it. Turn it off with **Keep
-  history**, delete it with **Clear history**.
-
-A few things it does on its own:
-
-- **Your clipboard is safe.** Dictate pastes through the clipboard, then puts back whatever you had copied.
-- **Password fields are skipped.** Nothing is typed there. If you need the text, use **Copy last transcript** in the menu.
-- **It won't paste into the wrong place.** If you switched apps while it was working, the text goes to the clipboard instead, so just press ⌘V.
+![Settings with the modes and per-app modes](.github/screenshots/modes.jpg)
 
 ## Privacy
 
-- Recognition runs locally. Apart from the speech model (downloaded once), Dictate talks to the network only in
-  the ☁︎ modes.
-- Raw and Light never leave your Mac.
-- Clean, Formal and Translate send the **recognised text** (never audio) to the Anthropic API, and only when you
-  have set a key. See [Anthropic's privacy policy](https://www.anthropic.com/legal/privacy) for how the API
-  handles it.
-- The API key lives in your Keychain, nowhere else. **Remove API key** in the menu deletes it.
-- The history (your last 50 texts) is kept in `~/Library/Application Support/Dictate/history.json`, readable only
-  by your user. Switch it off or clear it in the History menu. The dictionary is in the same folder.
-- Audio stays in memory while you hold the key and is never saved.
-- The dictated text is never written to logs.
+Speech recognition, Raw, and Light run entirely on your Mac. Dictate uses the
+network for two things only: downloading the speech model once, and the cloud
+modes, which send the recognized text, never audio, to the Anthropic API.
+Dictated text never reaches the logs. [Privacy](docs/privacy.md) lists every
+file Dictate keeps and how to remove it.
 
-To remove the model: `rm -r ~/Library/Application\ Support/Dictate/Models ~/Library/Caches/dev.dictate.app`
+## Documentation
 
-## What's next
+- [Usage](docs/usage.md): modes, languages, the dictionary, snippets, history,
+  and settings.
+- [How it works](docs/how-it-works.md): what happens between the key press and
+  the pasted text.
+- [Privacy](docs/privacy.md): what stays on your Mac and what leaves it.
+- [Troubleshooting](docs/troubleshooting.md): permissions, the dictation key,
+  the speech model, and logs.
+- [Architecture](docs/architecture.md): the modules, their interfaces, and how
+  they fit together.
 
-Hands-free mode (no holding the key), voice commands, editing the selected text, and a release build.
+## Contributing
 
-## More
+[CONTRIBUTING.md](CONTRIBUTING.md) covers the development setup, the checks
+that run in CI, and the commit and pull request conventions.
 
-- [How it works](docs/how-it-works.md): modes, dictionary, pasting, recognition, known limits
-- [Development](docs/development.md): tests, benchmarks, launch flags
-- [MIT License](LICENSE)
+## Security
+
+Report vulnerabilities privately through
+[GitHub security advisories](https://github.com/okoflow/dictate/security/advisories/new).
+[SECURITY.md](SECURITY.md) describes the process and the scope.
+
+## License
+
+Copyright The Dictate Authors, listed in [AUTHORS](AUTHORS).
+
+MIT. See [LICENSE](LICENSE).
