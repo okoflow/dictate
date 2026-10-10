@@ -21,7 +21,7 @@ package enum SettingsPane: Int, CaseIterable {
         switch self {
         case .general: "gearshape"
         case .dictation: "mic"
-        case .modes: "sparkles"
+        case .modes: "slider.horizontal.3"
         case .dictionary: "book.closed"
         case .history: "clock"
         case .about: "info.circle"
