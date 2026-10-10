@@ -5,6 +5,10 @@ import os
 
 @Observable
 final class DictationQueue {
+    static var transcribingLabel: String {
+        String(localized: "Transcribing…")
+    }
+
     @ObservationIgnored private let transcriber: any Transcriber
     @ObservationIgnored private let processor: TranscriptProcessor
     @ObservationIgnored private let inserter: any TextInserter
@@ -65,7 +69,7 @@ final class DictationQueue {
     func submit(_ job: DictationJob) {
         pendingCount += 1
 
-        hud.setWorking(String(localized: "Transcribing…"))
+        hud.setWorking(Self.transcribingLabel)
         continuation.yield(job)
     }
 
@@ -78,7 +82,7 @@ final class DictationQueue {
 
         pendingCount -= 1
 
-        hud.setWorking(pendingCount > 0 ? String(localized: "Transcribing…") : nil)
+        hud.setWorking(pendingCount > 0 ? Self.transcribingLabel : nil)
         hud.show(outcome.message(for: job.setup.provider))
     }
 

@@ -52,14 +52,18 @@ package final class HUDController {
         content = .listening(badge: badge, isHandsFree: true)
     }
 
-    package func hideListening() {
+    package func hideListening(handingOverTo label: String? = nil) {
         guard isListening else { return }
 
         levelTimer?.invalidate()
         levelTimer = nil
 
-        hide()
-        showNext()
+        if let label {
+            content = .working(label)
+        } else {
+            hide()
+            showNext()
+        }
     }
 
     package func setWorking(_ label: String?) {

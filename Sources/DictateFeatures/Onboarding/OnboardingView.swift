@@ -103,9 +103,17 @@ private struct OnboardingFooter: View {
         }
 
         Task {
+            let step = onboarding.step
             await model.permissions.request(permission)
 
-            if permission == .microphone, model.permissions.status(of: .microphone) != .notDetermined {
+            let status = model.permissions.status(of: permission)
+            guard permission == .microphone, status != .notDetermined else { return }
+
+            if status.isGranted {
+                try? await Task.sleep(for: .milliseconds(600))
+            }
+
+            if onboarding.step == step {
                 onboarding.advance()
             }
         }

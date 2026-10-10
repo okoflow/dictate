@@ -209,15 +209,16 @@ extension DictationController {
 
         guard !ended.isRejected else { return }
 
-        hud.hideListening()
-
         switch ending {
         case let .discard(reason):
+            hud.hideListening()
             Logger.dictation.info("Discarded the recording: \(reason.rawValue, privacy: .public)")
 
             Task { _ = await recorder.stop(ended.id, releasedAt: nil) }
 
         case let .finish(releasedAt):
+            hud.hideListening(handingOverTo: DictationQueue.transcribingLabel)
+
             if settings.settings.playsSounds {
                 sounds.play(.recordingFinished)
             }
