@@ -80,3 +80,14 @@ extension SettingsSection where Accessory == EmptyView {
         self.init(title: title, subtitle: subtitle, content: content(), accessory: nil, footer: footer())
     }
 }
+
+extension SettingsSection where Footer == EmptyView {
+    init(
+        _ title: String?,
+        subtitle: String? = nil,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder accessory: () -> Accessory,
+    ) {
+        self.init(title: title, subtitle: subtitle, content: content(), accessory: accessory(), footer: nil)
+    }
+}

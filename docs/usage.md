@@ -91,8 +91,9 @@ was in front when you pressed the key.
 
 ### The cloud provider
 
-Choose **Claude** or **OpenAI** in Settings › AI Models, then paste that
-provider's API key:
+Settings › AI Models has a section for **Claude** and one for **OpenAI**: paste
+the provider's API key there and click **Use** on the one the cloud modes
+should call:
 
 - Claude: create the key inside a workspace in the
   [Anthropic Console](https://console.anthropic.com/settings/keys).

@@ -47,31 +47,3 @@ struct AboutSettingsPane: View {
             .frame(maxWidth: .infinity)
     }
 }
-
-private struct LinkRow: View {
-    let title: String
-    let detail: String
-    let url: URL
-
-    var body: some View {
-        Link(destination: url) {
-            HStack(spacing: 8) {
-                Text(title)
-                    .foregroundStyle(.primary)
-
-                Spacer(minLength: 16)
-
-                Text(detail)
-                    .foregroundStyle(.secondary)
-
-                Image(systemName: "arrow.up.right")
-                    .font(.glyph)
-                    .foregroundStyle(.secondary)
-            }
-            .font(.rowTitle)
-            .settingsRowPadding()
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-    }
-}

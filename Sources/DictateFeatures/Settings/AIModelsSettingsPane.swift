@@ -11,35 +11,49 @@ struct AIModelsSettingsPane: View {
 
     let apiKeys: PerProvider<APIKeyModel>
 
-    private var provider: CloudProvider {
-        settings.settings.cloudProvider
+    var body: some View {
+        ForEach(CloudProvider.allCases, id: \.self) { provider in
+            ProviderSection(
+                provider: provider,
+                apiKey: apiKeys[provider],
+                console: Self.consoles[provider],
+                isInUse: settings.settings.cloudProvider == provider,
+            ) {
+                settings.settings.cloudProvider = provider
+            }
+        }
+    }
+}
+
+private struct ProviderSection: View {
+    let provider: CloudProvider
+
+    @Bindable var apiKey: APIKeyModel
+
+    let console: URL
+    let isInUse: Bool
+    let use: () -> Void
+
+    private var company: String {
+        switch provider {
+        case .claude: "Anthropic"
+        case .openAI: "OpenAI"
+        }
     }
 
     var body: some View {
-        SettingsSection("Model", subtitle: "Clean, Formal and Translate send the text, never audio.") {
-            SettingsRow("Rewrite with") {
-                SegmentedPicker(
-                    "Rewrite with",
-                    selection: $settings.settings.cloudProvider,
-                    options: CloudProvider.allCases,
-                    label: \.title,
-                )
+        SettingsSection(provider.title, subtitle: "Clean, Formal and Translate send the text, never audio, to \(company).") {
+            APIKeyRows(apiKey: apiKey, provider: provider)
+            RowDivider()
+            LinkRow(title: "Get an API key", url: console)
+        } accessory: {
+            if isInUse {
+                Badge("In use", tint: .accentColor)
+            } else {
+                Button("Use", action: use)
             }
         }
-
-        SettingsSection("API key", subtitle: "Your own \(provider.title) key, kept in the Keychain.") {
-            APIKeyRows(apiKey: apiKeys[provider], provider: provider)
-        } footer: {
-            Link(destination: Self.consoles[provider]) {
-                HStack(spacing: 5) {
-                    Text("Get a \(provider.title) Key")
-
-                    Image(systemName: "arrow.up.right")
-                        .font(.glyph)
-                }
-            }
-        }
-        .animation(.snappy(duration: 0.2), value: apiKeys[provider].isSet)
+        .animation(.snappy(duration: 0.2), value: apiKey.isSet)
     }
 }
 
@@ -61,7 +75,7 @@ private struct APIKeyRows: View {
 
     var body: some View {
         if apiKey.isSet {
-            SettingsRow("Key saved", description: "Cloud modes are ready to use.") {
+            SettingsRow("Key saved", description: "Kept in the Keychain.") {
                 Button("Remove", role: .destructive) { apiKey.remove() }
             }
             RowDivider()
@@ -72,7 +86,6 @@ private struct APIKeyRows: View {
 
             Button("Save") { apiKey.saveDraft() }
                 .disabled(!apiKey.canSaveDraft)
-                .keyboardShortcut(.defaultAction)
         }
         .settingsRowPadding()
     }

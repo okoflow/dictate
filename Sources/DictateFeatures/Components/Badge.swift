@@ -2,17 +2,19 @@ import SwiftUI
 
 struct Badge: View {
     private let text: String
+    private let tint: Color?
 
-    init(_ text: String) {
+    init(_ text: String, tint: Color? = nil) {
         self.text = text
+        self.tint = tint
     }
 
     var body: some View {
         Text(text)
             .font(.badge)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(tint.map(AnyShapeStyle.init) ?? AnyShapeStyle(.secondary))
             .padding(.horizontal, 6)
             .padding(.vertical, 1)
-            .background(Palette.selection, in: Capsule())
+            .background(tint.map { $0.opacity(0.14) } ?? Palette.selection, in: Capsule())
     }
 }

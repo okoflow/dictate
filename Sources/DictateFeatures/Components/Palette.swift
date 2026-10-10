@@ -14,7 +14,6 @@ enum Palette {
     static let controlPressed = Color(nsColor: dynamic(light: (0, 0.14), dark: (1, 0.2)))
     static let field = Color(nsColor: dynamic(light: (0, 0.045), dark: (1, 0.07)))
     static let fieldFocused = Color(nsColor: dynamic(light: (1, 1), dark: (0, 0.25)))
-    static let segment = Color(nsColor: dynamic(light: (1, 1), dark: (1, 0.2)))
     static let separator = Color(nsColor: .separatorColor)
     static let success = Color.green
     static let danger = Color.red
