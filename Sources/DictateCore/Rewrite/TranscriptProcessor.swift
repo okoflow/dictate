@@ -19,7 +19,7 @@ package struct TranscriptProcessor: Sendable {
         }
 
         let modeProcessor = ModeProcessor(rewriter: rewriters[cloud.provider])
-        let processed = await modeProcessor.process(corrected, mode: mode, language: language, instructions: cloud.instructions)
+        let processed = await modeProcessor.process(corrected, mode: mode, language: language, cloud: cloud)
         let finished = vocabulary.expandingSnippets(in: vocabulary.correcting(processed.text))
 
         return processed.replacingText(with: finished)

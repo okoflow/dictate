@@ -77,8 +77,11 @@ OpenAI, whichever you choose in Settings › AI Models:
   lines.
 - **Formal** does the same in a polite business tone, keeping every point and
   the way you address the reader, such as du or Sie.
-- **Translate to English** translates the text into American English and
-  writes names from other alphabets in Latin letters.
+- **Translate** translates the text into the language you choose in
+  Settings › Writing › Translation, English by default, in that language's
+  spelling and formats. Set **Two-way with** to a second language to translate
+  both ways: with English and Russian, what you say in English comes out in
+  Russian and what you say in Russian comes out in English.
 
 Without an API key, without a network connection, when the provider does
 not answer within 3 seconds, or when its answer cannot be used, Dictate

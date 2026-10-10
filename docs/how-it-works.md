@@ -86,7 +86,7 @@ Clean.
 
 ### Cloud modes
 
-Clean, Formal, and Translate to English send the text, with a short
+Clean, Formal, and Translate send the text, with a short
 instruction for the mode, to the provider you chose: the Anthropic Messages
 API with `claude-haiku-5-5` and thinking turned off, or the OpenAI Responses
 API with `gpt-6-luna`, reasoning turned off, and `store: false`, so OpenAI
@@ -100,7 +100,7 @@ The answer is checked before it is used. An empty answer, one cut off or
 refused, one more than three times longer than what you said, or five times
 for a translation from Chinese, Japanese, or Korean, and one in another
 writing system than both the language you spoke and the transcript itself, or
-than Latin for Translate to English, are rejected.
+for Translate than the target language's, are rejected.
 
 Dictate waits up to 3 seconds. Without a key, offline, on an error, a rate
 limit, a timeout, or a rejected answer, it uses Light instead, and the HUD

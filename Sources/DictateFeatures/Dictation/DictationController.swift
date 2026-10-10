@@ -242,22 +242,12 @@ extension DictationController {
 
     private func submit(_ samples: [Float], target: FocusTarget) {
         let current = settings.settings
-        let mode = current.mode(for: target.bundleIdentifier)
 
         if current.appModes.mode(for: target.bundleIdentifier) != nil {
-            Logger.dictation.info("Using the app's own mode \(mode.rawValue, privacy: .public)")
+            Logger.dictation.info("Using the app's own mode for \(target.bundleIdentifier ?? "the app", privacy: .public)")
         }
 
-        queue.submit(DictationJob(
-            samples: samples,
-            language: current.languages.forcedLanguage,
-            mode: mode,
-            cloud: CloudRewrite(provider: current.cloudProvider, instructions: current.instructions.text(for: mode)),
-            vocabulary: vocabulary.reloadFromDisk(),
-            target: target,
-            key: current.pushToTalkKey,
-            pastes: current.pastesIntoFocusedField,
-        ))
+        queue.submit(DictationJob(samples: samples, target: target, settings: current, vocabulary: vocabulary.reloadFromDisk()))
     }
 
     private func failRecording(_ reason: String) {

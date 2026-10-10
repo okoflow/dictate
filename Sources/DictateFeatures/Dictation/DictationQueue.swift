@@ -79,7 +79,11 @@ final class DictationQueue {
                 return .noSpeech
             }
 
-            if job.mode.isCloud {
+            if job.mode == .translate {
+                let target = job.cloud.translation.target(forSpoken: transcript.language)
+
+                hud.setWorking("Translating into \(target.name)…")
+            } else if job.mode.isCloud {
                 hud.setWorking("Polishing with \(job.cloud.provider.title)…")
             }
 

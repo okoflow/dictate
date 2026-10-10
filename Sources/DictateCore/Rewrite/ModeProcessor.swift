@@ -9,23 +9,31 @@ package struct ModeProcessor: Sendable {
         self.deadline = deadline
     }
 
-    package func process(_ text: String, mode: Mode, language: Language, instructions: String) async -> ProcessedText {
+    package func process(_ text: String, mode: Mode, language: Language, cloud: CloudRewrite) async -> ProcessedText {
         switch mode {
         case .raw:
             ProcessedText(text: text, requestedMode: mode, appliedMode: .raw)
         case .light:
             light(text, language: language, requestedMode: mode)
         case .clean, .formal, .translate:
-            await rewrite(text, mode: mode, language: language, instructions: instructions)
+            await rewrite(RewriteRequest(
+                text: text,
+                instructions: cloud.instructions,
+                language: language,
+                target: mode == .translate ? cloud.translation.target(forSpoken: language) : nil,
+            ), mode: mode)
         }
     }
 
-    private func rewrite(_ text: String, mode: Mode, language: Language, instructions: String) async -> ProcessedText {
+    private func rewrite(_ request: RewriteRequest, mode: Mode) async -> ProcessedText {
+        let text = request.text
+        let language = request.language
+
         do {
-            let answer = try await withDeadline {
-                try await rewriter.rewrite(text, instructions: instructions, language: language)
+            let answer = try await withDeadline { [rewriter] in
+                try await rewriter.rewrite(request)
             }
-            guard let accepted = RewriteValidator.validated(answer, for: text, mode: mode, language: language) else {
+            guard let accepted = RewriteValidator.validated(answer, for: request, mode: mode) else {
                 return light(text, language: language, requestedMode: mode, fallback: .unusableAnswer, contactedCloud: true)
             }
 

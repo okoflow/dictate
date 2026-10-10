@@ -5,12 +5,12 @@ package enum OpenAIResponsesCodec {
     package static let model = "gpt-6-luna"
     package static let reasoningEffort = "none"
 
-    package static func requestBody(text: String, instructions: String, language: Language) throws -> Data {
+    package static func requestBody(for rewrite: RewriteRequest) throws -> Data {
         let request = OpenAIResponsesRequest(
             model: model,
-            instructions: RewritePrompt.system(instructions: instructions),
-            input: RewritePrompt.userMessage(text: text, language: language),
-            maximumOutputTokens: maximumOutputTokens(for: text),
+            instructions: RewritePrompt.system(instructions: rewrite.instructions),
+            input: RewritePrompt.userMessage(for: rewrite),
+            maximumOutputTokens: maximumOutputTokens(for: rewrite.text),
             reasoning: OpenAIResponsesRequest.Reasoning(effort: reasoningEffort),
             store: false,
         )

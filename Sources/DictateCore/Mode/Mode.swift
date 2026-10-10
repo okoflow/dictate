@@ -27,7 +27,7 @@ package enum Mode: String, CaseIterable, Codable, Sendable {
         case .light: "Light"
         case .clean: "Clean"
         case .formal: "Formal"
-        case .translate: "Translate to English"
+        case .translate: "Translate"
         }
     }
 
@@ -37,7 +37,7 @@ package enum Mode: String, CaseIterable, Codable, Sendable {
         case .light: "Drops um and uh, adds a capital letter and a full stop."
         case .clean: "Removes fillers and false starts, fixes grammar, keeps your language."
         case .formal: "Like Clean, in a polite business tone."
-        case .translate: "Translates what you said into English."
+        case .translate: "Translates what you said into another language."
         }
     }
 }

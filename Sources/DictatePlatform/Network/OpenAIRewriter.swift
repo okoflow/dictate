@@ -11,10 +11,10 @@ package struct OpenAIRewriter: TextRewriter {
         transport = RewriteTransport(session: session)
     }
 
-    package func rewrite(_ text: String, instructions: String, language: Language) async throws -> String {
+    package func rewrite(_ request: RewriteRequest) async throws -> String {
         guard let apiKey = try? apiKeyStore.load(), !apiKey.isEmpty else { throw RewriteError.missingKey }
 
-        let body = try OpenAIResponsesCodec.requestBody(text: text, instructions: instructions, language: language)
+        let body = try OpenAIResponsesCodec.requestBody(for: request)
         let headers = [
             "authorization": "Bearer \(apiKey)",
             "content-type": "application/json",

@@ -48,15 +48,16 @@ package enum RewritePrompt {
     """
 
     private static let translateInstructions = """
-    You translate dictated speech into natural American English.
+    You translate dictated speech into the language the message names, so that it reads as if written in it.
     - Leave out hesitations, fillers, stutters and false starts, and when the speaker corrects themselves, \
     translate only the final version.
     - Translate the full meaning in the speaker's tone, with natural phrasing rather than word for word. Translate \
-    every part, whatever mix of languages it is in; text already in English only needs cleaning up.
-    - Write names from other scripts in their usual English spelling or a standard romanization (Петя → Petya, \
-    東京 → Tokyo, محمد → Mohammed), and keep brands and technical terms in their usual English form.
-    - Use American spelling, and write dates, times, amounts and measurements as digits in American format: \
-    March 15, 2026; €1,250.50; 1.5 km.
+    every part, whatever mix of languages it is in; text already in the target language only needs cleaning up.
+    - Write names from other scripts in their usual spelling in the target language or a standard transliteration \
+    (Петя → Petya, 東京 → Tokyo, محمد → Mohammed in English), and keep brands and technical terms in their usual \
+    form there.
+    - Use the spelling, punctuation and number formats usual in the target language, and write dates, times, \
+    amounts and measurements as digits: March 15, 2026 and €1,250.50 in American English.
     - Turn spoken punctuation and layout into the marks and line breaks themselves, and put items on numbered \
     lines only when the speaker enumerates them explicitly.
     """
@@ -65,8 +66,10 @@ package enum RewritePrompt {
         instructions + "\n" + rules
     }
 
-    package static func userMessage(text: String, language: Language) -> String {
-        "Spoken language: \(language.name).\n<transcript>\n\(text)\n</transcript>"
+    package static func userMessage(for request: RewriteRequest) -> String {
+        let target = request.target.map { "Translate into: \(targetName(for: $0)).\n" } ?? ""
+
+        return "Spoken language: \(request.language.name).\n\(target)<transcript>\n\(request.text)\n</transcript>"
     }
 
     package static func defaultInstructions(for mode: Mode) -> String {
@@ -75,5 +78,9 @@ package enum RewritePrompt {
         case .translate: translateInstructions
         case .raw, .light, .clean: cleanInstructions
         }
+    }
+
+    private static func targetName(for language: Language) -> String {
+        language == .english ? "American English" : language.name
     }
 }

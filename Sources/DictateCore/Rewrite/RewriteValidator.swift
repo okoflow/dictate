@@ -4,11 +4,13 @@ package enum RewriteValidator {
     private static let wrappers: [(open: String, close: String)] = [("<transcript>", "</transcript>"), ("\"", "\""), ("«", "»")]
     private static let compactScripts: Set<WritingScript> = [.han, .hangul, .kana]
 
-    package static func validated(_ answer: String, for input: String, mode: Mode, language: Language) -> String? {
+    package static func validated(_ answer: String, for request: RewriteRequest, mode: Mode) -> String? {
+        let input = request.text
+        let language = request.language
         let text = unwrapped(answer, input: input)
         guard !text.isEmpty, text.count <= maximumLength(for: input, mode: mode, language: language) else { return nil }
 
-        let scripts = expectedScripts(for: input, mode: mode, language: language)
+        let scripts = expectedScripts(for: input, mode: mode, language: language, target: request.target)
 
         if let script = WritingScript.dominant(in: text), !scripts.contains(script) {
             return nil
@@ -23,8 +25,13 @@ package enum RewriteValidator {
         return input.count * (translatesCompactScript ? 5 : 3) + 60
     }
 
-    private static func expectedScripts(for input: String, mode: Mode, language: Language) -> Set<WritingScript> {
-        guard mode != .translate else { return [.latin] }
+    private static func expectedScripts(
+        for input: String,
+        mode: Mode,
+        language: Language,
+        target: Language?,
+    ) -> Set<WritingScript> {
+        guard mode != .translate else { return (target ?? .english).scripts }
         guard let transcriptScript = WritingScript.dominant(in: input) else { return language.scripts }
 
         return language.scripts.union([transcriptScript])

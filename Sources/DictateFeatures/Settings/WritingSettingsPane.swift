@@ -4,6 +4,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct WritingSettingsPane: View {
+    private static var languagesByName: [Language] {
+        Language.allCases.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
     @Bindable var settings: SettingsModel
 
     let apiKeys: PerProvider<APIKeyModel>
@@ -12,6 +16,39 @@ struct WritingSettingsPane: View {
 
     private var provider: CloudProvider {
         settings.settings.cloudProvider
+    }
+
+    private var translationTarget: Binding<Language> {
+        Binding(
+            get: { settings.settings.translation.target },
+            set: { target in
+                let twoWay = settings.settings.translation.twoWayLanguage
+
+                settings.settings.translation = Translation(target: target, twoWayLanguage: twoWay)
+            },
+        )
+    }
+
+    private var twoWayLanguage: Binding<Language?> {
+        Binding(
+            get: { settings.settings.translation.twoWayLanguage },
+            set: { language in
+                settings.settings.translation = Translation(
+                    target: settings.settings.translation.target,
+                    twoWayLanguage: language,
+                )
+            },
+        )
+    }
+
+    private var translationNote: String {
+        let translation = settings.settings.translation
+
+        guard let other = translation.twoWayLanguage else {
+            return "Translate turns anything you say into \(translation.target.name)."
+        }
+
+        return "Speak \(other.name) to get \(translation.target.name), and \(translation.target.name) to get \(other.name)."
     }
 
     private var needsKey: Bool {
@@ -38,6 +75,26 @@ struct WritingSettingsPane: View {
                     .foregroundStyle(.secondary)
 
                 Button("Set Up…") { state.selection = .aiModels }
+            }
+        }
+
+        SettingsSection("Translation", subtitle: translationNote) {
+            PickerRow("Translate into", selection: translationTarget, current: settings.settings.translation.target.name) {
+                ForEach(Self.languagesByName, id: \.self) { language in
+                    Text(language.name).tag(language)
+                }
+            }
+            RowDivider()
+            PickerRow(
+                "Two-way with",
+                selection: twoWayLanguage,
+                current: settings.settings.translation.twoWayLanguage?.name ?? "Off",
+            ) {
+                Text("Off").tag(Language?.none)
+                Divider()
+                ForEach(Self.languagesByName.filter { $0 != settings.settings.translation.target }, id: \.self) { language in
+                    Text(language.name).tag(Language?.some(language))
+                }
             }
         }
 

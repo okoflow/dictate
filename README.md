@@ -37,8 +37,8 @@ a cloud mode rewrites the text with Claude or OpenAI.
   those you choose.
 - **Cleans up as much as you like.** Light removes hesitations such as "um",
   capitalizes the first letter, and adds a full stop, offline. Clean, Formal,
-  and Translate to English rewrite the text with Claude or OpenAI, whichever
-  you choose. Any app can have a mode of its own.
+  and Translate rewrite the text with Claude or OpenAI, whichever you choose;
+  Translate works into any of the 45 languages, or both ways between two. Any app can have a mode of its own.
 - **Learns your words.** The dictionary fixes names and terms that come out
   wrong, and snippets turn a spoken phrase into text such as your email
   address.
@@ -94,9 +94,9 @@ the languages Dictate listens for.
 | Light | Hesitations go, the first letter is capitalized, a full stop is added | No |
 | Clean | Fillers and false starts go, grammar is fixed, the language stays | Text only |
 | Formal | Like Clean, in a polite business tone | Text only |
-| Translate to English | Translated into English | Text only |
+| Translate | Translated into the language you choose, or both ways between two | Text only |
 
-Light is the default. Clean, Formal, and Translate to English need an API
+Light is the default. Clean, Formal, and Translate need an API
 key from [Anthropic](https://console.anthropic.com/settings/keys) or
 [OpenAI](https://platform.openai.com/settings/organization/api-keys), which you add in Settings ›
 AI Models and which stays in your Keychain. Without a key, offline, or when the
