@@ -61,6 +61,13 @@ an AI mode rewrites the text with Claude, OpenAI, or a model on your own Mac.
 
 ![The HUD while listening, transcribing, and after pasting](.github/screenshots/hud.jpg)
 
+## How it compares
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/comparison-dark.jpg">
+  <img src=".github/screenshots/comparison-light.jpg" alt="Waft compared with Wispr Flow, Superwhisper, MacWhisper, VoiceInk, Aqua Voice, and Apple Dictation">
+</picture>
+
 ## Install
 
 Waft is built from source. You need a Mac with Apple silicon, macOS 14 or
